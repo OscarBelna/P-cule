@@ -153,17 +153,20 @@
                         <div class="form-group">
                             <label for="transaction-type">Type</label>
                             <select id="transaction-type" required>
+                                <option value="expense" selected>Dépense</option>
                                 <option value="income">Entrée</option>
-                                <option value="expense">Dépense</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
                             <label for="transaction-category">Catégorie</label>
                             <div class="category-select-container">
-                                <select id="transaction-category" required>
-                                    <option value="">Sélectionnez une catégorie</option>
-                                </select>
+                                <div class="category-select-wrapper">
+                                    <span class="category-color-indicator" id="transaction-category-color" style="display: none;"></span>
+                                    <select id="transaction-category" required>
+                                        <option value="">Sélectionnez une catégorie</option>
+                                    </select>
+                                </div>
                                 <button type="button" class="btn btn-secondary btn-sm" id="create-category-btn" title="Créer une nouvelle catégorie">
                                     + Nouvelle
                                 </button>

@@ -460,6 +460,7 @@ function initTransactionForm() {
     const form = document.getElementById('transaction-form');
     const dateInput = document.getElementById('transaction-date');
     const createCategoryBtn = document.getElementById('create-category-btn');
+    const categorySelect = document.getElementById('transaction-category');
     
     // Définir la date par défaut à aujourd'hui
     const today = new Date().toISOString().split('T')[0];
@@ -468,14 +469,21 @@ function initTransactionForm() {
     // Populate category select
     populateCategorySelect();
     
+    // Mettre à jour l'indicateur de couleur quand la sélection change
+    if (categorySelect) {
+        categorySelect.addEventListener('change', updateCategoryColorIndicator);
+        // Mettre à jour l'indicateur initial
+        updateCategoryColorIndicator();
+    }
+    
     // Bouton pour créer une catégorie
     if (createCategoryBtn) {
         createCategoryBtn.addEventListener('click', () => {
             // Définir le callback pour sélectionner la catégorie après création
             categoryModalCallback = (categoryId) => {
-                const categorySelect = document.getElementById('transaction-category');
                 if (categorySelect) {
                     categorySelect.value = categoryId;
+                    updateCategoryColorIndicator();
                 }
             };
             openCategoryModal();
@@ -504,9 +512,47 @@ function populateCategorySelect() {
     data.categories.forEach(category => {
         const option = document.createElement('option');
         option.value = category.id;
-        option.textContent = category.name;
+        // Ajouter le rond de couleur dans la liste déroulante
+        option.textContent = `⬤ ${category.name}`;
+        // Stocker le nom sans le rond pour l'affichage sélectionné
+        option.dataset.name = category.name;
+        // Colorer le texte de l'option avec la couleur de la catégorie
+        option.style.color = category.color;
         select.appendChild(option);
     });
+    
+    // Mettre à jour l'indicateur de couleur après avoir peuplé le select
+    updateCategoryColorIndicator();
+}
+
+/**
+ * Met à jour l'indicateur de couleur de la catégorie sélectionnée
+ */
+function updateCategoryColorIndicator() {
+    const select = document.getElementById('transaction-category');
+    const colorIndicator = document.getElementById('transaction-category-color');
+    
+    if (!select || !colorIndicator) return;
+    
+    const selectedCategoryId = select.value;
+    
+    // Toujours masquer l'indicateur de couleur (le rond est déjà dans le texte de l'option)
+    colorIndicator.style.display = 'none';
+    
+    if (!selectedCategoryId) {
+        select.style.color = ''; // Réinitialiser la couleur du select
+        return;
+    }
+    
+    const data = loadData();
+    const category = data.categories.find(cat => cat.id === selectedCategoryId);
+    
+    if (category && category.color) {
+        // Colorer le texte du select avec la couleur de la catégorie
+        select.style.color = category.color;
+    } else {
+        select.style.color = '';
+    }
 }
 
 /**
@@ -555,6 +601,7 @@ function handleTransactionSubmit() {
     // Réinitialiser le formulaire
     document.getElementById('transaction-form').reset();
     dateInput.value = new Date().toISOString().split('T')[0];
+    typeInput.value = 'expense'; // Par défaut sur "Dépense"
     recurringInput.checked = false;
     
     // Recharger l'affichage
@@ -1339,6 +1386,7 @@ function populateBudgetCategorySelect() {
     data.categories.forEach(category => {
         const option = document.createElement('option');
         option.value = category.id;
+        // Utiliser uniquement le nom de la catégorie
         option.textContent = category.name;
         
         // Indiquer si la catégorie a déjà un budget
@@ -1346,6 +1394,9 @@ function populateBudgetCategorySelect() {
         if (existingBudget) {
             option.textContent += ` (Budget: ${formatCurrency(existingBudget.amount)})`;
         }
+        
+        // Colorer le texte de l'option avec la couleur de la catégorie
+        option.style.color = category.color;
         
         select.appendChild(option);
     });

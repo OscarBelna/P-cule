@@ -623,8 +623,14 @@ function getAllTransactions() {
  */
 function renderTransactions() {
     const container = document.getElementById('transactions-container');
-    const transactions = getAllTransactions();
+    const allTransactions = getAllTransactions();
     const data = loadData();
+    
+    // Filtrer pour ne garder que les transactions originales (pas les récurrentes générées)
+    const transactions = allTransactions.filter(transaction => {
+        // Garder seulement les transactions originales (pas celles générées automatiquement)
+        return !transaction.isRecurring && !transaction.originalId;
+    });
     
     if (transactions.length === 0) {
         container.innerHTML = `
@@ -654,6 +660,9 @@ function renderTransactions() {
             year: 'numeric' 
         });
         
+        // Ne permettre la modification que pour les transactions originales (pas les récurrentes générées)
+        const canEdit = !transaction.isRecurring && !transaction.originalId;
+        
         return `
             <div class="transaction-item ${isIncome ? 'income' : 'expense'}">
                 <div class="transaction-info">
@@ -665,9 +674,25 @@ function renderTransactions() {
                     ${transaction.description ? `<div class="transaction-description">${escapeHtml(transaction.description)}</div>` : ''}
                     <div class="transaction-date">${formattedDate}</div>
                 </div>
-                <div class="transaction-amount ${isIncome ? 'income' : 'expense'}">
-                    ${isIncome ? '+' : ''}${transaction.amount.toFixed(2)} €
-                </div>
+                 <div class="transaction-actions-amount">
+                     <div class="transaction-amount ${isIncome ? 'income' : 'expense'}">
+                         ${isIncome ? '+' : ''}${transaction.amount.toFixed(2)} €
+                     </div>
+                     ${canEdit ? `
+                         <div class="transaction-buttons">
+                             <button class="btn-edit-transaction" onclick="openEditTransactionModal('${transaction.id}')" title="Modifier">
+                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                 </svg>
+                             </button>
+                             <button class="btn-delete-transaction" onclick="deleteTransaction('${transaction.id}', this)" title="Supprimer">
+                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                 </svg>
+                             </button>
+                         </div>
+                     ` : ''}
+                 </div>
             </div>
         `;
     }).join('');
@@ -1213,6 +1238,292 @@ function formatCurrency(amount) {
 }
 
 // ============================================
+// MODAL DE MODIFICATION DE TRANSACTION
+// ============================================
+
+/**
+ * Initialise le modal de modification de transaction
+ */
+function initEditTransactionModal() {
+    const modal = document.getElementById('edit-transaction-modal');
+    const closeBtn = document.getElementById('edit-transaction-modal-close');
+    const cancelBtn = document.getElementById('edit-transaction-cancel');
+    const form = document.getElementById('edit-transaction-form');
+    
+    if (!modal) return;
+    
+    // Fermer le modal en cliquant sur le fond
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeEditTransactionModal();
+        }
+    });
+    
+    // Bouton de fermeture
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            closeEditTransactionModal();
+        });
+    }
+    
+    // Bouton d'annulation
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            closeEditTransactionModal();
+        });
+    }
+    
+    // Soumission du formulaire
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleEditTransactionSubmit();
+        });
+    }
+    
+    // Fermer avec Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeEditTransactionModal();
+        }
+    });
+}
+
+/**
+ * Ouvre le modal de modification de transaction
+ */
+function openEditTransactionModal(transactionId) {
+    const modal = document.getElementById('edit-transaction-modal');
+    const data = loadData();
+    
+    // Trouver la transaction (seulement dans les transactions originales)
+    const transaction = data.transactions.find(t => t.id === transactionId);
+    
+    if (!transaction) {
+        alert('Transaction introuvable');
+        return;
+    }
+    
+    // Remplir le formulaire avec les données de la transaction
+    document.getElementById('edit-transaction-id').value = transaction.id;
+    document.getElementById('edit-transaction-amount').value = Math.abs(transaction.amount);
+    document.getElementById('edit-transaction-date').value = transaction.date;
+    document.getElementById('edit-transaction-type').value = transaction.amount > 0 ? 'income' : 'expense';
+    document.getElementById('edit-transaction-description').value = transaction.description || '';
+    document.getElementById('edit-transaction-recurring').checked = transaction.recurrence === 'monthly';
+    
+    // Remplir le select des catégories
+    const categorySelect = document.getElementById('edit-transaction-category');
+    categorySelect.innerHTML = '<option value="">Sélectionnez une catégorie</option>';
+    data.categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category.id;
+        option.textContent = category.name;
+        if (category.id === transaction.categoryId) {
+            option.selected = true;
+        }
+        categorySelect.appendChild(option);
+    });
+    
+    // Afficher le modal
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Ferme le modal de modification de transaction
+ */
+function closeEditTransactionModal() {
+    const modal = document.getElementById('edit-transaction-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        document.getElementById('edit-transaction-form').reset();
+    }
+}
+
+/**
+ * Affiche le popup de confirmation de suppression
+ */
+function showDeleteConfirmation(transactionId, buttonElement) {
+    const popup = document.getElementById('delete-confirmation-popup');
+    const confirmBtn = document.getElementById('delete-confirm-btn');
+    const cancelBtn = document.getElementById('delete-cancel-btn');
+    
+    if (!popup) return;
+    
+    // Positionner le popup au-dessus du bouton
+    const buttonRect = buttonElement.getBoundingClientRect();
+    const popupContent = popup.querySelector('.delete-popup-content');
+    
+    // Calculer la position (au-dessus du bouton, centré horizontalement)
+    const popupTop = buttonRect.top - popupContent.offsetHeight - 8; // 8px d'espace
+    const popupLeft = buttonRect.left + (buttonRect.width / 2) - (popupContent.offsetWidth / 2);
+    
+    // Ajuster si le popup dépasse à gauche ou à droite
+    const adjustedLeft = Math.max(10, Math.min(popupLeft, window.innerWidth - popupContent.offsetWidth - 10));
+    
+    popup.style.top = `${popupTop}px`;
+    popup.style.left = `${adjustedLeft}px`;
+    
+    // Afficher le popup
+    popup.classList.add('active');
+    
+    // Gérer la confirmation
+    const handleConfirm = () => {
+        confirmDeleteTransaction(transactionId);
+        closeDeleteConfirmation();
+    };
+    
+    // Gérer l'annulation
+    const handleCancel = () => {
+        closeDeleteConfirmation();
+    };
+    
+    // Nettoyer les anciens event listeners
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+    
+    // Ajouter les nouveaux event listeners
+    newConfirmBtn.addEventListener('click', handleConfirm);
+    newCancelBtn.addEventListener('click', handleCancel);
+    
+    // Fermer en cliquant en dehors
+    const handleClickOutside = (e) => {
+        if (!popupContent.contains(e.target) && !buttonElement.contains(e.target)) {
+            closeDeleteConfirmation();
+            document.removeEventListener('click', handleClickOutside);
+        }
+    };
+    
+    setTimeout(() => {
+        document.addEventListener('click', handleClickOutside);
+    }, 100);
+}
+
+/**
+ * Ferme le popup de confirmation
+ */
+function closeDeleteConfirmation() {
+    const popup = document.getElementById('delete-confirmation-popup');
+    if (popup) {
+        popup.classList.remove('active');
+    }
+}
+
+/**
+ * Confirme et supprime la transaction
+ */
+function confirmDeleteTransaction(transactionId) {
+    const data = loadData();
+    
+    // Trouver et supprimer la transaction
+    const transactionIndex = data.transactions.findIndex(t => t.id === transactionId);
+    
+    if (transactionIndex === -1) {
+        alert('Transaction introuvable');
+        return;
+    }
+    
+    // Supprimer la transaction
+    data.transactions.splice(transactionIndex, 1);
+    saveData(data);
+    
+    // Recharger l'affichage
+    renderTransactions();
+    if (document.getElementById('calendar').classList.contains('active')) {
+        renderCalendar();
+    }
+    if (document.getElementById('dashboard').classList.contains('active')) {
+        renderDashboard();
+    }
+    if (document.getElementById('goals').classList.contains('active')) {
+        renderGoals();
+    }
+}
+
+/**
+ * Supprime une transaction (affiche le popup de confirmation)
+ */
+function deleteTransaction(transactionId, buttonElement) {
+    if (buttonElement) {
+        showDeleteConfirmation(transactionId, buttonElement);
+    } else {
+        // Fallback si on ne peut pas trouver le bouton
+        if (confirm('Êtes-vous sûr de vouloir supprimer cette transaction ? Cette action est irréversible.')) {
+            confirmDeleteTransaction(transactionId);
+        }
+    }
+}
+
+/**
+ * Gère la soumission du formulaire de modification
+ */
+function handleEditTransactionSubmit() {
+    const transactionId = document.getElementById('edit-transaction-id').value;
+    const amountInput = document.getElementById('edit-transaction-amount');
+    const dateInput = document.getElementById('edit-transaction-date');
+    const typeInput = document.getElementById('edit-transaction-type');
+    const categoryInput = document.getElementById('edit-transaction-category');
+    const descriptionInput = document.getElementById('edit-transaction-description');
+    const recurringInput = document.getElementById('edit-transaction-recurring');
+    
+    const amount = parseFloat(amountInput.value);
+    const date = dateInput.value;
+    const type = typeInput.value;
+    const categoryId = categoryInput.value;
+    const description = descriptionInput.value.trim();
+    const isRecurring = recurringInput.checked;
+    
+    if (!amount || amount <= 0) {
+        alert('Veuillez entrer un montant valide');
+        return;
+    }
+    
+    if (!categoryId) {
+        alert('Veuillez sélectionner une catégorie');
+        return;
+    }
+    
+    const data = loadData();
+    
+    // Trouver et modifier la transaction
+    const transactionIndex = data.transactions.findIndex(t => t.id === transactionId);
+    
+    if (transactionIndex === -1) {
+        alert('Transaction introuvable');
+        return;
+    }
+    
+    // Mettre à jour la transaction
+    data.transactions[transactionIndex].amount = type === 'expense' ? -Math.abs(amount) : Math.abs(amount);
+    data.transactions[transactionIndex].date = date;
+    data.transactions[transactionIndex].type = type;
+    data.transactions[transactionIndex].categoryId = categoryId;
+    data.transactions[transactionIndex].description = description;
+    data.transactions[transactionIndex].recurrence = isRecurring ? 'monthly' : null;
+    
+    saveData(data);
+    
+    // Fermer le modal
+    closeEditTransactionModal();
+    
+    // Recharger l'affichage
+    renderTransactions();
+    if (document.getElementById('calendar').classList.contains('active')) {
+        renderCalendar();
+    }
+    if (document.getElementById('dashboard').classList.contains('active')) {
+        renderDashboard();
+    }
+    if (document.getElementById('goals').classList.contains('active')) {
+        renderGoals();
+    }
+}
+
+// ============================================
 // GESTION DES OBJECTIFS
 // ============================================
 
@@ -1705,6 +2016,9 @@ function init() {
     
     // Initialiser le backup/import
     initBackupImport();
+    
+    // Initialiser le modal de modification de transaction
+    initEditTransactionModal();
 }
 
 // Démarrer l'application quand le DOM est prêt

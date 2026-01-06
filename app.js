@@ -5,6 +5,7 @@ import { initNavigation } from './src/ui/NavigationController.js';
 import { initDashboard, renderDashboard } from './src/modules/dashboard/index.js';
 import { initCalendar, renderCalendar } from './src/modules/calendar/index.js';
 import { initTransactionForm, renderTransactions, populateCategorySelect } from './src/modules/transactions/index.js';
+import { updateCategoryColorIndicator } from './src/modules/transactions/TransactionRenderer.js';
 import { initGoals, renderGoals } from './src/modules/goals/index.js';
 import { initCategoryForm, renderCategories, initCategoryModal, initBackupImport, openCategoryModal } from './src/modules/settings/index.js';
 import { loadData, saveData, defaultData } from './src/modules/shared/index.js';
@@ -18,6 +19,7 @@ window.renderGoals = renderGoals;
 window.renderCategories = renderCategories;
 window.populateCategorySelect = populateCategorySelect;
 window.openCategoryModal = openCategoryModal;
+window.updateCategoryColorIndicator = updateCategoryColorIndicator;
 
 // Callback pour les mises à jour de catégories
 window.onCategoryUpdated = () => {

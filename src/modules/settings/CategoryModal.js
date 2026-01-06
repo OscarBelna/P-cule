@@ -154,6 +154,13 @@ function handleCategoryModalSubmit() {
                     window.populateCategorySelect();
                 }
                 categorySelect.value = newCategory.id;
+                // Mettre à jour la couleur du select après sélection
+                if (window.updateCategoryColorIndicator) {
+                    window.updateCategoryColorIndicator();
+                } else {
+                    // Fallback : déclencher l'événement change pour que l'event listener existant mette à jour la couleur
+                    categorySelect.dispatchEvent(new Event('change'));
+                }
             }
             if (categoryModalCallback) {
                 categoryModalCallback(newCategory.id);

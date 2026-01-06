@@ -123,8 +123,7 @@ function ensureColorPickerTabsStructure() {
     const tabs = [
         { id: 'pastel', label: 'Pastel', active: true },
         { id: 'light', label: 'Clair', active: false },
-        { id: 'dark', label: 'Foncé', active: false },
-        { id: 'custom', label: 'Sélectionner', active: false }
+        { id: 'dark', label: 'Foncé', active: false }
     ];
     
     tabs.forEach(tab => {
@@ -154,13 +153,24 @@ function ensureColorPickerTabsStructure() {
         tabsContent.appendChild(panel);
     });
     
-    // Créer le panneau pour le sélecteur personnalisé
-    const customPanel = document.createElement('div');
-    customPanel.className = 'color-tab-panel';
-    customPanel.id = 'color-panel-custom';
-    
+    // Créer le sélecteur personnalisé (toujours visible)
     const customContainer = document.createElement('div');
     customContainer.className = 'color-picker-container';
+    customContainer.style.marginTop = '16px';
+    customContainer.style.paddingTop = '16px';
+    customContainer.style.borderTop = '1px solid var(--border)';
+    
+    const customLabel = document.createElement('label');
+    customLabel.textContent = 'Sélectionner une couleur personnalisée';
+    customLabel.style.display = 'block';
+    customLabel.style.marginBottom = '8px';
+    customLabel.style.fontSize = '14px';
+    customLabel.style.color = 'var(--text-secondary)';
+    
+    const colorInputWrapper = document.createElement('div');
+    colorInputWrapper.style.display = 'flex';
+    colorInputWrapper.style.alignItems = 'center';
+    colorInputWrapper.style.gap = '12px';
     
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
@@ -172,14 +182,16 @@ function ensureColorPickerTabsStructure() {
     colorPreview.id = 'category-modal-color-preview';
     colorPreview.style.backgroundColor = existingValue;
     
-    customContainer.appendChild(colorInput);
-    customContainer.appendChild(colorPreview);
-    customPanel.appendChild(customContainer);
-    tabsContent.appendChild(customPanel);
+    colorInputWrapper.appendChild(colorInput);
+    colorInputWrapper.appendChild(colorPreview);
+    
+    customContainer.appendChild(customLabel);
+    customContainer.appendChild(colorInputWrapper);
     
     // Assembler la structure
     tabsContainer.appendChild(tabsHeader);
     tabsContainer.appendChild(tabsContent);
+    tabsContainer.appendChild(customContainer);
     
     // Remplacer l'ancien contenu
     const label = colorGroup.querySelector('label[for="category-modal-color"]');
@@ -298,6 +310,8 @@ export function openCategoryModal(callback = null) {
     
     if (pastelTab) pastelTab.classList.add('active');
     if (pastelPanel) pastelPanel.classList.add('active');
+    
+    // Le sélecteur personnalisé est toujours visible, pas besoin de le gérer
     
     // Désélectionner tous les swatches
     const swatches = modal.querySelectorAll('.color-swatch');

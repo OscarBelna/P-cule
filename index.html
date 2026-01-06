@@ -538,7 +538,6 @@
                                 <button type="button" class="color-tab active" data-tab="pastel">Pastel</button>
                                 <button type="button" class="color-tab" data-tab="light">Clair</button>
                                 <button type="button" class="color-tab" data-tab="dark">Foncé</button>
-                                <button type="button" class="color-tab" data-tab="custom">Sélectionner</button>
                             </div>
                             <div class="color-tabs-content">
                                 <div class="color-tab-panel active" id="color-panel-pastel">
@@ -556,15 +555,16 @@
                                         <!-- Les couleurs seront générées par JavaScript -->
                                     </div>
                                 </div>
-                                <div class="color-tab-panel" id="color-panel-custom">
-                                    <div class="color-picker-container">
-                                        <input 
-                                            type="color" 
-                                            id="category-modal-color" 
-                                            value="#3b82f6"
-                                        >
-                                        <span class="color-preview" id="category-modal-color-preview"></span>
-                                    </div>
+                            </div>
+                            <div class="color-picker-container" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                                <label style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-secondary);">Sélectionner une couleur personnalisée</label>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <input 
+                                        type="color" 
+                                        id="category-modal-color" 
+                                        value="#3b82f6"
+                                    >
+                                    <span class="color-preview" id="category-modal-color-preview"></span>
                                 </div>
                             </div>
                         </div>

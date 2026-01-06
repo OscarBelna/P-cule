@@ -506,9 +506,11 @@ function initTransactionForm() {
 function populateCategorySelect() {
     const select = document.getElementById('transaction-category');
     const data = loadData();
+    const currentValue = select.value; // Sauvegarder la valeur actuelle
     
-    select.innerHTML = '<option value="">Sélectionnez une catégorie</option>';
+    select.innerHTML = '';
     
+    // Ajouter les catégories
     data.categories.forEach(category => {
         const option = document.createElement('option');
         option.value = category.id;
@@ -520,6 +522,21 @@ function populateCategorySelect() {
         option.style.color = category.color;
         select.appendChild(option);
     });
+    
+    // Restaurer la valeur sélectionnée ou ajouter le placeholder si aucune catégorie n'est sélectionnée
+    if (currentValue && data.categories.find(cat => cat.id === currentValue)) {
+        select.value = currentValue;
+    } else {
+        // Ajouter l'option placeholder seulement quand aucune catégorie n'est sélectionnée
+        const placeholderOption = document.createElement('option');
+        placeholderOption.value = '';
+        placeholderOption.textContent = 'Sélectionnez une catégorie';
+        placeholderOption.disabled = true;
+        placeholderOption.hidden = true;
+        select.insertBefore(placeholderOption, select.firstChild);
+        select.value = '';
+        select.selectedIndex = 0; // Sélectionner le placeholder
+    }
     
     // Mettre à jour l'indicateur de couleur après avoir peuplé le select
     updateCategoryColorIndicator();
@@ -603,6 +620,9 @@ function handleTransactionSubmit() {
     dateInput.value = new Date().toISOString().split('T')[0];
     typeInput.value = 'expense'; // Par défaut sur "Dépense"
     recurringInput.checked = false;
+    
+    // Réinitialiser le select de catégorie pour afficher le placeholder
+    populateCategorySelect();
     
     // Recharger l'affichage
     renderTransactions();

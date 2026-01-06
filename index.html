@@ -369,6 +369,97 @@
             </div>
         </section>
 
+        <!-- Popup de confirmation de suppression -->
+        <div id="delete-confirmation-popup" class="delete-popup">
+            <div class="delete-popup-content">
+                <div class="delete-popup-header">
+                    <h3>Confirmer la suppression</h3>
+                </div>
+                <div class="delete-popup-body">
+                    <p>Êtes-vous sûr de vouloir supprimer cette transaction ?</p>
+                    <p class="delete-popup-warning">Cette action est irréversible.</p>
+                </div>
+                <div class="delete-popup-actions">
+                    <button class="btn btn-secondary" id="delete-cancel-btn">Annuler</button>
+                    <button class="btn btn-danger" id="delete-confirm-btn">Supprimer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de modification de transaction -->
+        <div id="edit-transaction-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Modifier la transaction</h2>
+                    <button class="modal-close" id="edit-transaction-modal-close">&times;</button>
+                </div>
+                <form id="edit-transaction-form">
+                    <div class="form-group">
+                        <label for="edit-transaction-amount">Montant (€)</label>
+                        <input 
+                            type="number" 
+                            id="edit-transaction-amount" 
+                            step="0.01"
+                            placeholder="0.00"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-transaction-date">Date</label>
+                        <input 
+                            type="date" 
+                            id="edit-transaction-date" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-transaction-type">Type</label>
+                        <select id="edit-transaction-type" required>
+                            <option value="income">Entrée</option>
+                            <option value="expense">Dépense</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-transaction-category">Catégorie</label>
+                        <select id="edit-transaction-category" required>
+                            <option value="">Sélectionnez une catégorie</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-transaction-description">Description</label>
+                        <input 
+                            type="text" 
+                            id="edit-transaction-description" 
+                            placeholder="Ex: Courses, Salaire..."
+                        >
+                    </div>
+                    
+                    <div class="form-actions">
+                        <div class="recurring-toggle-container">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="edit-transaction-recurring">
+                                <span class="toggle-switch"></span>
+                                <span class="toggle-text">Récurrent (Mensuel)</span>
+                            </label>
+                        </div>
+                        <div style="display: flex; gap: 12px; flex: 1;">
+                            <button type="button" class="btn btn-secondary" id="edit-transaction-cancel">
+                                Annuler
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                Enregistrer
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="edit-transaction-id">
+                </form>
+            </div>
+        </div>
+
         <!-- Modal de création de catégorie -->
         <div id="category-modal" class="modal">
             <div class="modal-content">

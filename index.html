@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pécule - Gestion Financière</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Tableau de bord -->
+        <section id="dashboard" class="page active">
+            <div class="page-content">
+                <h1>Tableau de bord</h1>
+                
+                <!-- Cartes de résumé -->
+                <div class="summary-cards">
+                    <div class="summary-card income-card">
+                        <div class="summary-card-icon">💰</div>
+                        <div class="summary-card-content">
+                            <div class="summary-card-label">Total Revenus</div>
+                            <div class="summary-card-value" id="total-income">0,00 €</div>
+                        </div>
+                    </div>
+                    <div class="summary-card expense-card">
+                        <div class="summary-card-icon">💸</div>
+                        <div class="summary-card-content">
+                            <div class="summary-card-label">Total Dépenses</div>
+                            <div class="summary-card-value" id="total-expenses">0,00 €</div>
+                        </div>
+                    </div>
+                    <div class="summary-card balance-card">
+                        <div class="summary-card-icon">💳</div>
+                        <div class="summary-card-content">
+                            <div class="summary-card-label">Solde Actuel</div>
+                            <div class="summary-card-value" id="current-balance">0,00 €</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Graphique en camembert (Dépenses par catégorie) -->
+                <div class="card">
+                    <h2>Dépenses par catégorie (mois en cours)</h2>
+                    <div class="chart-container">
+                        <canvas id="expenses-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Graphique linéaire (Évolution du solde) -->
+                <div class="card">
+                    <h2>Évolution du solde (30 derniers jours)</h2>
+                    <div class="chart-container">
+                        <canvas id="balance-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Section Prédiction -->
+                <div class="card">
+                    <h2>Prédiction</h2>
+                    <div class="prediction-section">
+                        <div class="prediction-item">
+                            <span class="prediction-label">Solde estimé fin de mois</span>
+                            <span class="prediction-value" id="predicted-balance">0,00 €</span>
+                        </div>
+                        <div class="prediction-details">
+                            <div class="prediction-detail-item">
+                                <span>Solde actuel</span>
+                                <span id="prediction-current-balance">0,00 €</span>
+                            </div>
+                            <div class="prediction-detail-item">
+                                <span>+ Revenus récurrents restants</span>
+                                <span class="positive" id="prediction-remaining-income">0,00 €</span>
+                            </div>
+                            <div class="prediction-detail-item">
+                                <span>- Dépenses récurrentes restantes</span>
+                                <span class="negative" id="prediction-remaining-expenses">0,00 €</span>
+                            </div>
+                            <div class="prediction-detail-item">
+                                <span>- Dépenses moyennes quotidiennes × jours restants</span>
+                                <span class="negative" id="prediction-avg-daily">0,00 €</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calendrier -->
+        <section id="calendar" class="page">
+            <div class="page-content">
+                <h1>Calendrier</h1>
+                
+                <!-- Navigation du calendrier -->
+                <div class="calendar-header">
+                    <button class="btn-icon" id="calendar-prev">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <h2 id="calendar-month-year"></h2>
+                    <button class="btn-icon" id="calendar-next">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Calendrier -->
+                <div class="card">
+                    <div id="calendar-grid" class="calendar-grid">
+                        <!-- Le calendrier sera généré par JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Détails des transactions du jour sélectionné -->
+                <div id="day-details" class="card" style="display: none;">
+                    <h3 id="day-details-title"></h3>
+                    <div id="day-transactions-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transactions -->
+        <section id="transactions" class="page">
+            <div class="page-content">
+                <h1>Transactions</h1>
+                
+                <!-- Formulaire d'ajout de transaction -->
+                <div class="card">
+                    <h3>Nouvelle transaction</h3>
+                    <form id="transaction-form">
+                        <div class="form-group">
+                            <label for="transaction-amount">Montant (€)</label>
+                            <input 
+                                type="number" 
+                                id="transaction-amount" 
+                                step="0.01"
+                                placeholder="0.00"
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transaction-date">Date</label>
+                            <input 
+                                type="date" 
+                                id="transaction-date" 
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transaction-type">Type</label>
+                            <select id="transaction-type" required>
+                                <option value="income">Entrée</option>
+                                <option value="expense">Dépense</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transaction-category">Catégorie</label>
+                            <div class="category-select-container">
+                                <select id="transaction-category" required>
+                                    <option value="">Sélectionnez une catégorie</option>
+                                </select>
+                                <button type="button" class="btn btn-secondary btn-sm" id="create-category-btn" title="Créer une nouvelle catégorie">
+                                    + Nouvelle
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transaction-description">Description</label>
+                            <input 
+                                type="text" 
+                                id="transaction-description" 
+                                placeholder="Ex: Courses, Salaire..."
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="transaction-recurring">
+                                <span class="toggle-switch"></span>
+                                <span class="toggle-text">Récurrent (Mensuel)</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                Ajouter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Liste des transactions -->
+                <div class="transactions-list">
+                    <h2>Historique</h2>
+                    <div id="transactions-container">
+                        <!-- Les transactions seront injectées ici par JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Objectifs -->
+        <section id="goals" class="page">
+            <div class="page-content">
+                <h1>Objectifs</h1>
+                
+                <!-- Objectif de revenu total -->
+                <div class="card">
+                    <h2>Objectif de revenu mensuel</h2>
+                    <form id="income-goal-form" class="goal-form">
+                        <div class="form-group">
+                            <label for="income-goal-amount">Montant cible (€)</label>
+                            <input 
+                                type="number" 
+                                id="income-goal-amount" 
+                                step="0.01"
+                                placeholder="0.00"
+                                min="0"
+                            >
+                        </div>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </form>
+                    <div id="income-goal-progress" class="goal-progress-container" style="display: none;">
+                        <div class="goal-progress-header">
+                            <span>Progression</span>
+                            <span id="income-goal-status"></span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="income-goal-progress-bar"></div>
+                        </div>
+                        <div class="goal-progress-details">
+                            <span id="income-goal-current">0,00 €</span>
+                            <span>/</span>
+                            <span id="income-goal-target">0,00 €</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Budgets par catégorie -->
+                <div class="card">
+                    <h2>Budgets par catégorie</h2>
+                    <form id="category-budget-form" class="goal-form">
+                        <div class="form-group">
+                            <label for="budget-category">Catégorie</label>
+                            <select id="budget-category" required>
+                                <option value="">Sélectionnez une catégorie</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="budget-amount">Budget mensuel (€)</label>
+                            <input 
+                                type="number" 
+                                id="budget-amount" 
+                                step="0.01"
+                                placeholder="0.00"
+                                min="0"
+                                required
+                            >
+                        </div>
+                        <button type="submit" class="btn btn-primary">Ajouter le budget</button>
+                    </form>
+                    
+                    <!-- Liste des budgets -->
+                    <div id="budgets-list" class="budgets-list">
+                        <h3>Mes budgets</h3>
+                        <div id="budgets-container">
+                            <!-- Les budgets seront injectés ici par JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Paramètres -->
+        <section id="settings" class="page">
+            <div class="page-content">
+                <h1>Paramètres</h1>
+                
+                <!-- Section Catégories -->
+                <div class="settings-section">
+                    <h2>Catégories</h2>
+                    
+                    <!-- Formulaire d'ajout/modification -->
+                    <div class="card">
+                        <h3 id="category-form-title">Nouvelle catégorie</h3>
+                        <form id="category-form">
+                            <div class="form-group">
+                                <label for="category-name">Nom de la catégorie</label>
+                                <input 
+                                    type="text" 
+                                    id="category-name" 
+                                    placeholder="Ex: Alimentation, Salaire..."
+                                    required
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="category-color">Couleur</label>
+                                <div class="color-picker-container">
+                                    <input 
+                                        type="color" 
+                                        id="category-color" 
+                                        value="#3b82f6"
+                                    >
+                                    <span class="color-preview" id="color-preview"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="category-submit">
+                                    Ajouter
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="category-cancel" style="display: none;">
+                                    Annuler
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Liste des catégories -->
+                    <div class="categories-list">
+                        <h3>Mes catégories</h3>
+                        <div id="categories-container" class="categories-grid">
+                            <!-- Les catégories seront injectées ici par JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Section Backup/Import -->
+                <div class="settings-section">
+                    <h2>Backup et Restauration</h2>
+                    
+                    <div class="card">
+                        <h3>Sauvegarder les données</h3>
+                        <p style="margin-bottom: 16px; color: var(--text-secondary); font-size: 14px;">
+                            Téléchargez une copie de toutes vos données (catégories, transactions, objectifs).
+                        </p>
+                        <div class="backup-actions">
+                            <button type="button" class="btn btn-primary" id="backup-json">
+                                📥 Télécharger en JSON
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="backup-txt">
+                                📄 Télécharger en TXT
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Restaurer les données</h3>
+                        <p style="margin-bottom: 16px; color: var(--text-secondary); font-size: 14px;">
+                            Importez un fichier de sauvegarde pour restaurer vos données. ⚠️ Cela écrasera vos données actuelles.
+                        </p>
+                        <div class="import-actions">
+                            <input type="file" id="import-file" accept=".json,.txt" style="display: none;">
+                            <button type="button" class="btn btn-primary" id="import-button">
+                                📤 Importer un fichier
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation en bas -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-page="dashboard">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                <span>Tableau de bord</span>
+            </button>
+            <button class="nav-item" data-page="calendar">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span>Calendrier</span>
+            </button>
+            <button class="nav-item" data-page="transactions">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span>Transactions</span>
+            </button>
+            <button class="nav-item" data-page="goals">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Objectifs</span>
+            </button>
+            <button class="nav-item" data-page="settings">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span>Paramètres</span>
+            </button>
+        </nav>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+

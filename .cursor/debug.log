@@ -1,0 +1,4 @@
+{"location":"CategoryModal.js:initCategoryModal","message":"Function called","data":{},"timestamp":1767738601056,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"CategoryModal.js:initCategoryModal","message":"DOM elements check","data":{"modalFound":true,"formFound":true},"timestamp":1767738601056,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"CategoryModal.js:initCategoryModal","message":"Function called","data":{},"timestamp":1767738601624,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"CategoryModal.js:initCategoryModal","message":"DOM elements check","data":{"modalFound":true,"formFound":true},"timestamp":1767738601625,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}

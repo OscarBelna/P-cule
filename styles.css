@@ -172,6 +172,83 @@ body {
 }
 
 /* Sélecteur de couleur */
+/* Color picker tabs */
+.color-picker-tabs {
+    margin-top: 8px;
+}
+
+.color-tabs-header {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+}
+
+.color-tab {
+    flex: 1;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: -2px;
+}
+
+.color-tab:hover {
+    color: var(--text-primary);
+    background-color: var(--background);
+}
+
+.color-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.color-tabs-content {
+    position: relative;
+    min-height: 120px;
+}
+
+.color-tab-panel {
+    display: none;
+}
+
+.color-tab-panel.active {
+    display: block;
+}
+
+.color-palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.color-swatch {
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: 2px solid var(--border);
+    transition: all 0.2s;
+    position: relative;
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
+    border-color: var(--text-primary);
+    z-index: 1;
+}
+
+.color-swatch.selected {
+    border-color: var(--primary);
+    border-width: 3px;
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--primary);
+}
+
 .color-picker-container {
     display: flex;
     align-items: center;

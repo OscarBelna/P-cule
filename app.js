@@ -99,7 +99,7 @@ function initNavigation() {
 // ============================================
 
 let editingCategoryId = null;
-let returnToTransactionForm = false; // Flag pour revenir au formulaire de transaction après création
+let categoryModalCallback = null; // Callback pour après création de catégorie
 
 /**
  * Initialise le formulaire de catégorie
@@ -172,32 +172,6 @@ function handleCategorySubmit() {
         renderCategories();
         populateCategorySelect();
         populateBudgetCategorySelect();
-        
-        // Si on vient du formulaire de transaction, y retourner et sélectionner la catégorie
-        if (returnToTransactionForm) {
-            returnToTransactionForm = false;
-            setTimeout(() => {
-                // Naviguer vers Transactions
-                const navItems = document.querySelectorAll('.nav-item');
-                const pages = document.querySelectorAll('.page');
-                
-                navItems.forEach(nav => nav.classList.remove('active'));
-                document.querySelector('.nav-item[data-page="transactions"]').classList.add('active');
-                
-                pages.forEach(page => page.classList.remove('active'));
-                document.getElementById('transactions').classList.add('active');
-                
-                // Sélectionner la nouvelle catégorie
-                const categorySelect = document.getElementById('transaction-category');
-                if (categorySelect) {
-                    populateCategorySelect();
-                    categorySelect.value = newCategory.id;
-                }
-                
-                // Scroll vers le formulaire
-                document.getElementById('transaction-form').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }, 300);
-        }
     }
 }
 
@@ -319,6 +293,161 @@ function escapeHtml(text) {
 }
 
 // ============================================
+// MODAL DE CRÉATION DE CATÉGORIE
+// ============================================
+
+/**
+ * Initialise le modal de création de catégorie
+ */
+function initCategoryModal() {
+    const modal = document.getElementById('category-modal');
+    const closeBtn = document.getElementById('category-modal-close');
+    const cancelBtn = document.getElementById('category-modal-cancel');
+    const form = document.getElementById('category-modal-form');
+    const colorInput = document.getElementById('category-modal-color');
+    const colorPreview = document.getElementById('category-modal-color-preview');
+    
+    if (!modal) return;
+    
+    // Fermer le modal en cliquant sur le fond
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeCategoryModal();
+        }
+    });
+    
+    // Bouton de fermeture
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            closeCategoryModal();
+        });
+    }
+    
+    // Bouton d'annulation
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            closeCategoryModal();
+        });
+    }
+    
+    // Mise à jour de l'aperçu de couleur
+    if (colorInput && colorPreview) {
+        colorInput.addEventListener('input', (e) => {
+            colorPreview.style.backgroundColor = e.target.value;
+        });
+        
+        // Initialiser l'aperçu de couleur
+        colorPreview.style.backgroundColor = colorInput.value;
+    }
+    
+    // Soumission du formulaire
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleCategoryModalSubmit();
+        });
+    }
+    
+    // Fermer avec Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeCategoryModal();
+        }
+    });
+}
+
+/**
+ * Ouvre le modal de création de catégorie
+ */
+function openCategoryModal() {
+    const modal = document.getElementById('category-modal');
+    const nameInput = document.getElementById('category-modal-name');
+    const colorInput = document.getElementById('category-modal-color');
+    const colorPreview = document.getElementById('category-modal-color-preview');
+    
+    if (!modal) return;
+    
+    // Réinitialiser le formulaire
+    document.getElementById('category-modal-form').reset();
+    colorInput.value = '#3b82f6';
+    colorPreview.style.backgroundColor = '#3b82f6';
+    
+    // Afficher le modal
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Focus sur le champ nom
+    setTimeout(() => {
+        if (nameInput) {
+            nameInput.focus();
+        }
+    }, 100);
+}
+
+/**
+ * Ferme le modal de création de catégorie
+ */
+function closeCategoryModal() {
+    const modal = document.getElementById('category-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        categoryModalCallback = null;
+    }
+}
+
+/**
+ * Gère la soumission du formulaire du modal
+ */
+function handleCategoryModalSubmit() {
+    const nameInput = document.getElementById('category-modal-name');
+    const colorInput = document.getElementById('category-modal-color');
+    
+    const name = nameInput.value.trim();
+    const color = colorInput.value;
+    
+    if (!name) {
+        alert('Veuillez entrer un nom de catégorie');
+        return;
+    }
+    
+    const data = loadData();
+    
+    // Créer la catégorie
+    const newCategory = {
+        id: Date.now().toString(),
+        name: name,
+        color: color
+    };
+    
+    data.categories.push(newCategory);
+    saveData(data);
+    
+    // Mettre à jour les affichages
+    renderCategories();
+    populateCategorySelect();
+    populateBudgetCategorySelect();
+    
+    // Si on vient du formulaire de transaction, sélectionner la nouvelle catégorie
+    if (categoryModalCallback) {
+        closeCategoryModal();
+        setTimeout(() => {
+            const categorySelect = document.getElementById('transaction-category');
+            if (categorySelect) {
+                populateCategorySelect();
+                categorySelect.value = newCategory.id;
+            }
+            if (categoryModalCallback) {
+                categoryModalCallback(newCategory.id);
+                categoryModalCallback = null;
+            }
+        }, 100);
+    } else {
+        closeCategoryModal();
+    }
+}
+
+// ============================================
 // GESTION DES TRANSACTIONS
 // ============================================
 
@@ -342,31 +471,19 @@ function initTransactionForm() {
     // Bouton pour créer une catégorie
     if (createCategoryBtn) {
         createCategoryBtn.addEventListener('click', () => {
-            // Activer le flag pour revenir au formulaire de transaction
-            returnToTransactionForm = true;
-            
-            // Naviguer vers les paramètres et ouvrir le formulaire de catégorie
-            const navItems = document.querySelectorAll('.nav-item');
-            const pages = document.querySelectorAll('.page');
-            
-            // Activer l'onglet Paramètres
-            navItems.forEach(nav => nav.classList.remove('active'));
-            document.querySelector('.nav-item[data-page="settings"]').classList.add('active');
-            
-            // Afficher la page Paramètres
-            pages.forEach(page => page.classList.remove('active'));
-            document.getElementById('settings').classList.add('active');
-            
-            // Recharger les catégories
-            renderCategories();
-            
-            // Scroll vers le formulaire de catégorie
-            setTimeout(() => {
-                document.getElementById('category-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                document.getElementById('category-name').focus();
-            }, 100);
+            // Définir le callback pour sélectionner la catégorie après création
+            categoryModalCallback = (categoryId) => {
+                const categorySelect = document.getElementById('transaction-category');
+                if (categorySelect) {
+                    categorySelect.value = categoryId;
+                }
+            };
+            openCategoryModal();
         });
     }
+    
+    // Initialiser le modal de catégorie
+    initCategoryModal();
     
     // Soumission du formulaire
     form.addEventListener('submit', (e) => {

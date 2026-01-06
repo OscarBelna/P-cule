@@ -179,15 +179,14 @@
                             >
                         </div>
                         
-                        <div class="form-group">
-                            <label class="toggle-label">
-                                <input type="checkbox" id="transaction-recurring">
-                                <span class="toggle-switch"></span>
-                                <span class="toggle-text">Récurrent (Mensuel)</span>
-                            </label>
-                        </div>
-                        
                         <div class="form-actions">
+                            <div class="recurring-toggle-container">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="transaction-recurring">
+                                    <span class="toggle-switch"></span>
+                                    <span class="toggle-text">Récurrent (Mensuel)</span>
+                                </label>
+                            </div>
                             <button type="submit" class="btn btn-primary">
                                 Ajouter
                             </button>
@@ -366,6 +365,49 @@
                 </div>
             </div>
         </section>
+
+        <!-- Modal de création de catégorie -->
+        <div id="category-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Nouvelle catégorie</h2>
+                    <button class="modal-close" id="category-modal-close">&times;</button>
+                </div>
+                <form id="category-modal-form">
+                    <div class="form-group">
+                        <label for="category-modal-name">Nom de la catégorie</label>
+                        <input 
+                            type="text" 
+                            id="category-modal-name" 
+                            placeholder="Ex: Alimentation, Salaire..."
+                            required
+                            autofocus
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category-modal-color">Couleur</label>
+                        <div class="color-picker-container">
+                            <input 
+                                type="color" 
+                                id="category-modal-color" 
+                                value="#3b82f6"
+                            >
+                            <span class="color-preview" id="category-modal-color-preview"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="category-modal-cancel">
+                            Annuler
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Créer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <!-- Navigation en bas -->
         <nav class="bottom-nav">

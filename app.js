@@ -1348,12 +1348,46 @@ function initEditTransactionModal() {
         });
     }
     
+    // Mettre à jour la couleur du select quand la catégorie change
+    const categorySelect = document.getElementById('edit-transaction-category');
+    if (categorySelect) {
+        categorySelect.addEventListener('change', () => {
+            updateEditCategoryColorIndicator();
+        });
+    }
+    
     // Fermer avec Escape
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modal.classList.contains('active')) {
             closeEditTransactionModal();
         }
     });
+}
+
+/**
+ * Met à jour l'indicateur de couleur de la catégorie sélectionnée dans le modal de modification
+ */
+function updateEditCategoryColorIndicator() {
+    const select = document.getElementById('edit-transaction-category');
+    
+    if (!select) return;
+    
+    const selectedCategoryId = select.value;
+    
+    if (!selectedCategoryId) {
+        select.style.color = ''; // Réinitialiser la couleur du select
+        return;
+    }
+    
+    const data = loadData();
+    const category = data.categories.find(cat => cat.id === selectedCategoryId);
+    
+    if (category && category.color) {
+        // Colorer le texte du select avec la couleur de la catégorie
+        select.style.color = category.color;
+    } else {
+        select.style.color = '';
+    }
 }
 
 /**
@@ -1379,18 +1413,31 @@ function openEditTransactionModal(transactionId) {
     document.getElementById('edit-transaction-description').value = transaction.description || '';
     document.getElementById('edit-transaction-recurring').checked = transaction.recurrence === 'monthly';
     
-    // Remplir le select des catégories
+    // Remplir le select des catégories avec les couleurs
     const categorySelect = document.getElementById('edit-transaction-category');
-    categorySelect.innerHTML = '<option value="">Sélectionnez une catégorie</option>';
+    categorySelect.innerHTML = '';
+    
+    // Ajouter les catégories avec les ronds de couleur
     data.categories.forEach(category => {
         const option = document.createElement('option');
         option.value = category.id;
-        option.textContent = category.name;
+        // Ajouter le rond de couleur dans la liste déroulante
+        option.textContent = `⬤ ${category.name}`;
+        // Stocker le nom sans le rond pour l'affichage sélectionné
+        option.dataset.name = category.name;
+        // Colorer le texte de l'option avec la couleur de la catégorie
+        option.style.color = category.color;
         if (category.id === transaction.categoryId) {
             option.selected = true;
         }
         categorySelect.appendChild(option);
     });
+    
+    // Mettre à jour la couleur du select avec la catégorie sélectionnée
+    const selectedCategory = data.categories.find(cat => cat.id === transaction.categoryId);
+    if (selectedCategory && selectedCategory.color) {
+        categorySelect.style.color = selectedCategory.color;
+    }
     
     // Afficher le modal
     modal.classList.add('active');

@@ -1,5 +1,6 @@
 import { loadData, saveData } from '../shared/index.js';
 import { renderTransactions } from './TransactionRenderer.js';
+import { loadRecurrenceFromTransaction, getRecurrenceConfig, resetRecurrenceConfig } from './RecurrenceController.js';
 
 /**
  * Initialise le modal de modification de transaction
@@ -113,7 +114,12 @@ export function openEditTransactionModal(transactionId) {
     if (dateInput) dateInput.value = transaction.date;
     if (typeInput) typeInput.value = transaction.amount > 0 ? 'income' : 'expense';
     if (descriptionInput) descriptionInput.value = transaction.description || '';
-    if (recurringInput) recurringInput.checked = transaction.recurrence === 'monthly';
+    // Charger la configuration de récurrence
+    if (transaction.recurrence) {
+        loadRecurrenceFromTransaction(transaction);
+    } else {
+        resetRecurrenceConfig();
+    }
     
     // Remplir le select des catégories avec les couleurs
     const categorySelect = document.getElementById('edit-transaction-category');
@@ -158,6 +164,8 @@ export function closeEditTransactionModal() {
         document.body.style.overflow = '';
         const form = document.getElementById('edit-transaction-form');
         if (form) form.reset();
+        // Réinitialiser la configuration de récurrence
+        resetRecurrenceConfig();
     }
 }
 
@@ -318,12 +326,18 @@ function handleEditTransactionSubmit() {
     data.transactions[transactionIndex].type = type;
     data.transactions[transactionIndex].categoryId = categoryId;
     data.transactions[transactionIndex].description = description;
-    data.transactions[transactionIndex].recurrence = isRecurring ? 'monthly' : null;
+    // Obtenir la configuration de récurrence si activée (mode édition)
+    const recurrenceConfig = isRecurring ? getRecurrenceConfig(true) : null;
+    
+    data.transactions[transactionIndex].recurrence = recurrenceConfig;
     
     saveData(data);
     
     // Fermer le modal
     closeEditTransactionModal();
+    
+    // Réinitialiser la configuration de récurrence
+    resetRecurrenceConfig();
     
     // Recharger l'affichage
     renderTransactions();

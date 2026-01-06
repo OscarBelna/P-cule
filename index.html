@@ -183,14 +183,17 @@
                         </div>
                         
                         <div class="form-actions">
-                            <div class="recurring-toggle-container">
-                                <label class="toggle-label">
+                            <div class="recurring-toggle-container" style="display: flex; align-items: center; gap: 8px; width: 100%;">
+                                <label class="toggle-label" style="flex: 1;">
                                     <input type="checkbox" id="transaction-recurring">
                                     <span class="toggle-switch"></span>
-                                    <span class="toggle-text">Récurrent (Mensuel)</span>
+                                    <span class="toggle-text" id="recurring-text">Récurrent</span>
                                 </label>
+                                <button type="button" class="btn btn-secondary btn-sm" id="configure-recurrence-btn" title="Configurer la récurrence">
+                                    ⚙️
+                                </button>
                             </div>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">
                                 Ajouter
                             </button>
                         </div>
@@ -439,12 +442,15 @@
                     </div>
                     
                     <div class="form-actions">
-                        <div class="recurring-toggle-container">
-                            <label class="toggle-label">
+                        <div class="recurring-toggle-container" style="display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 12px;">
+                            <label class="toggle-label" style="flex: 1;">
                                 <input type="checkbox" id="edit-transaction-recurring">
                                 <span class="toggle-switch"></span>
-                                <span class="toggle-text">Récurrent (Mensuel)</span>
+                                <span class="toggle-text" id="edit-recurring-text">Récurrent</span>
                             </label>
+                            <button type="button" class="btn btn-secondary btn-sm" id="edit-configure-recurrence-btn" title="Configurer la récurrence">
+                                ⚙️
+                            </button>
                         </div>
                         <div style="display: flex; gap: 12px; flex: 1;">
                             <button type="button" class="btn btn-secondary" id="edit-transaction-cancel">
@@ -456,6 +462,49 @@
                         </div>
                     </div>
                     <input type="hidden" id="edit-transaction-id">
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de configuration de récurrence -->
+        <div id="recurrence-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Configuration de la récurrence</h2>
+                    <button class="modal-close" id="recurrence-modal-close">&times;</button>
+                </div>
+                <form id="recurrence-form">
+                    <div class="form-group">
+                        <label for="recurrence-type">Type de récurrence</label>
+                        <select id="recurrence-type" required>
+                            <option value="daily">Journalière</option>
+                            <option value="weekly">Hebdomadaire</option>
+                            <option value="monthly" selected>Mensuelle</option>
+                            <option value="quarterly">Trimestrielle</option>
+                            <option value="yearly">Annuelle</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="recurrence-end-date">Date de fin (optionnel)</label>
+                        <input 
+                            type="date" 
+                            id="recurrence-end-date"
+                            placeholder="Sans date de fin"
+                        >
+                        <small style="display: block; margin-top: 4px; color: var(--text-secondary); font-size: 12px;">
+                            Laissez vide pour une récurrence infinie
+                        </small>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="recurrence-modal-cancel">
+                            Annuler
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Valider
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

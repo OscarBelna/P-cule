@@ -3,6 +3,24 @@ import { loadData } from '../shared/index.js';
 import { escapeHtml } from '../shared/index.js';
 
 /**
+ * Obtient le label de récurrence pour l'affichage
+ */
+function getRecurrenceLabel(recurrence) {
+    if (!recurrence) return '';
+    
+    const type = typeof recurrence === 'string' ? recurrence : recurrence.type;
+    const labels = {
+        daily: 'Journalier',
+        weekly: 'Hebdomadaire',
+        monthly: 'Mensuel',
+        quarterly: 'Trimestriel',
+        yearly: 'Annuel'
+    };
+    
+    return labels[type] || 'Mensuel';
+}
+
+/**
  * Remplit le select des catégories pour les transactions
  */
 export function populateCategorySelect() {
@@ -129,7 +147,7 @@ export function renderTransactions() {
                     <div class="transaction-header">
                         <span class="transaction-category-badge" style="background-color: ${categoryColor}"></span>
                         <span class="transaction-category-name">${escapeHtml(categoryName)}</span>
-                        ${transaction.recurrence ? '<span class="transaction-recurring-badge">🔄 Mensuel</span>' : ''}
+                        ${transaction.recurrence ? `<span class="transaction-recurring-badge">🔄 ${getRecurrenceLabel(transaction.recurrence)}</span>` : ''}
                     </div>
                     ${transaction.description ? `<div class="transaction-description">${escapeHtml(transaction.description)}</div>` : ''}
                     <div class="transaction-date">${formattedDate}</div>

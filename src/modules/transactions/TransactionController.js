@@ -1,5 +1,6 @@
 import { loadData, saveData } from '../shared/index.js';
 import { populateCategorySelect, renderTransactions, updateCategoryColorIndicator } from './TransactionRenderer.js';
+import { getRecurrenceConfig, resetRecurrenceConfig } from './RecurrenceController.js';
 
 /**
  * Initialise le formulaire de transaction
@@ -82,6 +83,9 @@ function handleTransactionSubmit() {
     
     const data = loadData();
     
+    // Obtenir la configuration de récurrence si activée
+    const recurrenceConfig = isRecurring ? getRecurrenceConfig() : null;
+    
     const newTransaction = {
         id: Date.now().toString(),
         amount: type === 'expense' ? -Math.abs(amount) : Math.abs(amount),
@@ -89,7 +93,7 @@ function handleTransactionSubmit() {
         type: type,
         categoryId: categoryId,
         description: description || '',
-        recurrence: isRecurring ? 'monthly' : null
+        recurrence: recurrenceConfig
     };
     
     data.transactions.push(newTransaction);
@@ -100,7 +104,7 @@ function handleTransactionSubmit() {
     if (form) form.reset();
     if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
     if (typeInput) typeInput.value = 'expense'; // Par défaut sur "Dépense"
-    if (recurringInput) recurringInput.checked = false;
+    resetRecurrenceConfig();
     
     // Réinitialiser le select de catégorie pour afficher le placeholder
     populateCategorySelect();

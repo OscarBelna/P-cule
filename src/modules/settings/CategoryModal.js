@@ -1,9 +1,12 @@
 import { loadData, saveData } from '../shared/index.js';
+import { escapeHtml } from '../shared/index.js';
 
 // Variable pour le callback après création de catégorie
 let categoryModalCallback = null;
 // Variable pour stocker le type de catégorie à créer
 let categoryModalType = 'transaction';
+// Variable pour stocker l'ID de la catégorie en cours d'édition
+let editingCategoryId = null;
 
 // Palettes de couleurs prédéfinies
 const COLOR_PALETTES = {
@@ -278,11 +281,12 @@ export function initCategoryModal() {
 }
 
 /**
- * Ouvre le modal de création de catégorie
+ * Ouvre le modal de création/modification de catégorie
  * @param {Function} callback - Callback optionnel appelé après création
  * @param {String} type - Type de catégorie ('transaction' ou 'savings')
+ * @param {String} categoryId - ID de la catégorie à éditer (null pour création)
  */
-export function openCategoryModal(callback = null, type = 'transaction') {
+export function openCategoryModal(callback = null, type = 'transaction', categoryId = null) {
     const modal = document.getElementById('category-modal');
     const nameInput = document.getElementById('category-modal-name');
     const colorInput = document.getElementById('category-modal-color');
@@ -293,22 +297,62 @@ export function openCategoryModal(callback = null, type = 'transaction') {
     
     categoryModalCallback = callback;
     categoryModalType = type;
-    
-    // Mettre à jour le titre selon le type
-    if (modalTitle) {
-        modalTitle.textContent = type === 'savings' 
-            ? 'Nouvelle catégorie d\'économie' 
-            : 'Nouvelle catégorie';
-    }
+    editingCategoryId = categoryId;
     
     // Réinitialiser le formulaire
-    const form = document.getElementById('category-modal-form');
-    if (form) form.reset();
+    const modalForm = document.getElementById('category-modal-form');
+    if (modalForm) modalForm.reset();
     
-    // Réinitialiser la couleur et les onglets
-    const defaultColor = '#3b82f6';
-    if (colorInput) colorInput.value = defaultColor;
-    if (colorPreview) colorPreview.style.backgroundColor = defaultColor;
+    // Désélectionner tous les swatches de couleur
+    const swatches = modal.querySelectorAll('.color-swatch');
+    swatches.forEach(swatch => swatch.classList.remove('selected'));
+    
+    // Si on édite une catégorie, charger ses données
+    if (categoryId) {
+        const data = loadData();
+        const category = data.categories.find(c => c.id === categoryId);
+        
+        if (category) {
+            // Pré-remplir le nom
+            if (nameInput) {
+                nameInput.value = category.name;
+            }
+            
+            // Pré-remplir la couleur
+            if (colorInput) {
+                colorInput.value = category.color;
+            }
+            if (colorPreview) {
+                colorPreview.style.backgroundColor = category.color;
+            }
+            
+            // Sélectionner le swatch correspondant si la couleur existe dans les palettes
+            swatches.forEach(swatch => {
+                if (swatch.getAttribute('data-color') === category.color) {
+                    swatch.classList.add('selected');
+                }
+            });
+            
+            // Mettre à jour le titre
+            if (modalTitle) {
+                modalTitle.textContent = type === 'savings' 
+                    ? 'Modifier la catégorie d\'économie' 
+                    : 'Modifier la catégorie';
+            }
+        }
+    } else {
+        // Mode création : réinitialiser la couleur par défaut
+        const defaultColor = '#3b82f6';
+        if (colorInput) colorInput.value = defaultColor;
+        if (colorPreview) colorPreview.style.backgroundColor = defaultColor;
+        
+        // Mettre à jour le titre selon le type
+        if (modalTitle) {
+            modalTitle.textContent = type === 'savings' 
+                ? 'Nouvelle catégorie d\'économie' 
+                : 'Nouvelle catégorie';
+        }
+    }
     
     // Réinitialiser les onglets (activer "Pastel" par défaut)
     const tabs = modal.querySelectorAll('.color-tab');
@@ -322,15 +366,6 @@ export function openCategoryModal(callback = null, type = 'transaction') {
     
     if (pastelTab) pastelTab.classList.add('active');
     if (pastelPanel) pastelPanel.classList.add('active');
-    
-    // Le sélecteur personnalisé est toujours visible, pas besoin de le gérer
-    
-    // Désélectionner tous les swatches
-    const swatches = modal.querySelectorAll('.color-swatch');
-    
-    swatches.forEach(swatch => {
-        swatch.classList.remove('selected');
-    });
     
     // Afficher le modal
     modal.classList.add('active');
@@ -354,6 +389,7 @@ export function closeCategoryModal() {
         document.body.style.overflow = '';
         categoryModalCallback = null;
         categoryModalType = 'transaction';
+        editingCategoryId = null;
     }
 }
 
@@ -374,16 +410,30 @@ function handleCategoryModalSubmit() {
     
     const data = loadData();
     
-    // Créer la catégorie avec le type approprié
-    const newCategory = {
-        id: Date.now().toString(),
-        name: name,
-        color: color,
-        type: categoryModalType
-    };
+    // Modification ou création
+    let categoryIdToReturn = editingCategoryId;
     
-    data.categories.push(newCategory);
-    saveData(data);
+    if (editingCategoryId) {
+        // Modification
+        const categoryIndex = data.categories.findIndex(c => c.id === editingCategoryId);
+        if (categoryIndex !== -1) {
+            data.categories[categoryIndex].name = name;
+            data.categories[categoryIndex].color = color;
+            saveData(data);
+        }
+    } else {
+        // Création
+        const newCategory = {
+            id: Date.now().toString(),
+            name: name,
+            color: color,
+            type: categoryModalType
+        };
+        
+        data.categories.push(newCategory);
+        saveData(data);
+        categoryIdToReturn = newCategory.id;
+    }
     
     // Mettre à jour les affichages selon le type
     if (categoryModalType === 'savings') {
@@ -392,6 +442,10 @@ function handleCategoryModalSubmit() {
         }
         if (window.renderGoals) {
             window.renderGoals();
+        }
+        // Mettre à jour le Treemap si on modifie une catégorie d'économie
+        if (window.renderSavingsTreemap) {
+            window.renderSavingsTreemap();
         }
     } else {
         if (window.renderCategories) {
@@ -428,7 +482,7 @@ function handleCategoryModalSubmit() {
             
             // Appeler le callback
             if (categoryModalCallback) {
-                categoryModalCallback(newCategory.id);
+                categoryModalCallback(categoryIdToReturn);
                 categoryModalCallback = null;
             }
         }, 100);

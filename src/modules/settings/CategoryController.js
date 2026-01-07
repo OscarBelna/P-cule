@@ -107,6 +107,22 @@ export function handleCategorySubmit() {
 }
 
 /**
+ * Modifie une catégorie d'économie
+ */
+export function editSavingsCategory(categoryId) {
+    if (window.openCategoryModal) {
+        window.openCategoryModal(() => {
+            if (window.renderSavingsCategories) {
+                window.renderSavingsCategories();
+            }
+            if (window.renderGoals) {
+                window.renderGoals();
+            }
+        }, 'savings', categoryId);
+    }
+}
+
+/**
  * Supprime une catégorie d'économie
  */
 export function deleteSavingsCategory(categoryId) {
@@ -139,6 +155,7 @@ export function deleteSavingsCategory(categoryId) {
 }
 
 // Exporter pour utilisation globale
+window.editSavingsCategory = editSavingsCategory;
 window.deleteSavingsCategory = deleteSavingsCategory;
 
 /**

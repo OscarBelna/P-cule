@@ -70,6 +70,9 @@ export function renderSavingsCategories() {
             <div class="category-color" style="background-color: ${category.color}"></div>
             <div class="category-name">${escapeHtml(category.name)}</div>
             <div class="category-actions">
+                <button class="btn-edit btn-sm" onclick="editSavingsCategory('${category.id}')">
+                    Modifier
+                </button>
                 <button class="btn-delete btn-sm" onclick="deleteSavingsCategory('${category.id}')">
                     Supprimer
                 </button>

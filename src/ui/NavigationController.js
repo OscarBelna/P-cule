@@ -2,16 +2,23 @@
  * Initialise la navigation entre les pages
  */
 export function initNavigation() {
-    const navItems = document.querySelectorAll('.nav-item');
+    // Sélectionner les deux types de navigation (sidebar et bottom nav)
+    const navItems = document.querySelectorAll('.nav-item, .sidebar-item');
     const pages = document.querySelectorAll('.page');
 
     navItems.forEach(item => {
         item.addEventListener('click', () => {
             const targetPage = item.getAttribute('data-page');
 
-            // Mettre à jour les onglets actifs
-            navItems.forEach(nav => nav.classList.remove('active'));
+            // Mettre à jour les onglets actifs (sidebar et bottom nav)
+            document.querySelectorAll('.nav-item, .sidebar-item').forEach(nav => {
+                nav.classList.remove('active');
+            });
             item.classList.add('active');
+
+            // Synchroniser l'état actif entre sidebar et bottom nav
+            const allNavItems = document.querySelectorAll(`[data-page="${targetPage}"]`);
+            allNavItems.forEach(nav => nav.classList.add('active'));
 
             // Afficher la page correspondante
             pages.forEach(page => page.classList.remove('active'));

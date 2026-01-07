@@ -5,7 +5,8 @@ export const defaultData = {
     goals: {
         incomeGoal: null,
         categoryBudgets: []
-    }
+    },
+    savingsAllocations: {}
 };
 
 // Clé pour le LocalStorage
@@ -43,7 +44,8 @@ export function loadData() {
                 goals: data.goals || {
                     incomeGoal: null,
                     categoryBudgets: []
-                }
+                },
+                savingsAllocations: data.savingsAllocations || {}
             };
         }
         return defaultData;

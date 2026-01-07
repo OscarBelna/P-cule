@@ -129,18 +129,28 @@ export function renderSavingsTreemap() {
     // Filtrer les catégories de type 'savings'
     const savingsCategories = data.categories.filter(c => c.type === 'savings');
     
+    // Agréger les allocations par catégorie
+    const aggregatedAllocations = {};
+    allocations.forEach(alloc => {
+        if (alloc.amount > 0) {
+            if (!aggregatedAllocations[alloc.categoryId]) {
+                aggregatedAllocations[alloc.categoryId] = 0;
+            }
+            aggregatedAllocations[alloc.categoryId] += alloc.amount;
+        }
+    });
+    
     // Préparer les données pour le Treemap
-    const treemapData = allocations
-        .filter(alloc => alloc.amount > 0)
-        .map((alloc, index) => {
-            const category = savingsCategories.find(c => c.id === alloc.categoryId);
+    const treemapData = Object.entries(aggregatedAllocations)
+        .map(([categoryId, totalAmount], index) => {
+            const category = savingsCategories.find(c => c.id === categoryId);
             if (!category) return null;
             
-            const colorScheme = generateColor(index, allocations.length);
+            const colorScheme = generateColor(index, Object.keys(aggregatedAllocations).length);
             
             return {
                 label: category.name,
-                value: alloc.amount,
+                value: totalAmount,
                 backgroundColor: colorScheme.bg,
                 borderColor: colorScheme.border,
                 categoryColor: category.color

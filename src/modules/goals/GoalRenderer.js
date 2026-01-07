@@ -277,12 +277,16 @@ export function renderSavingsAllocation() {
     const data = loadData();
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
     
+    console.log('renderSavingsAllocation - monthKey:', monthKey);
+    console.log('renderSavingsAllocation - savingsAllocations:', data.savingsAllocations);
+    
     // S'assurer que savingsAllocations existe
     if (!data.savingsAllocations) {
         data.savingsAllocations = {};
     }
     
     const allocations = data.savingsAllocations[monthKey] || [];
+    console.log('renderSavingsAllocation - allocations trouvées:', allocations);
     
     // Filtrer les catégories de type 'savings'
     const savingsCategories = data.categories.filter(c => c.type === 'savings');
@@ -303,46 +307,8 @@ export function renderSavingsAllocation() {
         return;
     }
     
-    // Si pas de catégories d'économie
-    if (savingsCategories.length === 0) {
-        categoriesList.innerHTML = `
-            <div class="empty-state">
-                <p>Aucune catégorie d'économie créée</p>
-                <p style="font-size: 14px; margin-top: 8px;">Créez vos catégories dans les Paramètres</p>
-            </div>
-        `;
-        feedbackEl.innerHTML = '';
-        remainingSavingsEl.textContent = formatCurrency(totalSavings);
-        return;
-    }
-    
-    // Générer les inputs pour chaque catégorie
-    categoriesList.innerHTML = savingsCategories.map(category => {
-        const allocation = allocations.find(a => a.categoryId === category.id);
-        const amount = allocation ? allocation.amount : 0;
-        
-        return `
-            <div class="savings-category-item">
-                <div class="category-info">
-                    <div class="category-color-dot" style="background-color: ${category.color}"></div>
-                    <label for="allocation-${category.id}">${escapeHtml(category.name)}</label>
-                </div>
-                <div class="amount-input-wrapper">
-                    <input 
-                        type="number" 
-                        id="allocation-${category.id}" 
-                        class="allocation-input"
-                        data-category-id="${category.id}"
-                        value="${amount}"
-                        min="0"
-                        step="0.01"
-                        placeholder="0.00"
-                    >
-                    <span class="currency-symbol">€</span>
-                </div>
-            </div>
-        `;
-    }).join('');
+    // Afficher le formulaire d'allocation
+    categoriesList.innerHTML = renderAllocationForm(savingsCategories, totalSavings, allocations);
     
     // Calculer le reste à répartir
     const totalAllocated = allocations.reduce((sum, a) => sum + (a.amount || 0), 0);
@@ -375,111 +341,276 @@ export function renderSavingsAllocation() {
         feedbackEl.innerHTML = '';
     }
     
-    // Attacher les event listeners aux inputs
-    const inputs = categoriesList.querySelectorAll('.allocation-input');
-    inputs.forEach(input => {
-        input.addEventListener('input', handleAllocationInput);
-        input.addEventListener('change', saveAllocation);
+    // Attacher les event listeners
+    attachAllocationEventListeners(savingsCategories, totalSavings);
+}
+
+/**
+ * Rend le formulaire d'allocation et l'historique
+ */
+function renderAllocationForm(savingsCategories, totalSavings, allocations) {
+    if (savingsCategories.length === 0) {
+        return `
+            <div class="empty-state">
+                <p>Aucune catégorie d'économie créée</p>
+                <p style="font-size: 14px; margin-top: 8px;">Créez vos catégories avec le bouton "+ Nouvelle"</p>
+            </div>
+        `;
+    }
+    
+    // Calculer le total alloué
+    const totalAllocated = allocations.reduce((sum, a) => sum + (a.amount || 0), 0);
+    const remaining = totalSavings - totalAllocated;
+    
+    // Formulaire d'allocation
+    const formHtml = `
+        <div class="allocation-form-container">
+            <form id="allocation-form" class="allocation-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="allocation-category">Catégorie</label>
+                        <select id="allocation-category" required>
+                            <option value="">Sélectionnez une catégorie</option>
+                            ${savingsCategories.map(cat => `
+                                <option value="${cat.id}" data-color="${cat.color}">
+                                    ${escapeHtml(cat.name)}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="allocation-amount">Montant (€)</label>
+                        <input 
+                            type="number" 
+                            id="allocation-amount" 
+                            step="0.01" 
+                            min="0.01"
+                            max="${remaining > 0 ? remaining : 0}"
+                            placeholder="0.00"
+                            required
+                        >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="allocation-description">Description (optionnelle)</label>
+                    <input 
+                        type="text" 
+                        id="allocation-description" 
+                        placeholder="Ex: Placement mensuel, Épargne voyage..."
+                    >
+                </div>
+                <button type="submit" class="btn btn-primary" ${remaining <= 0 ? 'disabled' : ''}>
+                    Valider l'allocation
+                </button>
+            </form>
+        </div>
+    `;
+    
+    // Historique des allocations (trié par date décroissante)
+    const sortedAllocations = [...allocations].sort((a, b) => {
+        const dateA = a.date ? new Date(a.date) : new Date(0);
+        const dateB = b.date ? new Date(b.date) : new Date(0);
+        return dateB - dateA;
+    });
+    
+    console.log('Allocations triées pour historique:', sortedAllocations);
+    
+    const historyHtml = sortedAllocations.length > 0 ? `
+        <div class="allocation-history">
+            <h4>Historique</h4>
+            <div class="allocation-items">
+                ${sortedAllocations.map(alloc => {
+                    const category = savingsCategories.find(c => c.id === alloc.categoryId);
+                    if (!category) return '';
+                    
+                    const date = alloc.date ? new Date(alloc.date).toLocaleDateString('fr-FR', {
+                        day: '2-digit',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : '';
+                    
+                    return `
+                        <div class="allocation-history-item">
+                            <div class="allocation-item-header">
+                                <div class="allocation-item-info">
+                                    <div class="category-color-dot" style="background-color: ${category.color}"></div>
+                                    <div class="allocation-item-details">
+                                        <div class="allocation-main-info">
+                                            <span class="allocation-category-name">${escapeHtml(category.name)}</span>
+                                            ${alloc.description ? `<span class="allocation-description">${escapeHtml(alloc.description)}</span>` : ''}
+                                        </div>
+                                        ${date ? `<span class="allocation-date">${date}</span>` : ''}
+                                    </div>
+                                </div>
+                                <div class="allocation-item-right">
+                                    <span class="allocation-amount">${formatCurrency(alloc.amount)}</span>
+                                    <button 
+                                        class="btn-delete-allocation" 
+                                        data-allocation-id="${alloc.id}"
+                                        title="Supprimer"
+                                    >
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    ` : `
+        <div class="allocation-history">
+            <h4>Historique</h4>
+            <div class="empty-state">
+                <p>Aucune allocation pour ce mois</p>
+            </div>
+        </div>
+    `;
+    
+    return formHtml + historyHtml;
+}
+
+/**
+ * Attache les event listeners au formulaire
+ */
+function attachAllocationEventListeners(savingsCategories, totalSavings) {
+    const form = document.getElementById('allocation-form');
+    const categorySelect = document.getElementById('allocation-category');
+    
+    if (form) {
+        form.addEventListener('submit', handleAllocationSubmit);
+    }
+    
+    // Mettre à jour le max de l'input montant en temps réel
+    if (categorySelect) {
+        const amountInput = document.getElementById('allocation-amount');
+        if (amountInput) {
+            amountInput.addEventListener('input', () => {
+                const data = loadData();
+                const year = currentAllocationMonth.getFullYear();
+                const month = currentAllocationMonth.getMonth();
+                const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+                
+                if (!data.savingsAllocations) {
+                    data.savingsAllocations = {};
+                }
+                
+                const allocations = data.savingsAllocations[monthKey] || [];
+                const totalAllocated = allocations.reduce((sum, a) => sum + (a.amount || 0), 0);
+                const remaining = totalSavings - totalAllocated;
+                
+                amountInput.max = remaining > 0 ? remaining : 0;
+            });
+        }
+    }
+    
+    // Event listeners pour les boutons de suppression
+    const deleteButtons = document.querySelectorAll('.btn-delete-allocation');
+    deleteButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const allocationId = e.currentTarget.dataset.allocationId;
+            deleteAllocation(allocationId);
+        });
     });
 }
 
 /**
- * Gère la saisie dans les inputs d'allocation (mise à jour temps réel)
+ * Gère la soumission du formulaire d'allocation
  */
-function handleAllocationInput(event) {
+function handleAllocationSubmit(event) {
+    event.preventDefault();
+    
+    const categorySelect = document.getElementById('allocation-category');
+    const amountInput = document.getElementById('allocation-amount');
+    const descriptionInput = document.getElementById('allocation-description');
+    
+    const categoryId = categorySelect.value;
+    const amount = parseFloat(amountInput.value);
+    const description = descriptionInput.value.trim();
+    
+    if (!categoryId || !amount) {
+        alert('Veuillez sélectionner une catégorie et entrer un montant');
+        return;
+    }
+    
     const data = loadData();
     const year = currentAllocationMonth.getFullYear();
     const month = currentAllocationMonth.getMonth();
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const totalSavings = calculateMonthSavings(year, month);
     
-    // S'assurer que savingsAllocations existe
     if (!data.savingsAllocations) {
         data.savingsAllocations = {};
     }
-    
-    const allocations = data.savingsAllocations[monthKey] || [];
-    
-    // Calculer le total alloué en temps réel
-    const inputs = document.querySelectorAll('.allocation-input');
-    let totalAllocated = 0;
-    inputs.forEach(input => {
-        const value = parseFloat(input.value) || 0;
-        totalAllocated += value;
-    });
-    
-    const totalSavings = calculateMonthSavings(year, month);
-    const remaining = totalSavings - totalAllocated;
-    
-    const remainingSavingsEl = document.getElementById('remaining-savings-amount');
-    if (remainingSavingsEl) {
-        remainingSavingsEl.textContent = formatCurrency(remaining);
-        
-        const highlightRow = remainingSavingsEl.parentElement;
-        highlightRow.classList.remove('positive', 'negative', 'zero');
-        if (remaining > 0) {
-            highlightRow.classList.add('positive');
-        } else if (remaining < 0) {
-            highlightRow.classList.add('negative');
-        } else {
-            highlightRow.classList.add('zero');
-        }
-    }
-}
-
-/**
- * Sauvegarde l'allocation d'une catégorie
- */
-function saveAllocation(event) {
-    const input = event.target;
-    const categoryId = input.dataset.categoryId;
-    const amount = parseFloat(input.value) || 0;
-    
-    const data = loadData();
-    const year = currentAllocationMonth.getFullYear();
-    const month = currentAllocationMonth.getMonth();
-    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
     
     if (!data.savingsAllocations[monthKey]) {
         data.savingsAllocations[monthKey] = [];
     }
     
-    const existingIndex = data.savingsAllocations[monthKey].findIndex(a => a.categoryId === categoryId);
+    // Calculer le total déjà alloué
+    const totalAllocated = data.savingsAllocations[monthKey].reduce((sum, a) => sum + (a.amount || 0), 0);
     
-    if (amount > 0) {
-        if (existingIndex !== -1) {
-            data.savingsAllocations[monthKey][existingIndex].amount = amount;
-        } else {
-            data.savingsAllocations[monthKey].push({ categoryId, amount });
-        }
-    } else {
-        // Retirer l'allocation si le montant est 0
-        if (existingIndex !== -1) {
-            data.savingsAllocations[monthKey].splice(existingIndex, 1);
-        }
+    // Vérifier qu'on ne dépasse pas les économies
+    if (totalAllocated + amount > totalSavings) {
+        alert(`Impossible d'allouer ce montant. Reste disponible : ${formatCurrency(totalSavings - totalAllocated)}`);
+        return;
     }
     
+    // Créer la nouvelle allocation
+    const newAllocation = {
+        id: Date.now().toString(),
+        categoryId,
+        amount,
+        description,
+        date: new Date().toISOString()
+    };
+    
+    data.savingsAllocations[monthKey].push(newAllocation);
     saveData(data);
     
-    // Mettre à jour le feedback
-    const totalSavings = calculateMonthSavings(year, month);
-    const totalAllocated = data.savingsAllocations[monthKey].reduce((sum, a) => sum + (a.amount || 0), 0);
-    const remaining = totalSavings - totalAllocated;
+    console.log('Allocation créée:', newAllocation);
+    console.log('Toutes les allocations du mois:', data.savingsAllocations[monthKey]);
     
-    const feedbackEl = document.getElementById('allocation-feedback');
-    if (feedbackEl && remaining === 0 && totalAllocated > 0) {
-        feedbackEl.innerHTML = `
-            <div class="feedback-message success-message">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span>Bravo ! Chaque euro est à sa place.</span>
-            </div>
-        `;
-    } else {
-        if (feedbackEl) feedbackEl.innerHTML = '';
-    }
+    // Réinitialiser le formulaire
+    event.target.reset();
+    
+    // Recharger l'affichage
+    renderSavingsAllocation();
     
     // Notifier le dashboard pour mettre à jour le Treemap
+    if (window.renderSavingsTreemap) {
+        window.renderSavingsTreemap();
+    }
+}
+
+/**
+ * Supprime une allocation
+ */
+function deleteAllocation(allocationId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette allocation ?')) {
+        return;
+    }
+    
+    const data = loadData();
+    const year = currentAllocationMonth.getFullYear();
+    const month = currentAllocationMonth.getMonth();
+    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+    
+    if (!data.savingsAllocations || !data.savingsAllocations[monthKey]) {
+        return;
+    }
+    
+    data.savingsAllocations[monthKey] = data.savingsAllocations[monthKey].filter(
+        a => a.id !== allocationId
+    );
+    
+    saveData(data);
+    renderSavingsAllocation();
+    
+    // Notifier le dashboard
     if (window.renderSavingsTreemap) {
         window.renderSavingsTreemap();
     }

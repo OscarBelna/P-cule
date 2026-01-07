@@ -1949,6 +1949,74 @@ body {
     }
 }
 
+@media (min-width: 1024px) {
+    .calendar-grid {
+        gap: 6px;
+        max-width: 750px;
+        margin: 0 auto;
+    }
+    
+    .calendar-header {
+        margin-bottom: var(--spacing-md);
+        max-width: 750px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .calendar-header h2 {
+        font-size: 18px;
+    }
+    
+    .calendar-day-header {
+        font-size: 11px;
+        padding: 6px 3px;
+    }
+    
+    .calendar-day {
+        border-width: 2px;
+        padding: 4px;
+    }
+    
+    .calendar-day-number {
+        font-size: 13px;
+        margin-bottom: 3px;
+    }
+    
+    .calendar-indicator {
+        width: 5px;
+        height: 5px;
+    }
+    
+    .calendar-day-indicators {
+        gap: 2.5px;
+    }
+    
+    .btn-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .btn-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    /* Réduire la taille de la carte contenant le calendrier */
+    #calendar .card,
+    .page#calendar .card {
+        padding: var(--spacing-md) var(--spacing-xl);
+        max-width: 750px;
+        margin: 0 auto;
+    }
+    
+    /* Réduire aussi les détails du jour */
+    #day-details.card {
+        max-width: 750px;
+        margin: var(--spacing-md) auto 0;
+        padding: var(--spacing-md) var(--spacing-xl);
+    }
+}
+
 /* Assurer que la carte du calendrier contient bien son contenu */
 #calendar-grid {
     max-width: 100%;

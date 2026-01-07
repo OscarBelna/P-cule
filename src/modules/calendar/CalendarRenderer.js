@@ -177,6 +177,6 @@ export function showDayDetails(dateStr) {
     }).join('');
     
     detailsCard.style.display = 'block';
-    detailsCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Ne pas faire de scroll automatique pour éviter de déplacer la page
 }
 

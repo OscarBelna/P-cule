@@ -27,6 +27,9 @@ export function initNavigation() {
                 targetPageElement.classList.add('active');
             }
 
+            // Remettre la page en haut lors du changement de page
+            window.scrollTo({ top: 0, behavior: 'instant' });
+
             // Recharger les données selon la page via les callbacks globaux
             if (targetPage === 'settings') {
                 if (window.renderCategories) window.renderCategories();

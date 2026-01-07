@@ -6,6 +6,7 @@ import { renderIncomeChart } from './charts/IncomeChart.js';
 import { renderBalanceChart } from './charts/BalanceChart.js';
 import { renderExpensesEvolutionChart } from './charts/ExpensesEvolutionChart.js';
 import { renderIncomeEvolutionChart } from './charts/IncomeEvolutionChart.js';
+import { renderSavingsChart } from './charts/SavingsChart.js';
 
 /**
  * Affiche le tableau de bord avec tous les KPI et graphiques
@@ -15,6 +16,7 @@ export function renderDashboard() {
     renderExpensesChart();
     renderIncomeChart();
     renderBalanceChart();
+    renderSavingsChart();
     calculatePrediction();
     renderExpensesEvolutionChart();
     renderIncomeEvolutionChart();

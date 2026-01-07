@@ -77,8 +77,8 @@ export function renderExpensesChart() {
                 datasets: [{
                     data: values,
                     backgroundColor: colors,
-                    borderWidth: 2,
-                    borderColor: '#ffffff'
+                    borderWidth: 3,
+                    borderColor: '#F2F1E6'
                 }]
             },
             options: {
@@ -88,14 +88,23 @@ export function renderExpensesChart() {
                     legend: {
                         position: 'bottom',
                         labels: {
-                            padding: 15,
+                            padding: 18,
                             usePointStyle: true,
                             font: {
-                                size: 12
-                            }
+                                size: 13,
+                                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                            },
+                            color: '#2C2C2C'
                         }
                     },
                     tooltip: {
+                        backgroundColor: '#F8F7F2',
+                        titleColor: '#2C2C2C',
+                        bodyColor: '#2C2C2C',
+                        borderColor: '#99BDB4',
+                        borderWidth: 2,
+                        padding: 12,
+                        cornerRadius: 12,
                         callbacks: {
                             label: function(context) {
                                 const label = context.label || '';
@@ -117,8 +126,8 @@ export function renderExpensesChart() {
                 datasets: [{
                     data: values,
                     backgroundColor: colors,
-                    borderWidth: 2,
-                    borderColor: '#ffffff'
+                    borderWidth: 3,
+                    borderColor: '#F2F1E6'
                 }]
             },
             options: {
@@ -128,14 +137,23 @@ export function renderExpensesChart() {
                     legend: {
                         position: 'bottom',
                         labels: {
-                            padding: 15,
+                            padding: 18,
                             usePointStyle: true,
                             font: {
-                                size: 12
-                            }
+                                size: 13,
+                                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                            },
+                            color: '#2C2C2C'
                         }
                     },
                     tooltip: {
+                        backgroundColor: '#F8F7F2',
+                        titleColor: '#2C2C2C',
+                        bodyColor: '#2C2C2C',
+                        borderColor: '#99BDB4',
+                        borderWidth: 2,
+                        padding: 12,
+                        cornerRadius: 12,
                         callbacks: {
                             label: function(context) {
                                 const label = context.label || '';
@@ -215,13 +233,16 @@ export function renderBalanceChart() {
             datasets: [{
                 label: 'Solde (€)',
                 data: balances,
-                borderColor: 'rgb(59, 130, 246)',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                borderWidth: 2,
+                borderColor: '#99BDB4',
+                backgroundColor: 'rgba(153, 189, 180, 0.15)',
+                borderWidth: 3,
                 fill: true,
                 tension: 0.4,
-                pointRadius: 3,
-                pointHoverRadius: 5
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#99BDB4',
+                pointBorderColor: '#F2F1E6',
+                pointBorderWidth: 2
             }]
         },
         options: {
@@ -232,6 +253,13 @@ export function renderBalanceChart() {
                     display: false
                 },
                 tooltip: {
+                    backgroundColor: '#F8F7F2',
+                    titleColor: '#2C2C2C',
+                    bodyColor: '#2C2C2C',
+                    borderColor: '#99BDB4',
+                    borderWidth: 2,
+                    padding: 12,
+                    cornerRadius: 12,
                     callbacks: {
                         label: function(context) {
                             return `Solde: ${formatCurrency(context.parsed.y)}`;
@@ -248,12 +276,19 @@ export function renderBalanceChart() {
                         }
                     },
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
+                        color: 'rgba(153, 189, 180, 0.15)',
+                        lineWidth: 1
+                    },
+                    ticks: {
+                        color: '#6B6B6B'
                     }
                 },
                 x: {
                     grid: {
                         display: false
+                    },
+                    ticks: {
+                        color: '#6B6B6B'
                     }
                 }
             }

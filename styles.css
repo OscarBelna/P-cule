@@ -1388,16 +1388,16 @@ body {
 }
 
 .sidebar-logo {
-    font-size: 19.2px;
-    font-weight: 700;
-    color: white;
-    margin: 0;
-    letter-spacing: -0.02em;
+    width: 100%;
+    height: auto;
+    max-width: 120px;
+    display: block;
+    margin: 0 auto;
 }
 
 @media (min-width: 1024px) {
     .sidebar-logo {
-        font-size: 14.4px;
+        max-width: 90px;
     }
 }
 

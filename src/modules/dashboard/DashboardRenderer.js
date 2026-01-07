@@ -51,6 +51,11 @@ export function updateSummaryCards() {
     if (totalIncomeEl) totalIncomeEl.textContent = formatCurrency(totalIncome);
     if (totalExpensesEl) totalExpensesEl.textContent = formatCurrency(totalExpenses);
     if (currentBalanceEl) currentBalanceEl.textContent = formatCurrency(currentBalance);
+    
+    // Ajuster les tailles des cartes après la mise à jour
+    setTimeout(() => {
+        adjustSummaryCardsSizes();
+    }, 0);
 }
 
 /**
@@ -145,5 +150,101 @@ export function calculatePrediction() {
         // Changer la couleur selon si positif ou négatif
         predictedBalanceEl.style.color = predictedBalance >= 0 ? 'var(--success)' : 'var(--danger)';
     }
+}
+
+/**
+ * Ajuste automatiquement la taille des icônes et du texte dans les cartes de résumé
+ * pour éviter que le texte dépasse
+ */
+export function adjustSummaryCardsSizes() {
+    const summaryCards = document.querySelectorAll('.summary-card');
+    
+    summaryCards.forEach(card => {
+        const iconEl = card.querySelector('.summary-card-icon');
+        const contentEl = card.querySelector('.summary-card-content');
+        const valueEl = card.querySelector('.summary-card-value');
+        
+        if (!iconEl || !contentEl || !valueEl) return;
+        
+        // Réinitialiser les styles
+        iconEl.style.fontSize = '';
+        valueEl.style.fontSize = '';
+        
+        // Tailles initiales (correspondent aux valeurs CSS)
+        const initialIconSize = 36; // px
+        const initialValueSize = 22; // px
+        const minIconSize = 20; // Taille minimale de l'icône
+        const minValueSize = 16; // Taille minimale du texte
+        const margin = 12; // Marge de sécurité en px
+        
+        // Utiliser requestAnimationFrame pour s'assurer que le layout est calculé
+        requestAnimationFrame(() => {
+            const cardRect = card.getBoundingClientRect();
+            const cardWidth = cardRect.width;
+            const cardRight = cardRect.right;
+            
+            // Vérifier si le contenu dépasse
+            const valueRect = valueEl.getBoundingClientRect();
+            const contentRect = contentEl.getBoundingClientRect();
+            
+            const valueOverflow = valueRect.right > (cardRight - margin);
+            const contentOverflow = contentRect.right > (cardRight - margin);
+            
+            if (valueOverflow || contentOverflow) {
+                let iconSize = initialIconSize;
+                let valueSize = initialValueSize;
+                let fits = false;
+                
+                // Étape 1: Réduire d'abord la taille de l'icône
+                while (!fits && iconSize > minIconSize) {
+                    iconSize -= 2; // Réduire par pas de 2px
+                    iconEl.style.fontSize = `${iconSize}px`;
+                    
+                    // Forcer le recalcul du layout (lecture synchrone)
+                    const _ = card.offsetHeight;
+                    
+                    // Vérifier si ça rentre maintenant
+                    const newValueRect = valueEl.getBoundingClientRect();
+                    const newContentRect = contentEl.getBoundingClientRect();
+                    
+                    if (newValueRect.right <= (cardRight - margin) && 
+                        newContentRect.right <= (cardRight - margin)) {
+                        fits = true;
+                        break;
+                    }
+                }
+                
+                // Étape 2: Si l'icône est à sa taille minimale et que ça ne rentre toujours pas, réduire le texte
+                if (!fits) {
+                    iconEl.style.fontSize = `${minIconSize}px`;
+                    const _ = card.offsetHeight; // Forcer le recalcul
+                    
+                    // Réduire la taille du texte
+                    while (!fits && valueSize > minValueSize) {
+                        valueSize -= 1; // Réduire par pas de 1px
+                        valueEl.style.fontSize = `${valueSize}px`;
+                        
+                        // Forcer le recalcul du layout
+                        const __ = card.offsetHeight;
+                        
+                        // Vérifier si ça rentre maintenant
+                        const newValueRect = valueEl.getBoundingClientRect();
+                        const newContentRect = contentEl.getBoundingClientRect();
+                        
+                        if (newValueRect.right <= (cardRight - margin) && 
+                            newContentRect.right <= (cardRight - margin)) {
+                            fits = true;
+                            break;
+                        }
+                    }
+                    
+                    // Si toujours pas assez, forcer la taille minimale
+                    if (!fits) {
+                        valueEl.style.fontSize = `${minValueSize}px`;
+                    }
+                }
+            }
+        });
+    });
 }
 

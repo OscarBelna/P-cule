@@ -3,11 +3,12 @@
 
 import { initNavigation } from './src/ui/NavigationController.js';
 import { initDashboard, renderDashboard } from './src/modules/dashboard/index.js';
+import { initSavingsTreemap } from './src/modules/dashboard/charts/SavingsTreemapChart.js';
 import { initCalendar, renderCalendar } from './src/modules/calendar/index.js';
 import { initTransactionForm, renderTransactions, populateCategorySelect, initRecurrenceModal } from './src/modules/transactions/index.js';
 import { updateCategoryColorIndicator } from './src/modules/transactions/TransactionRenderer.js';
 import { initGoals, renderGoals } from './src/modules/goals/index.js';
-import { initCategoryForm, renderCategories, initCategoryModal, initBackupImport, openCategoryModal } from './src/modules/settings/index.js';
+import { initCategoryForm, initSavingsCategoryForm, renderCategories, renderSavingsCategories, initCategoryModal, initBackupImport, openCategoryModal } from './src/modules/settings/index.js';
 import { loadData, saveData, defaultData } from './src/modules/shared/index.js';
 import { initEditTransactionModal } from './src/modules/transactions/TransactionModal.js';
 
@@ -17,6 +18,7 @@ window.renderCalendar = renderCalendar;
 window.renderTransactions = renderTransactions;
 window.renderGoals = renderGoals;
 window.renderCategories = renderCategories;
+window.renderSavingsCategories = renderSavingsCategories;
 window.populateCategorySelect = populateCategorySelect;
 window.openCategoryModal = openCategoryModal;
 window.updateCategoryColorIndicator = updateCategoryColorIndicator;
@@ -24,10 +26,12 @@ window.updateCategoryColorIndicator = updateCategoryColorIndicator;
 // Callback pour les mises à jour de catégories
 window.onCategoryUpdated = () => {
     if (window.renderCategories) window.renderCategories();
+    if (window.renderSavingsCategories) window.renderSavingsCategories();
     if (window.populateCategorySelect) window.populateCategorySelect();
     if (window.renderGoals) window.renderGoals();
     if (window.renderTransactions) window.renderTransactions();
     if (window.renderDashboard) window.renderDashboard();
+    if (window.renderSavingsTreemap) window.renderSavingsTreemap();
 };
 
 /**
@@ -39,17 +43,20 @@ function init() {
 
     // Initialiser les modules
     initDashboard();
+    initSavingsTreemap();
     initCalendar();
     initTransactionForm();
     initRecurrenceModal();
     initGoals();
     initCategoryForm();
+    initSavingsCategoryForm();
     initCategoryModal();
     initBackupImport();
     initEditTransactionModal();
     
     // Rendu initial
     renderCategories();
+    renderSavingsCategories();
     renderTransactions();
     renderCalendar();
     renderDashboard();

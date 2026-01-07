@@ -2,6 +2,8 @@ import { loadData, saveData } from '../shared/index.js';
 
 // Variable pour le callback après création de catégorie
 let categoryModalCallback = null;
+// Variable pour stocker le type de catégorie à créer
+let categoryModalType = 'transaction';
 
 // Palettes de couleurs prédéfinies
 const COLOR_PALETTES = {
@@ -278,16 +280,26 @@ export function initCategoryModal() {
 /**
  * Ouvre le modal de création de catégorie
  * @param {Function} callback - Callback optionnel appelé après création
+ * @param {String} type - Type de catégorie ('transaction' ou 'savings')
  */
-export function openCategoryModal(callback = null) {
+export function openCategoryModal(callback = null, type = 'transaction') {
     const modal = document.getElementById('category-modal');
     const nameInput = document.getElementById('category-modal-name');
     const colorInput = document.getElementById('category-modal-color');
     const colorPreview = document.getElementById('category-modal-color-preview');
+    const modalTitle = modal.querySelector('.modal-header h2');
     
     if (!modal) return;
     
     categoryModalCallback = callback;
+    categoryModalType = type;
+    
+    // Mettre à jour le titre selon le type
+    if (modalTitle) {
+        modalTitle.textContent = type === 'savings' 
+            ? 'Nouvelle catégorie d\'économie' 
+            : 'Nouvelle catégorie';
+    }
     
     // Réinitialiser le formulaire
     const form = document.getElementById('category-modal-form');
@@ -341,6 +353,7 @@ export function closeCategoryModal() {
         modal.classList.remove('active');
         document.body.style.overflow = '';
         categoryModalCallback = null;
+        categoryModalType = 'transaction';
     }
 }
 
@@ -361,19 +374,29 @@ function handleCategoryModalSubmit() {
     
     const data = loadData();
     
-    // Créer la catégorie
+    // Créer la catégorie avec le type approprié
     const newCategory = {
         id: Date.now().toString(),
         name: name,
-        color: color
+        color: color,
+        type: categoryModalType
     };
     
     data.categories.push(newCategory);
     saveData(data);
     
-    // Mettre à jour les affichages
-    if (window.renderCategories) {
-        window.renderCategories();
+    // Mettre à jour les affichages selon le type
+    if (categoryModalType === 'savings') {
+        if (window.renderSavingsCategories) {
+            window.renderSavingsCategories();
+        }
+        if (window.renderGoals) {
+            window.renderGoals();
+        }
+    } else {
+        if (window.renderCategories) {
+            window.renderCategories();
+        }
     }
     
     // Notifier les autres modules
@@ -381,24 +404,29 @@ function handleCategoryModalSubmit() {
         window.onCategoryUpdated();
     }
     
-    // Si on vient du formulaire de transaction, sélectionner la nouvelle catégorie
+    // Gérer le callback selon le contexte
     if (categoryModalCallback) {
         closeCategoryModal();
         setTimeout(() => {
-            const categorySelect = document.getElementById('transaction-category');
-            if (categorySelect) {
-                if (window.populateCategorySelect) {
-                    window.populateCategorySelect();
-                }
-                categorySelect.value = newCategory.id;
-                // Mettre à jour la couleur du select après sélection
-                if (window.updateCategoryColorIndicator) {
-                    window.updateCategoryColorIndicator();
-                } else {
-                    // Fallback : déclencher l'événement change pour que l'event listener existant mette à jour la couleur
-                    categorySelect.dispatchEvent(new Event('change'));
+            // Si c'est une catégorie de transaction, mettre à jour le select
+            if (categoryModalType === 'transaction') {
+                const categorySelect = document.getElementById('transaction-category');
+                if (categorySelect) {
+                    if (window.populateCategorySelect) {
+                        window.populateCategorySelect();
+                    }
+                    categorySelect.value = newCategory.id;
+                    // Mettre à jour la couleur du select après sélection
+                    if (window.updateCategoryColorIndicator) {
+                        window.updateCategoryColorIndicator();
+                    } else {
+                        // Fallback : déclencher l'événement change pour que l'event listener existant mette à jour la couleur
+                        categorySelect.dispatchEvent(new Event('change'));
+                    }
                 }
             }
+            
+            // Appeler le callback
             if (categoryModalCallback) {
                 categoryModalCallback(newCategory.id);
                 categoryModalCallback = null;
@@ -407,6 +435,9 @@ function handleCategoryModalSubmit() {
     } else {
         closeCategoryModal();
     }
+    
+    // Réinitialiser le type
+    categoryModalType = 'transaction';
 }
 
 // Exporter pour utilisation globale

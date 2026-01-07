@@ -9,6 +9,7 @@
     <link rel="icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="assets/favicon.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0/dist/chartjs-chart-treemap.min.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -132,12 +133,33 @@
                     </div>
                 </div>
                 
-                <!-- Graphique des économies par mois -->
-                <div class="charts-grid">
+                <!-- Graphique des économies par mois et Répartition -->
+                <div class="charts-grid charts-grid-2-cols">
                     <div class="card chart-card">
                         <h2>Économies par mois</h2>
                         <div class="chart-container">
                             <canvas id="savings-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card chart-card">
+                        <div class="chart-header-with-filter">
+                            <h2>Répartition des Économies</h2>
+                            <div class="month-selector">
+                                <button class="btn-icon" id="treemap-prev-month" title="Mois précédent">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                    </svg>
+                                </button>
+                                <span id="treemap-current-month">janvier 2025</span>
+                                <button class="btn-icon" id="treemap-next-month" title="Mois suivant">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="savings-treemap-chart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -366,6 +388,51 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Répartition des Économies -->
+                <div class="card savings-allocation-card">
+                    <div class="card-header-with-action">
+                        <h2>Répartition des Économies</h2>
+                        <button class="btn btn-primary btn-add" id="add-savings-category-btn">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Nouvelle
+                        </button>
+                    </div>
+                    <div class="month-navigation">
+                        <button class="btn-icon" id="allocation-prev-month" title="Mois précédent">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <h3 id="allocation-month-label">Janvier 2025</h3>
+                        <button class="btn-icon" id="allocation-next-month" title="Mois suivant">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="allocation-summary">
+                        <div class="summary-row">
+                            <span>Montant à répartir :</span>
+                            <span id="total-savings-amount" class="amount-value">0,00 €</span>
+                        </div>
+                        <div class="summary-row highlight">
+                            <span>Reste à répartir :</span>
+                            <span id="remaining-savings-amount" class="amount-value">0,00 €</span>
+                        </div>
+                    </div>
+                    
+                    <div id="savings-categories-list" class="savings-categories-list">
+                        <!-- Liste générée dynamiquement -->
+                    </div>
+                    
+                    <div id="allocation-feedback" class="allocation-feedback">
+                        <!-- Messages de feedback -->
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -420,6 +487,27 @@
                         <h3>Mes catégories</h3>
                         <div id="categories-container" class="categories-grid">
                             <!-- Les catégories seront injectées ici par JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Section Catégories d'Économie -->
+                <div class="settings-section">
+                    <h2>Catégories d'Économie</h2>
+                    
+                    <!-- Liste des catégories d'économie -->
+                    <div class="card">
+                        <div class="card-header-with-action">
+                            <h3 style="margin: 0;">Mes catégories d'économie</h3>
+                            <button class="btn btn-primary btn-add" id="settings-add-savings-category-btn">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                Nouvelle
+                            </button>
+                        </div>
+                        <div id="savings-categories-container" class="categories-grid">
+                            <!-- Les catégories d'économie seront injectées ici par JavaScript -->
                         </div>
                     </div>
                 </div>

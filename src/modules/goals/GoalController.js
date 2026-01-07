@@ -1,5 +1,5 @@
 import { loadData, saveData } from '../shared/index.js';
-import { renderGoals } from './GoalRenderer.js';
+import { renderGoals, initSavingsAllocationControls } from './GoalRenderer.js';
 
 /**
  * Initialise la page des objectifs
@@ -7,6 +7,7 @@ import { renderGoals } from './GoalRenderer.js';
 export function initGoals() {
     const incomeGoalForm = document.getElementById('income-goal-form');
     const categoryBudgetForm = document.getElementById('category-budget-form');
+    const addSavingsCategoryBtn = document.getElementById('add-savings-category-btn');
     
     if (incomeGoalForm) {
         incomeGoalForm.addEventListener('submit', (e) => {
@@ -21,6 +22,23 @@ export function initGoals() {
             handleCategoryBudgetSubmit();
         });
     }
+    
+    // Bouton pour créer rapidement une catégorie d'économie
+    if (addSavingsCategoryBtn) {
+        addSavingsCategoryBtn.addEventListener('click', () => {
+            if (window.openCategoryModal) {
+                window.openCategoryModal(() => {
+                    // Callback après création : recharger l'interface d'allocation
+                    if (window.renderGoals) {
+                        window.renderGoals();
+                    }
+                }, 'savings');
+            }
+        });
+    }
+    
+    // Initialiser les contrôles de l'allocation des économies
+    initSavingsAllocationControls();
 }
 
 /**

@@ -1,6 +1,6 @@
 import { loadData, saveData } from '../shared/index.js';
 import { escapeHtml } from '../shared/index.js';
-import { renderCategories } from './CategoryRenderer.js';
+import { renderCategories, renderSavingsCategories } from './CategoryRenderer.js';
 
 // Variables d'état
 let editingCategoryId = null;
@@ -39,6 +39,25 @@ export function initCategoryForm() {
 }
 
 /**
+ * Initialise le bouton pour créer une catégorie d'économie depuis les paramètres
+ */
+export function initSavingsCategoryForm() {
+    const addBtn = document.getElementById('settings-add-savings-category-btn');
+    
+    if (addBtn) {
+        addBtn.addEventListener('click', () => {
+            if (window.openCategoryModal) {
+                window.openCategoryModal(() => {
+                    if (window.renderSavingsCategories) {
+                        window.renderSavingsCategories();
+                    }
+                }, 'savings');
+            }
+        });
+    }
+}
+
+/**
  * Gère la soumission du formulaire de catégorie
  */
 export function handleCategorySubmit() {
@@ -69,11 +88,12 @@ export function handleCategorySubmit() {
             }
         }
     } else {
-        // Création
+        // Création (toujours type 'transaction' pour cette interface)
         const newCategory = {
             id: Date.now().toString(),
             name: name,
-            color: color
+            color: color,
+            type: 'transaction'
         };
         data.categories.push(newCategory);
         saveData(data);
@@ -85,6 +105,41 @@ export function handleCategorySubmit() {
         }
     }
 }
+
+/**
+ * Supprime une catégorie d'économie
+ */
+export function deleteSavingsCategory(categoryId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette catégorie d\'économie ?')) {
+        return;
+    }
+
+    const data = loadData();
+    data.categories = data.categories.filter(cat => cat.id !== categoryId);
+    
+    // Supprimer aussi les allocations associées (si elles existent)
+    if (data.savingsAllocations) {
+        Object.keys(data.savingsAllocations).forEach(monthKey => {
+            data.savingsAllocations[monthKey] = data.savingsAllocations[monthKey].filter(
+                a => a.categoryId !== categoryId
+            );
+        });
+    }
+    
+    saveData(data);
+    renderSavingsCategories();
+    
+    // Notifier les autres modules
+    if (window.onCategoryUpdated) {
+        window.onCategoryUpdated();
+    }
+    if (window.renderGoals) {
+        window.renderGoals();
+    }
+}
+
+// Exporter pour utilisation globale
+window.deleteSavingsCategory = deleteSavingsCategory;
 
 /**
  * Réinitialise le formulaire de catégorie

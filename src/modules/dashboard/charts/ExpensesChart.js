@@ -134,7 +134,59 @@ export function renderExpensesChart() {
                                 size: 13,
                                 family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                             },
-                            color: '#2C2C2C'
+                            color: '#2C2C2C',
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                const dataset = data.datasets[0];
+                                const meta = chart.getDatasetMeta(0);
+                                
+                                return data.labels.map((label, i) => {
+                                    const style = meta.controller.getStyle(i);
+                                    const isHidden = !chart.getDataVisibility(i);
+                                    
+                                    // Convertir la couleur en rgba pour la transparence si nécessaire
+                                    let fillStyle = style.backgroundColor;
+                                    let strokeStyle = style.borderColor;
+                                    
+                                    if (isHidden) {
+                                        // Convertir hex en rgba si nécessaire
+                                        if (fillStyle.startsWith('#')) {
+                                            const r = parseInt(fillStyle.slice(1, 3), 16);
+                                            const g = parseInt(fillStyle.slice(3, 5), 16);
+                                            const b = parseInt(fillStyle.slice(5, 7), 16);
+                                            fillStyle = `rgba(${r}, ${g}, ${b}, 0.3)`;
+                                        } else if (fillStyle.includes('rgb')) {
+                                            fillStyle = fillStyle.replace(/rgba?\(([^)]+)\)/, (match, colors) => {
+                                                const rgb = colors.split(',').map(c => c.trim());
+                                                return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.3)`;
+                                            });
+                                        }
+                                        
+                                        if (strokeStyle.startsWith('#')) {
+                                            const r = parseInt(strokeStyle.slice(1, 3), 16);
+                                            const g = parseInt(strokeStyle.slice(3, 5), 16);
+                                            const b = parseInt(strokeStyle.slice(5, 7), 16);
+                                            strokeStyle = `rgba(${r}, ${g}, ${b}, 0.3)`;
+                                        } else if (strokeStyle.includes('rgb')) {
+                                            strokeStyle = strokeStyle.replace(/rgba?\(([^)]+)\)/, (match, colors) => {
+                                                const rgb = colors.split(',').map(c => c.trim());
+                                                return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.3)`;
+                                            });
+                                        }
+                                    }
+                                    
+                                    return {
+                                        text: label,
+                                        fillStyle: fillStyle,
+                                        strokeStyle: strokeStyle,
+                                        lineWidth: style.borderWidth,
+                                        hidden: isHidden,
+                                        index: i,
+                                        fontColor: isHidden ? 'rgba(44, 44, 44, 0.3)' : '#2C2C2C',
+                                        textDecoration: 'none'
+                                    };
+                                });
+                            }
                         }
                     },
                     tooltip: {
@@ -224,7 +276,59 @@ export function renderExpensesChart() {
                                 size: 13,
                                 family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                             },
-                            color: '#2C2C2C'
+                            color: '#2C2C2C',
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                const dataset = data.datasets[0];
+                                const meta = chart.getDatasetMeta(0);
+                                
+                                return data.labels.map((label, i) => {
+                                    const style = meta.controller.getStyle(i);
+                                    const isHidden = !chart.getDataVisibility(i);
+                                    
+                                    // Convertir la couleur en rgba pour la transparence si nécessaire
+                                    let fillStyle = style.backgroundColor;
+                                    let strokeStyle = style.borderColor;
+                                    
+                                    if (isHidden) {
+                                        // Convertir hex en rgba si nécessaire
+                                        if (fillStyle.startsWith('#')) {
+                                            const r = parseInt(fillStyle.slice(1, 3), 16);
+                                            const g = parseInt(fillStyle.slice(3, 5), 16);
+                                            const b = parseInt(fillStyle.slice(5, 7), 16);
+                                            fillStyle = `rgba(${r}, ${g}, ${b}, 0.3)`;
+                                        } else if (fillStyle.includes('rgb')) {
+                                            fillStyle = fillStyle.replace(/rgba?\(([^)]+)\)/, (match, colors) => {
+                                                const rgb = colors.split(',').map(c => c.trim());
+                                                return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.3)`;
+                                            });
+                                        }
+                                        
+                                        if (strokeStyle.startsWith('#')) {
+                                            const r = parseInt(strokeStyle.slice(1, 3), 16);
+                                            const g = parseInt(strokeStyle.slice(3, 5), 16);
+                                            const b = parseInt(strokeStyle.slice(5, 7), 16);
+                                            strokeStyle = `rgba(${r}, ${g}, ${b}, 0.3)`;
+                                        } else if (strokeStyle.includes('rgb')) {
+                                            strokeStyle = strokeStyle.replace(/rgba?\(([^)]+)\)/, (match, colors) => {
+                                                const rgb = colors.split(',').map(c => c.trim());
+                                                return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.3)`;
+                                            });
+                                        }
+                                    }
+                                    
+                                    return {
+                                        text: label,
+                                        fillStyle: fillStyle,
+                                        strokeStyle: strokeStyle,
+                                        lineWidth: style.borderWidth,
+                                        hidden: isHidden,
+                                        index: i,
+                                        fontColor: isHidden ? 'rgba(44, 44, 44, 0.3)' : '#2C2C2C',
+                                        textDecoration: 'none'
+                                    };
+                                });
+                            }
                         }
                     },
                     tooltip: {

@@ -217,12 +217,54 @@ function createIncomeEvolutionChart(ctx, labels, datasets) {
                         },
                         color: '#2C2C2C',
                         generateLabels: function(chart) {
-                            const original = Chart.defaults.plugins.legend.labels.generateLabels;
-                            const labels = original.call(this, chart);
-                            labels.forEach(label => {
-                                label.fontColor = '#2C2C2C';
+                            const datasets = chart.data.datasets;
+                            
+                            return datasets.map((dataset, i) => {
+                                const meta = chart.getDatasetMeta(i);
+                                const isHidden = meta.hidden === true;
+                                
+                                // Convertir la couleur en rgba pour la transparence si nécessaire
+                                let fillStyle = dataset.backgroundColor;
+                                let strokeStyle = dataset.borderColor;
+                                
+                                if (isHidden) {
+                                    // Convertir hex en rgba si nécessaire
+                                    if (fillStyle && fillStyle.startsWith('#')) {
+                                        const r = parseInt(fillStyle.slice(1, 3), 16);
+                                        const g = parseInt(fillStyle.slice(3, 5), 16);
+                                        const b = parseInt(fillStyle.slice(5, 7), 16);
+                                        fillStyle = `rgba(${r}, ${g}, ${b}, 0.3)`;
+                                    } else if (fillStyle && fillStyle.includes('rgb')) {
+                                        fillStyle = fillStyle.replace(/rgba?\(([^)]+)\)/, (match, colors) => {
+                                            const rgb = colors.split(',').map(c => c.trim());
+                                            return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.3)`;
+                                        });
+                                    }
+                                    
+                                    if (strokeStyle && strokeStyle.startsWith('#')) {
+                                        const r = parseInt(strokeStyle.slice(1, 3), 16);
+                                        const g = parseInt(strokeStyle.slice(3, 5), 16);
+                                        const b = parseInt(strokeStyle.slice(5, 7), 16);
+                                        strokeStyle = `rgba(${r}, ${g}, ${b}, 0.3)`;
+                                    } else if (strokeStyle && strokeStyle.includes('rgb')) {
+                                        strokeStyle = strokeStyle.replace(/rgba?\(([^)]+)\)/, (match, colors) => {
+                                            const rgb = colors.split(',').map(c => c.trim());
+                                            return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.3)`;
+                                        });
+                                    }
+                                }
+                                
+                                return {
+                                    text: dataset.label || '',
+                                    fillStyle: fillStyle || dataset.backgroundColor,
+                                    strokeStyle: strokeStyle || dataset.borderColor,
+                                    lineWidth: dataset.borderWidth || 2,
+                                    hidden: isHidden,
+                                    datasetIndex: i,
+                                    fontColor: isHidden ? 'rgba(44, 44, 44, 0.3)' : '#2C2C2C',
+                                    textDecoration: 'none'
+                                };
                             });
-                            return labels;
                         }
                     }
                 },

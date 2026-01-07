@@ -117,23 +117,23 @@ export function renderIncomeChart() {
                     const chart = this;
                     const dataset = chart.data.datasets[0];
                     
+                    // Stocker la valeur originale de borderWidth si pas déjà fait
+                    if (!chart._originalBorderWidth) {
+                        chart._originalBorderWidth = dataset.borderWidth;
+                    }
+                    
                     if (activeElements.length > 0) {
                         const index = activeElements[0].index;
                         
-                        // Créer un tableau d'offsets pour chaque segment
-                        if (!dataset.offset || !Array.isArray(dataset.offset)) {
-                            dataset.offset = new Array(chart.data.labels.length).fill(0);
-                        }
-                        
-                        // Agrandir le segment survolé
-                        dataset.offset = dataset.offset.map((_, i) => i === index ? 15 : 0);
+                        // Créer un tableau de borderWidth avec bordure plus épaisse pour le segment survolé
+                        const borderWidths = new Array(chart.data.labels.length).fill(chart._originalBorderWidth);
+                        borderWidths[index] = 6; // Bordure plus épaisse au survol
+                        dataset.borderWidth = borderWidths;
                         chart.update('none');
                     } else {
-                        // Si aucun élément actif, restaurer les offsets
-                        if (dataset.offset && Array.isArray(dataset.offset)) {
-                            dataset.offset = dataset.offset.map(() => 0);
-                            chart.update('none');
-                        }
+                        // Restaurer la bordure originale
+                        dataset.borderWidth = chart._originalBorderWidth;
+                        chart.update('none');
                     }
                 },
                 plugins: {
@@ -146,13 +146,15 @@ export function renderIncomeChart() {
                                 const index = legendItem.index;
                                 const dataset = chart.data.datasets[0];
                                 
-                                // Créer un tableau d'offsets pour chaque segment
-                                if (!dataset.offset || !Array.isArray(dataset.offset)) {
-                                    dataset.offset = new Array(chart.data.labels.length).fill(0);
+                                // Stocker la valeur originale de borderWidth si pas déjà fait
+                                if (!chart._originalBorderWidth) {
+                                    chart._originalBorderWidth = dataset.borderWidth;
                                 }
                                 
-                                // Agrandir le segment survolé
-                                dataset.offset = dataset.offset.map((_, i) => i === index ? 15 : 0);
+                                // Créer un tableau de borderWidth avec bordure plus épaisse pour le segment survolé
+                                const borderWidths = new Array(chart.data.labels.length).fill(chart._originalBorderWidth);
+                                borderWidths[index] = 6; // Bordure plus épaisse au survol
+                                dataset.borderWidth = borderWidths;
                                 
                                 // Agrandir le point dans la légende avec CSS
                                 const legendItemElement = e.native.target.closest('li');
@@ -172,9 +174,9 @@ export function renderIncomeChart() {
                             const chart = this.chart;
                             const dataset = chart.data.datasets[0];
                             
-                            // Restaurer les offsets
-                            if (dataset.offset && Array.isArray(dataset.offset)) {
-                                dataset.offset = dataset.offset.map(() => 0);
+                            // Restaurer la bordure originale
+                            if (chart._originalBorderWidth !== undefined) {
+                                dataset.borderWidth = chart._originalBorderWidth;
                             }
                             
                             // Restaurer le point dans la légende
@@ -290,23 +292,23 @@ export function renderIncomeChart() {
                     const chart = this;
                     const dataset = chart.data.datasets[0];
                     
+                    // Stocker la valeur originale de borderWidth si pas déjà fait
+                    if (!chart._originalBorderWidth) {
+                        chart._originalBorderWidth = dataset.borderWidth;
+                    }
+                    
                     if (activeElements.length > 0) {
                         const index = activeElements[0].index;
                         
-                        // Créer un tableau d'offsets pour chaque segment
-                        if (!dataset.offset || !Array.isArray(dataset.offset)) {
-                            dataset.offset = new Array(chart.data.labels.length).fill(0);
-                        }
-                        
-                        // Agrandir le segment survolé
-                        dataset.offset = dataset.offset.map((_, i) => i === index ? 15 : 0);
+                        // Créer un tableau de borderWidth avec bordure plus épaisse pour le segment survolé
+                        const borderWidths = new Array(chart.data.labels.length).fill(chart._originalBorderWidth);
+                        borderWidths[index] = 6; // Bordure plus épaisse au survol
+                        dataset.borderWidth = borderWidths;
                         chart.update('none');
                     } else {
-                        // Si aucun élément actif, restaurer les offsets
-                        if (dataset.offset && Array.isArray(dataset.offset)) {
-                            dataset.offset = dataset.offset.map(() => 0);
-                            chart.update('none');
-                        }
+                        // Restaurer la bordure originale
+                        dataset.borderWidth = chart._originalBorderWidth;
+                        chart.update('none');
                     }
                 },
                 plugins: {
@@ -319,13 +321,15 @@ export function renderIncomeChart() {
                                 const index = legendItem.index;
                                 const dataset = chart.data.datasets[0];
                                 
-                                // Créer un tableau d'offsets pour chaque segment
-                                if (!dataset.offset || !Array.isArray(dataset.offset)) {
-                                    dataset.offset = new Array(chart.data.labels.length).fill(0);
+                                // Stocker la valeur originale de borderWidth si pas déjà fait
+                                if (!chart._originalBorderWidth) {
+                                    chart._originalBorderWidth = dataset.borderWidth;
                                 }
                                 
-                                // Agrandir le segment survolé
-                                dataset.offset = dataset.offset.map((_, i) => i === index ? 15 : 0);
+                                // Créer un tableau de borderWidth avec bordure plus épaisse pour le segment survolé
+                                const borderWidths = new Array(chart.data.labels.length).fill(chart._originalBorderWidth);
+                                borderWidths[index] = 6; // Bordure plus épaisse au survol
+                                dataset.borderWidth = borderWidths;
                                 
                                 // Agrandir le point dans la légende avec CSS
                                 const legendItemElement = e.native.target.closest('li');
@@ -345,9 +349,9 @@ export function renderIncomeChart() {
                             const chart = this.chart;
                             const dataset = chart.data.datasets[0];
                             
-                            // Restaurer les offsets
-                            if (dataset.offset && Array.isArray(dataset.offset)) {
-                                dataset.offset = dataset.offset.map(() => 0);
+                            // Restaurer la bordure originale
+                            if (chart._originalBorderWidth !== undefined) {
+                                dataset.borderWidth = chart._originalBorderWidth;
                             }
                             
                             // Restaurer le point dans la légende

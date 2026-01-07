@@ -1,371 +1,217 @@
-# Pécule - Application de Gestion Financière
+# 🐷 Pécule - Application de Gestion Financière Personnelle
 
-Pécule est une application web de gestion financière personnelle permettant de suivre vos revenus, dépenses, catégories et objectifs budgétaires. L'application utilise une architecture modulaire basée sur les modules ES6 pour une meilleure maintenabilité et évolutivité.
+<div align="center">
 
-## 📋 Fonctionnalités
+**Une application web moderne et intuitive pour gérer vos finances personnelles avec élégance**
 
-- **Tableau de bord** : Vue d'ensemble avec graphiques (dépenses par catégorie, évolution du solde) et prédictions
-- **Calendrier** : Visualisation des transactions par date avec indicateurs visuels
-- **Transactions** : Gestion complète des transactions (création, modification, suppression) avec support des transactions récurrentes
-- **Objectifs** : Définition d'objectifs de revenus mensuels et budgets par catégorie avec suivi de progression
-- **Paramètres** : Gestion des catégories (création, modification, suppression) et sauvegarde/restauration des données
+[![Design](https://img.shields.io/badge/Design-Soft%20Minimalism-99BDB4?style=flat-square)](README2.md)
+[![Architecture](https://img.shields.io/badge/Architecture-Modulaire-ES6-blue?style=flat-square)](README2.md)
+[![Responsive](https://img.shields.io/badge/Responsive-Desktop%20%26%20Mobile-green?style=flat-square)](README2.md)
 
-## 🏗️ Architecture
-
-L'application suit une **architecture modulaire** basée sur le pattern **Facade**, où chaque module expose uniquement son interface publique via un fichier `index.js`. Cette approche garantit :
-
-- **Isolation** : Chaque module est indépendant
-- **Maintenabilité** : Code organisé par fonctionnalité
-- **Testabilité** : Modules testables individuellement
-- **Évolutivité** : Facile d'ajouter de nouvelles fonctionnalités
-
-### Structure des dossiers
-
-```
-P-cule/
-├── index.html              # Point d'entrée HTML
-├── app.js                  # Point d'entrée JavaScript (orchestration)
-├── styles.css              # Styles de l'application
-├── src/
-│   ├── modules/            # Modules fonctionnels
-│   │   ├── dashboard/      # Module Tableau de bord
-│   │   ├── calendar/       # Module Calendrier
-│   │   ├── transactions/   # Module Transactions
-│   │   ├── goals/          # Module Objectifs
-│   │   ├── settings/       # Module Paramètres
-│   │   └── shared/         # Module partagé (utilitaires communs)
-│   └── ui/                 # Contrôleurs d'interface
-│       └── NavigationController.js
-└── SERVEUR.md              # Instructions pour lancer un serveur
-```
-
-## 📦 Modules détaillés
-
-### 1. Module Shared (`src/modules/shared/`)
-
-**Rôle** : Fournit les fonctionnalités communes utilisées par plusieurs modules.
-
-**Fichiers** :
-- `StorageService.js` : Gestion du localStorage (loadData, saveData)
-- `Formatters.js` : Formatage de devises (formatCurrency) et échappement HTML (escapeHtml)
-- `TransactionService.js` : Logique de génération des transactions récurrentes (getAllTransactions)
-- `CategoryService.js` : Service générique pour remplir les selects de catégories
-
-**Interface publique** (`index.js`) :
-```javascript
-export { loadData, saveData, defaultData, STORAGE_KEY }
-export { formatCurrency, escapeHtml }
-export { getAllTransactions }
-export { populateCategorySelect }
-```
-
-**Utilisé par** : Tous les autres modules
+</div>
 
 ---
 
-### 2. Module Dashboard (`src/modules/dashboard/`)
+## 📖 Présentation
 
-**Rôle** : Affiche le tableau de bord avec les KPI, graphiques et prédictions.
+**Pécule** est une application web de gestion financière personnelle conçue pour vous aider à suivre vos revenus, dépenses et objectifs budgétaires de manière simple et visuelle. L'application allie une interface utilisateur apaisante et moderne à une architecture technique robuste et maintenable.
 
-**Fichiers** :
-- `DashboardController.js` : Initialisation du module
-- `DashboardRenderer.js` : Rendu des cartes de résumé et calcul des prédictions
-- `DashboardCharts.js` : Création des graphiques Chart.js (camembert des dépenses, évolution du solde)
+### ✨ Caractéristiques principales
 
-**Interface publique** (`index.js`) :
-```javascript
-export { initDashboard, renderDashboard }
-```
-
-**Fonctionnalités** :
-- Calcul et affichage des totaux (revenus, dépenses, solde) du mois en cours
-- Graphique en camembert des dépenses par catégorie
-- Graphique linéaire de l'évolution du solde sur 30 jours
-- Prédiction du solde de fin de mois basée sur les transactions récurrentes et la moyenne quotidienne
-
-**Dépendances** : `shared` (getAllTransactions, formatCurrency, loadData)
+- 🎨 **Design Soft Minimalism** : Interface épurée avec une palette de couleurs douce et apaisante
+- 📱 **100% Responsive** : Optimisée pour desktop et mobile avec navigation adaptative
+- 📊 **Tableau de bord interactif** : Graphiques visuels et prédictions intelligentes
+- 📅 **Calendrier visuel** : Visualisation des transactions par date avec indicateurs colorés
+- 🔄 **Transactions récurrentes** : Automatisation des revenus et dépenses mensuelles
+- 🎯 **Objectifs et budgets** : Suivi de progression avec alertes visuelles
+- 💾 **Sauvegarde locale** : Vos données restent privées sur votre appareil
 
 ---
 
-### 3. Module Calendar (`src/modules/calendar/`)
-
-**Rôle** : Affiche un calendrier mensuel avec les transactions.
-
-**Fichiers** :
-- `CalendarController.js` : Gestion de la navigation (mois précédent/suivant) et état de la date actuelle
-- `CalendarRenderer.js` : Rendu du calendrier et affichage des détails d'un jour sélectionné
-
-**Interface publique** (`index.js`) :
-```javascript
-export { initCalendar, renderCalendar }
-```
-
-**Fonctionnalités** :
-- Affichage d'un calendrier mensuel avec indicateurs visuels (revenus/dépenses)
-- Navigation entre les mois
-- Détails des transactions d'un jour sélectionné
-
-**Dépendances** : `shared` (getAllTransactions, loadData, escapeHtml)
-
----
-
-### 4. Module Transactions (`src/modules/transactions/`)
-
-**Rôle** : Gestion complète des transactions (CRUD).
-
-**Fichiers** :
-- `TransactionController.js` : Initialisation du formulaire et gestion de la soumission
-- `TransactionRenderer.js` : Rendu de la liste des transactions et remplissage des selects de catégories
-- `TransactionModal.js` : Modal d'édition et popup de confirmation de suppression
-
-**Interface publique** (`index.js`) :
-```javascript
-export { initTransactionForm, renderTransactions, populateCategorySelect }
-export { getAllTransactions } // Réexport depuis shared
-```
-
-**Fonctionnalités** :
-- Création de transactions (revenus/dépenses) avec catégorie, date, description
-- Support des transactions récurrentes mensuelles
-- Modification de transactions existantes
-- Suppression avec confirmation
-- Affichage de la liste des transactions (triées par date, plus récentes en premier)
-
-**Dépendances** : `shared`, `settings` (pour ouvrir le modal de catégorie)
-
----
-
-### 5. Module Goals (`src/modules/goals/`)
-
-**Rôle** : Gestion des objectifs financiers (revenus mensuels et budgets par catégorie).
-
-**Fichiers** :
-- `GoalController.js` : Gestion des formulaires (objectif de revenu, budgets par catégorie)
-- `GoalRenderer.js` : Affichage des objectifs avec barres de progression
-
-**Interface publique** (`index.js`) :
-```javascript
-export { initGoals, renderGoals, deleteCategoryBudget }
-```
-
-**Fonctionnalités** :
-- Définition d'un objectif de revenu mensuel avec suivi de progression
-- Création de budgets mensuels par catégorie
-- Affichage des barres de progression avec statuts (atteint, attention, dépassé)
-- Calcul automatique des dépenses réelles vs budgets
-
-**Dépendances** : `shared` (getAllTransactions, loadData, saveData, formatCurrency, escapeHtml)
-
----
-
-### 6. Module Settings (`src/modules/settings/`)
-
-**Rôle** : Gestion des catégories et sauvegarde/restauration des données.
-
-**Fichiers** :
-- `CategoryController.js` : Gestion du formulaire de catégorie (création, modification, suppression)
-- `CategoryRenderer.js` : Affichage de la liste des catégories
-- `CategoryModal.js` : Modal de création rapide de catégorie (depuis le formulaire de transaction)
-- `BackupController.js` : Export/import des données (JSON et TXT)
-
-**Interface publique** (`index.js`) :
-```javascript
-export { initCategoryForm, renderCategories, editCategory, deleteCategory }
-export { initCategoryModal, openCategoryModal, closeCategoryModal }
-export { initBackupImport }
-```
-
-**Fonctionnalités** :
-- Création, modification et suppression de catégories avec couleurs personnalisées
-- Modal de création rapide de catégorie
-- Export des données en JSON ou TXT
-- Import et restauration des données
-
-**Dépendances** : `shared` (loadData, saveData, escapeHtml)
-
----
-
-### 7. NavigationController (`src/ui/NavigationController.js`)
-
-**Rôle** : Gère la navigation entre les différentes pages de l'application.
-
-**Fonctionnalités** :
-- Gestion des clics sur les éléments de navigation
-- Affichage/masquage des pages correspondantes
-- Rechargement automatique des données lors du changement de page
-
-**Dépendances** : Aucune (utilise les fonctions globales exposées par app.js)
-
----
-
-## 🔄 Flux de données
-
-### Communication entre modules
-
-Les modules communiquent uniquement via leurs **interfaces publiques** (fichiers `index.js`). Aucun module ne peut importer directement un fichier interne d'un autre module.
-
-**Exemple** :
-```javascript
-// ✅ CORRECT - Via l'interface publique
-import { loadData, saveData } from '../shared/index.js';
-
-// ❌ INCORRECT - Import direct d'un fichier interne
-import { loadData } from '../shared/StorageService.js';
-```
-
-### Callbacks globaux
-
-Pour certaines interactions entre modules (comme la mise à jour après création d'une catégorie), l'application utilise des **callbacks globaux** exposés sur `window` :
-
-- `window.onCategoryUpdated` : Appelé après création/modification/suppression d'une catégorie
-- `window.renderDashboard`, `window.renderCalendar`, etc. : Fonctions de rendu exposées globalement pour la navigation
-
-### Données partagées
-
-Toutes les données sont stockées dans le **localStorage** via le module `shared/StorageService.js`. La structure des données :
-
-```javascript
-{
-  categories: [
-    { id: string, name: string, color: string }
-  ],
-  transactions: [
-    { 
-      id: string, 
-      amount: number, // négatif pour dépenses, positif pour revenus
-      date: string, // format YYYY-MM-DD
-      type: 'income' | 'expense',
-      categoryId: string,
-      description: string,
-      recurrence: 'monthly' | null
-    }
-  ],
-  goals: {
-    incomeGoal: number | null,
-    categoryBudgets: [
-      { id: string, categoryId: string, amount: number }
-    ]
-  }
-}
-```
-
----
-
-## 🚀 Utilisation
+## 🚀 Démarrage rapide
 
 ### Prérequis
 
-L'application utilise des **modules ES6** qui nécessitent un serveur HTTP. Voir `SERVEUR.md` pour les instructions détaillées.
+- Un navigateur web moderne (Chrome, Firefox, Safari, Edge)
+- Un serveur HTTP local (l'application utilise des modules ES6)
 
-### Démarrage rapide
+### Installation
 
-1. **Lancer un serveur HTTP** (exemple avec Python) :
+1. **Cloner ou télécharger le projet**
+
+2. **Lancer un serveur HTTP local**
+
+   **Option 1 - Python** :
    ```bash
    python -m http.server 8000
    ```
 
-2. **Ouvrir dans le navigateur** :
+   **Option 2 - Node.js (http-server)** :
+   ```bash
+   npx http-server -p 8000
+   ```
+
+   **Option 3 - PHP** :
+   ```bash
+   php -S localhost:8000
+   ```
+
+3. **Ouvrir dans le navigateur**
    ```
    http://localhost:8000
    ```
 
-3. **Utiliser l'application** :
-   - Créer des catégories dans "Paramètres"
-   - Ajouter des transactions dans "Transactions"
-   - Visualiser les statistiques dans "Tableau de bord"
-   - Définir des objectifs dans "Objectifs"
+> 📝 **Note** : Consultez `SERVEUR.md` pour des instructions détaillées sur le lancement d'un serveur.
 
 ---
 
-## 📐 Règles d'architecture
+## 🎯 Fonctionnalités
 
-### 1. Isolation des modules
+### 📊 Tableau de bord
 
-Chaque module doit :
-- Exposer uniquement son interface publique via `index.js`
-- Ne jamais importer directement un fichier interne d'un autre module
-- Utiliser le module `shared` pour les fonctionnalités communes
+Vue d'ensemble complète de votre situation financière :
 
-### 2. Code partagé
+- **Cartes de résumé** : Revenus totaux, dépenses totales et solde actuel du mois
+- **Graphique en camembert** : Répartition des dépenses par catégorie
+- **Graphique linéaire** : Évolution du solde sur les 30 derniers jours
+- **Prédiction intelligente** : Estimation du solde de fin de mois basée sur :
+  - Les transactions récurrentes restantes
+  - La moyenne des dépenses quotidiennes
+  - Les revenus récurrents à venir
 
-Toute fonctionnalité utilisée par **2 modules ou plus** doit être placée dans `shared/`.
+### 📅 Calendrier
 
-**Exemples** :
-- `formatCurrency()` : utilisé par Dashboard, Goals, Transactions → **Shared**
-- `getAllTransactions()` : utilisé par Dashboard, Calendar, Goals, Transactions → **Shared**
-- `loadData()` / `saveData()` : utilisé par tous → **Shared**
+Visualisation mensuelle de vos transactions :
 
-### 3. Point d'entrée unique
+- **Calendrier interactif** : Navigation entre les mois avec indicateurs visuels
+- **Indicateurs colorés** : Points de couleur pour identifier revenus (vert) et dépenses (rose)
+- **Sélection automatique** : Le jour en cours est automatiquement sélectionné
+- **Détails du jour** : Affichage des transactions d'un jour sélectionné avec montants et catégories
 
-Le fichier `app.js` est le seul point d'entrée de l'application. Il :
-- Importe uniquement les interfaces publiques des modules
-- Initialise tous les modules
-- Expose les fonctions nécessaires globalement (pour les callbacks HTML)
+### 💰 Transactions
+
+Gestion complète de vos transactions financières :
+
+- **Création rapide** : Formulaire intuitif avec sélection de catégorie
+- **Transactions récurrentes** : Configuration de revenus/dépenses mensuels automatiques
+- **Modification** : Édition facile de toutes les transactions
+- **Suppression sécurisée** : Confirmation avant suppression définitive
+- **Historique complet** : Liste triée par date (plus récentes en premier)
+
+### 🎯 Objectifs
+
+Définissez et suivez vos objectifs financiers :
+
+- **Objectif de revenu mensuel** : Fixez un montant cible et suivez votre progression
+- **Budgets par catégorie** : Limitez vos dépenses par catégorie avec alertes visuelles
+- **Barres de progression** : Visualisation claire de l'avancement avec codes couleur :
+  - 🟢 Vert : Objectif atteint
+  - 🟠 Orange : Attention, proche de la limite
+  - 🔴 Rouge : Budget dépassé
+
+### ⚙️ Paramètres
+
+Personnalisation et gestion des données :
+
+- **Gestion des catégories** : Création, modification et suppression avec couleurs personnalisées
+- **Palettes de couleurs** : Choix parmi des palettes prédéfinies (Pastel, Clair, Foncé) ou couleur personnalisée
+- **Sauvegarde** : Export de toutes vos données en JSON ou TXT
+- **Restauration** : Import de sauvegardes pour récupérer vos données
 
 ---
 
-## 🔧 Technologies utilisées
+## 🎨 Design et Expérience Utilisateur
 
-- **HTML5** : Structure de l'application
-- **CSS3** : Styles et mise en page responsive
+### Charte graphique "Soft Minimalism"
+
+L'application utilise une palette de couleurs douce et apaisante :
+
+- **Fond principal** : Crème/Beige (#F2F1E6) - Confort visuel
+- **Couleur primaire** : Vert Sauge (#99BDB4) - Navigation et éléments structurels
+- **Accents** : Rose Corail (#F2B1A0) - Appels à l'action et éléments mis en avant
+
+### Caractéristiques du design
+
+- **Bordures très arrondies** : Border-radius de 24px pour un aspect doux et moderne
+- **Ombres subtiles** : Ombres légères pour créer de la profondeur sans agressivité
+- **Espacements généreux** : White space abondant pour une lecture aisée
+- **Micro-interactions fluides** : Transitions douces (0.3s) et transformations subtiles au survol
+- **Typographie élégante** : Polices sans-serif modernes avec hiérarchie visuelle claire
+
+### Responsive Design
+
+- **Desktop (≥1024px)** : Sidebar de navigation fixe, grille de graphiques côte à côte, interface compacte
+- **Mobile (<1024px)** : Navigation en bas d'écran, disposition en colonne unique, optimisé pour le tactile
+
+---
+
+## 🏗️ Architecture Technique
+
+### Architecture Modulaire
+
+L'application suit une **architecture modulaire** basée sur le pattern **Facade**, garantissant :
+
+- ✅ **Isolation** : Chaque module est indépendant
+- ✅ **Maintenabilité** : Code organisé par fonctionnalité
+- ✅ **Testabilité** : Modules testables individuellement
+- ✅ **Évolutivité** : Facile d'ajouter de nouvelles fonctionnalités
+
+### Structure des modules
+
+```
+src/modules/
+├── dashboard/      # Tableau de bord et graphiques
+├── calendar/       # Calendrier mensuel
+├── transactions/   # Gestion des transactions
+├── goals/          # Objectifs et budgets
+├── settings/       # Catégories et sauvegarde
+└── shared/         # Utilitaires communs
+```
+
+Chaque module expose uniquement son interface publique via un fichier `index.js`, respectant le principe d'encapsulation.
+
+---
+
+## 💻 Technologies
+
+- **HTML5** : Structure sémantique
+- **CSS3** : Styles modernes avec variables CSS et Grid/Flexbox
 - **JavaScript ES6+** : Modules, classes, arrow functions
-- **Chart.js** : Graphiques (camembert, ligne)
+- **Chart.js 4.4.0** : Graphiques interactifs (camembert, ligne)
 - **LocalStorage** : Persistance des données côté client
 
 ---
 
-## 📝 Structure d'un module type
+## 📱 Compatibilité
 
-```
-module-name/
-├── index.js              # Interface publique (Facade)
-├── ModuleController.js   # Logique métier et gestion des événements
-├── ModuleRenderer.js     # Rendu et manipulation du DOM
-└── (autres fichiers selon les besoins)
-```
-
-**Exemple de `index.js`** :
-```javascript
-// Interface publique du module
-export { initModule, renderModule } from './ModuleController.js';
-export { updateDisplay } from './ModuleRenderer.js';
-```
+- ✅ Chrome/Edge (dernières versions)
+- ✅ Firefox (dernières versions)
+- ✅ Safari (dernières versions)
+- ✅ Navigateurs mobiles (iOS Safari, Chrome Mobile)
 
 ---
 
-## 🐛 Débogage
+## 🔒 Confidentialité
 
-### Console du navigateur
-
-Ouvrez la console (F12) pour voir les erreurs éventuelles. Les erreurs courantes :
-
-1. **"Failed to load module"** : Vérifiez que vous utilisez un serveur HTTP (pas file://)
-2. **"Cannot find module"** : Vérifiez les chemins d'import (relatifs depuis le fichier)
-3. **"is not defined"** : Vérifiez que la fonction est bien exportée dans l'interface publique
-
-### Vérification des données
-
-Les données sont stockées dans le localStorage sous la clé `pecule_data`. Vous pouvez les inspecter dans la console :
-
-```javascript
-// Afficher les données
-console.log(JSON.parse(localStorage.getItem('pecule_data')));
-
-// Réinitialiser les données
-localStorage.removeItem('pecule_data');
-```
+**Toutes vos données restent sur votre appareil.** Aucune information n'est envoyée à des serveurs externes. Les données sont stockées localement dans le navigateur via le localStorage.
 
 ---
 
-## 🔮 Évolutions futures possibles
+## 📚 Documentation complète
 
-L'architecture modulaire facilite l'ajout de nouvelles fonctionnalités :
+Pour plus de détails sur :
+- L'architecture technique détaillée
+- Les choix de design et chartes graphiques
+- Les particularités de l'implémentation
+- Les patterns utilisés
 
-- **Module Analytics** : Analyses avancées et rapports
-- **Module Export** : Export vers CSV, PDF
-- **Module Notifications** : Alertes de budget dépassé
-- **Module Multi-devices** : Synchronisation cloud
-- **Module Recurrence avancée** : Transactions récurrentes hebdomadaires, annuelles
+👉 Consultez **[README2.md](README2.md)**
+
+---
+
+## 🤝 Contribution
+
+Cette application est un exemple d'architecture modulaire pour application web. Les contributions sont les bienvenues pour améliorer l'application.
 
 ---
 
@@ -375,7 +221,8 @@ Ce projet est un exemple d'architecture modulaire pour application web.
 
 ---
 
-## 👤 Auteur
+<div align="center">
 
-Application développée avec une architecture modulaire basée sur les modules ES6 et le pattern Facade.
+**Développé avec ❤️ en utilisant une architecture modulaire ES6**
 
+</div>

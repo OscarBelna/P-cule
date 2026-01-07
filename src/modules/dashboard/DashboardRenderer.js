@@ -1,7 +1,11 @@
 import { getAllTransactions } from '../shared/index.js';
 import { loadData } from '../shared/index.js';
 import { formatCurrency } from '../shared/index.js';
-import { renderExpensesChart, renderIncomeChart, renderBalanceChart, renderExpensesEvolutionChart, renderIncomeEvolutionChart } from './DashboardCharts.js';
+import { renderExpensesChart } from './charts/ExpensesChart.js';
+import { renderIncomeChart } from './charts/IncomeChart.js';
+import { renderBalanceChart } from './charts/BalanceChart.js';
+import { renderExpensesEvolutionChart } from './charts/ExpensesEvolutionChart.js';
+import { renderIncomeEvolutionChart } from './charts/IncomeEvolutionChart.js';
 
 /**
  * Affiche le tableau de bord avec tous les KPI et graphiques

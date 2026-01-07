@@ -140,8 +140,9 @@ export function renderSavingsTreemap() {
         }
     });
     
-    // Préparer les données pour le Treemap
+    // Préparer les données pour le Treemap (triées par ordre décroissant de montant)
     const treemapData = Object.entries(aggregatedAllocations)
+        .sort(([, amountA], [, amountB]) => amountB - amountA) // Tri décroissant
         .map(([categoryId, totalAmount], index) => {
             const category = savingsCategories.find(c => c.id === categoryId);
             if (!category) return null;

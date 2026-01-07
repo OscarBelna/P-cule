@@ -9,6 +9,7 @@
 5. [Responsive Design](#responsive-design)
 6. [Accessibilité](#accessibilité)
 7. [Performance et Optimisations](#performance-et-optimisations)
+8. [Graphiques et Visualisations](#-graphiques-et-visualisations)
 
 ---
 
@@ -155,6 +156,15 @@ import { loadData } from '../shared/StorageService.js';
 - **Ajustement automatique des tailles** : Les cartes de résumé s'adaptent automatiquement si le montant est trop long (réduction progressive de l'icône puis du texte)
 - **Prédiction intelligente** : Calcul basé sur les transactions récurrentes, la moyenne quotidienne et les jours restants
 - **Graphiques Chart.js** : Configuration personnalisée avec la palette de couleurs de l'application
+- **Graphiques en camembert** : Dépenses et revenus par catégorie pour le mois en cours
+- **Graphiques d'évolution** : Évolution des dépenses et revenus sur 12 mois avec aires empilées
+- **Interactions de légendes** : Survol des légendes pour mettre en avant la série correspondante dans le graphique
+- **Tooltips optimisés** : Masquage automatique des valeurs à 0 dans les tooltips pour meilleure lisibilité
+
+**Fichiers** :
+- `DashboardController.js` : Initialisation du module
+- `DashboardRenderer.js` : Rendu des cartes de résumé, calcul des prédictions et gestion des interactions
+- `DashboardCharts.js` : Création et gestion de tous les graphiques (camembert, ligne, aires empilées)
 
 **Dépendances** : `shared` (getAllTransactions, formatCurrency, loadData)
 
@@ -332,6 +342,36 @@ const _ = card.offsetHeight;
 
 **Pourquoi** : L'utilisateur doit contrôler le scroll, pas l'application. Le scroll automatique peut être désorientant.
 
+### Graphiques d'Évolution avec Interactions
+
+**Implémentation** : Deux graphiques d'évolution (dépenses et revenus) sur 12 mois avec aires empilées et interactions de légendes.
+
+**Fonctionnalités** :
+- **Groupement mensuel** : Données agrégées par mois sur les 12 derniers mois
+- **Aires empilées** : Visualisation de la contribution de chaque catégorie dans le temps
+- **Détection automatique** : Affichage uniquement des catégories ayant des données
+- **Interactions de survol** : Mise en avant de la série correspondante au survol de la légende
+
+**Logique de groupement** :
+```javascript
+// Génération des 12 derniers mois
+for (let i = 11; i >= 0; i--) {
+    const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    // Agrégation des transactions par catégorie et par mois
+}
+```
+
+**Gestion des interactions** :
+- **Stockage des couleurs originales** : `chart._originalColors` pour restauration
+- **Modification dynamique** : Changement d'opacité et d'épaisseur de bordure au survol
+- **Mise à jour optimisée** : `chart.update('none')` pour éviter les animations lors des interactions
+
+**Pourquoi cette approche** :
+- **Lisibilité** : Les aires empilées permettent de voir la contribution de chaque catégorie et le total
+- **Interactivité** : Le survol des légendes facilite l'identification des séries dans des graphiques complexes
+- **Performance** : Mise à jour sans animation pour des interactions fluides et réactives
+
 ---
 
 ## 📱 Responsive Design
@@ -401,7 +441,17 @@ Desktop             : ≥ 1024px
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-lg);
 }
+
+/* Le graphique d'évolution du solde prend toute la largeur */
+.chart-card:has(#balance-chart) {
+    grid-column: 1 / -1;
+}
 ```
+
+**Organisation des graphiques** :
+1. **Première ligne** : 2 graphiques en camembert côte à côte (Dépenses et Revenus par catégorie)
+2. **Deuxième ligne** : 2 graphiques d'évolution côte à côte (Évolution dépenses et revenus sur 12 mois)
+3. **Troisième ligne** : 1 graphique pleine largeur (Évolution du solde sur 30 jours)
 
 #### Mobile
 
@@ -416,6 +466,8 @@ Desktop             : ≥ 1024px
     gap: var(--spacing-md);
 }
 ```
+
+**Organisation mobile** : Tous les graphiques sont empilés verticalement pour une meilleure lisibilité sur petits écrans.
 
 ---
 
@@ -623,19 +675,32 @@ window.onCategoryUpdated = () => {
 ### Chart.js 4.4.0
 
 **Utilisation** :
-- Graphique en camembert (doughnut) pour dépenses par catégorie
-- Graphique linéaire (line) pour évolution du solde
+- **Graphiques en camembert (doughnut)** : Dépenses et revenus par catégorie (mois en cours)
+- **Graphiques linéaires (line)** : Évolution du solde sur 30 jours
+- **Graphiques en aires empilées (stacked area)** : Évolution des dépenses et revenus sur 12 mois
 
 **Configuration personnalisée** :
 - Couleurs harmonisées avec la palette de l'application
 - Tooltips stylisés avec la charte graphique
 - Légendes adaptées avec polices et couleurs cohérentes
+- Interactions de survol sur les légendes pour mise en avant des séries
+
+**Interactions de légendes** :
+- **Graphiques en camembert** : Survol d'une légende réduit l'opacité des autres segments à 20%, mettant en avant le segment survolé
+- **Graphiques d'évolution** : Survol d'une légende augmente l'épaisseur de la bordure (4px) et l'opacité (80%) de la série survolée, réduit les autres à 20% d'opacité et 1px de bordure
+- **Stockage des couleurs originales** : Utilisation de `chart._originalColors` pour restaurer l'état initial au survol
+
+**Optimisations** :
+- **Tooltips filtrés** : Masquage automatique des valeurs à 0 pour améliorer la lisibilité
+- **Mise à jour sans animation** : Utilisation de `chart.update('none')` pour des interactions fluides
+- **Destruction propre** : Destruction des instances existantes avant création de nouveaux graphiques
 
 **Pourquoi Chart.js** :
 - **Mature** : Bibliothèque stable et bien maintenue
 - **Flexible** : Configuration très personnalisable
 - **Performant** : Rendu Canvas optimisé
 - **Accessible** : Support des lecteurs d'écran
+- **Interactif** : Callbacks personnalisables pour interactions avancées
 
 ### Modules ES6
 
@@ -649,6 +714,69 @@ window.onCategoryUpdated = () => {
 
 ---
 
+## 📊 Visualisation de Données
+
+### Types de Graphiques
+
+#### Graphiques en Camembert (Doughnut)
+
+**Utilisation** : Dépenses et revenus par catégorie pour le mois en cours
+
+**Caractéristiques** :
+- **Couleurs dynamiques** : Utilisation des couleurs des catégories définies par l'utilisateur
+- **Tooltips enrichis** : Affichage du montant et du pourcentage par rapport au total
+- **Interactions** : Survol de légende pour mettre en avant le segment correspondant
+- **Bordure élégante** : Bordure de 3px en couleur crème (#F2F1E6) pour séparation visuelle
+
+**Configuration** :
+```javascript
+{
+    type: 'doughnut',
+    borderWidth: 3,
+    borderColor: '#F2F1E6',
+    // Couleurs des catégories en backgroundColor
+}
+```
+
+#### Graphiques Linéaires (Line)
+
+**Utilisation** : Évolution du solde sur 30 derniers jours
+
+**Caractéristiques** :
+- **Aire remplie** : Fond avec opacité réduite (15%) pour visualisation de la zone
+- **Points interactifs** : Rayon de 4px, 6px au survol
+- **Courbe lissée** : Tension de 0.4 pour une courbe naturelle
+- **Couleur primaire** : Vert Sauge (#99BDB4) cohérent avec la charte graphique
+
+#### Graphiques en Aires Empilées (Stacked Area)
+
+**Utilisation** : Évolution des dépenses et revenus sur 12 derniers mois
+
+**Caractéristiques** :
+- **Empilement** : `stacked: true` pour voir la contribution de chaque catégorie
+- **Opacité** : 50% (80 en hex) pour les aires, permettant de voir les superpositions
+- **Bordure** : 2px avec couleur de catégorie pour délimitation claire
+- **Points** : Rayon de 3px, 5px au survol pour interaction
+- **Interactions avancées** : Mise en avant dynamique au survol de légende
+
+**Avantages** :
+- Visualisation de l'évolution temporelle de chaque catégorie
+- Compréhension du total mensuel et de la répartition
+- Identification rapide des tendances et pics
+
+### Optimisations des Tooltips
+
+**Filtrage intelligent** :
+- Masquage automatique des valeurs à 0 pour réduire le bruit visuel
+- Formatage cohérent avec `formatCurrency()` pour tous les montants
+- Affichage du pourcentage pour les graphiques en camembert
+
+**Style personnalisé** :
+- Fond crème (#F8F7F2) cohérent avec la charte graphique
+- Bordure vert sauge (#99BDB4) de 2px
+- Border-radius de 12px pour douceur
+- Padding généreux (12px) pour lisibilité
+
 ## 📊 Métriques et Optimisations Futures
 
 ### Optimisations Possibles
@@ -658,14 +786,19 @@ window.onCategoryUpdated = () => {
 3. **Service Worker** : Pour fonctionnement hors ligne complet
 4. **IndexedDB** : Pour stockage de grandes quantités de données
 5. **Compression** : Minification CSS/JS pour production
+6. **Mise en cache des graphiques** : Éviter la recréation complète lors des mises à jour mineures
 
 ### Améliorations UX Possibles
 
 1. **Recherche** : Recherche dans les transactions
 2. **Filtres avancés** : Filtrage par date, catégorie, montant
-3. **Graphiques supplémentaires** : Tendances annuelles, comparaisons
+3. **Graphiques supplémentaires** : 
+   - Comparaisons année sur année
+   - Projections futures basées sur les tendances
+   - Graphiques de corrélation entre revenus et dépenses
 4. **Notifications** : Alertes de budget dépassé
 5. **Thèmes** : Mode sombre, thèmes personnalisés
+6. **Export de graphiques** : Export en PNG/PDF des visualisations
 
 ---
 
@@ -699,6 +832,65 @@ Aucun module ne peut accéder directement aux fichiers internes d'un autre modul
 
 ---
 
+## 🎯 Graphiques et Visualisations
+
+### Organisation du Dashboard
+
+Le tableau de bord présente les données de manière hiérarchique et progressive :
+
+1. **Cartes de résumé** (3 colonnes desktop) :
+   - Revenus totaux du mois
+   - Dépenses totales du mois
+   - Solde actuel
+
+2. **Graphiques de répartition** (2 colonnes desktop) :
+   - Dépenses par catégorie (camembert)
+   - Revenus par catégorie (camembert)
+
+3. **Graphiques d'évolution** (2 colonnes desktop) :
+   - Évolution des dépenses sur 12 mois (aires empilées)
+   - Évolution des revenus sur 12 mois (aires empilées)
+
+4. **Graphique de tendance** (pleine largeur) :
+   - Évolution du solde sur 30 jours (ligne)
+
+5. **Section prédiction** :
+   - Estimation du solde de fin de mois
+   - Détails du calcul (solde actuel, revenus/dépenses récurrents restants, moyenne quotidienne)
+
+### Interactions Utilisateur
+
+#### Survol des Légendes
+
+**Comportement** :
+- **Graphiques en camembert** : Le segment survolé reste à opacité complète, les autres passent à 20%
+- **Graphiques d'évolution** : La série survolée a une bordure de 4px et opacité 80%, les autres à 1px et 20%
+
+**Implémentation technique** :
+```javascript
+onHover: function(e, legendItem) {
+    // Stockage des couleurs originales
+    if (!chart._originalColors) {
+        chart._originalColors = [...dataset.backgroundColor];
+    }
+    // Modification dynamique des opacités
+    // Mise à jour sans animation
+    chart.update('none');
+}
+```
+
+**Avantages UX** :
+- Identification immédiate de la série correspondante
+- Réduction du bruit visuel pour focus sur une catégorie
+- Feedback visuel clair et instantané
+
+#### Tooltips Optimisés
+
+**Filtrage automatique** :
+- Les valeurs à 0 sont masquées pour éviter l'encombrement
+- Formatage cohérent avec la locale française
+- Affichage contextuel (pourcentage pour camembert, montant pour évolution)
+
 ## 📝 Conclusion
 
 Pécule est une application qui allie :
@@ -708,8 +900,10 @@ Pécule est une application qui allie :
 - **Responsive complet** : Adaptation fluide de mobile à desktop
 - **Accessibilité** : Respect des normes WCAG AA
 - **Performance** : Optimisations pour réactivité et fluidité
+- **Visualisations avancées** : Graphiques interactifs avec Chart.js et interactions intuitives
+- **Expérience utilisateur soignée** : Micro-interactions, tooltips optimisés, mise en avant dynamique
 
-Cette architecture permet une évolution future facilitée et une maintenance simplifiée, tout en offrant une expérience utilisateur de qualité professionnelle.
+Cette architecture permet une évolution future facilitée et une maintenance simplifiée, tout en offrant une expérience utilisateur de qualité professionnelle avec des visualisations de données claires et interactives.
 
 ---
 

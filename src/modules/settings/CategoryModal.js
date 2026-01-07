@@ -1,5 +1,4 @@
 import { loadData, saveData } from '../shared/index.js';
-import { escapeHtml } from '../shared/index.js';
 
 // Variable pour le callback après création de catégorie
 let categoryModalCallback = null;

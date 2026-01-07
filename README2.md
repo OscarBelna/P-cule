@@ -194,12 +194,19 @@ import { loadData } from '../shared/StorageService.js';
 
 #### Module Goals
 
-**Rôle** : Gestion des objectifs financiers (revenus mensuels et budgets par catégorie).
+**Rôle** : Gestion des objectifs financiers (revenus mensuels, budgets par catégorie et répartition des économies).
 
 **Particularités** :
 - **Barres de progression dynamiques** : Calcul automatique avec codes couleur selon l'état
 - **Statuts visuels** : Success (vert), Warning (orange), Danger (rouge)
 - **Calculs en temps réel** : Mise à jour automatique lors de l'ajout de transactions
+- **Répartition des économies** : 
+  - Navigation mensuelle avec sélecteur de période
+  - Calcul automatique des économies (Revenus - Dépenses)
+  - Formulaire d'allocation avec validation (impossible de dépasser les économies)
+  - Historique trié par date avec possibilité de suppression
+  - Messages de feedback intelligents selon le contexte
+  - Synchronisation temps réel avec le Treemap du Dashboard
 
 **Dépendances** : `shared` (getAllTransactions, loadData, saveData, formatCurrency, escapeHtml)
 
@@ -208,10 +215,15 @@ import { loadData } from '../shared/StorageService.js';
 **Rôle** : Gestion des catégories et sauvegarde/restauration des données.
 
 **Particularités** :
-- **Palettes de couleurs prédéfinies** : Pastel, Clair, Foncé avec génération automatique
+- **Modal unifié** : Popup réutilisable pour création et modification de catégories
+- **Palettes de couleurs prédéfinies** : Pastel, Clair, Foncé avec génération automatique et onglets
 - **Sélecteur de couleur personnalisé** : Input color natif pour choix libre
+- **Catégories typées** : Séparation entre catégories de transactions et catégories d'économie
+- **Sections distinctes** : "Mes catégories" et "Mes catégories d'économie" séparées visuellement
+- **Boutons "+ Nouvelle"** : Accès rapide au modal de création
 - **Export multiple** : JSON (structuré) et TXT (lisible) pour différents besoins
 - **Import sécurisé** : Validation avant restauration des données
+- **Suppression intelligente** : Nettoyage automatique des allocations liées lors de la suppression
 
 **Dépendances** : `shared` (loadData, saveData, escapeHtml)
 
@@ -618,7 +630,8 @@ input:focus {
     { 
       id: string,           // UUID
       name: string,         // Nom de la catégorie
-      color: string         // Code hexadécimal (#RRGGBB)
+      color: string,        // Code hexadécimal (#RRGGBB)
+      type: string          // 'transaction' | 'savings' (défaut: 'transaction')
     }
   ],
   transactions: [
@@ -641,6 +654,17 @@ input:focus {
         amount: number      // Budget mensuel
       }
     ]
+  },
+  savingsAllocations: {
+    "2026-01": [         // Format année-mois
+      {
+        id: string,      // UUID
+        categoryId: string,  // Référence à une catégorie d'économie
+        amount: number,  // Montant alloué
+        description: string,  // Description optionnelle
+        date: string     // ISO 8601 timestamp
+      }
+    ]
   }
 }
 ```
@@ -659,18 +683,53 @@ Pour éviter les dépendances circulaires, certains callbacks sont exposés glob
 ```javascript
 window.onCategoryUpdated = () => {
     renderCategories();
+    renderSavingsCategories();
     populateCategorySelect();
     renderGoals();
     renderTransactions();
     renderDashboard();
+    renderSavingsTreemap();
 };
 ```
 
 **Justification** : Permet à un module (Settings) de notifier les autres sans créer de dépendances.
 
+**Nouveaux callbacks pour Répartition des Économies** :
+- `window.renderSavingsTreemap()` : Mise à jour du graphique Treemap
+- `window.renderSavingsCategories()` : Mise à jour de la liste des catégories d'économie
+- `window.openCategoryModal()` : Ouverture du modal avec type et mode (création/édition)
+
 ---
 
 ## 🛠️ Technologies et Bibliothèques
+
+### Système de Gestion des Catégories
+
+**Architecture unifiée** : Modal réutilisable pour tous les types de catégories
+
+**Fonctionnalités** :
+- **Type de catégorie** : Support de `'transaction'` et `'savings'`
+- **Mode création/édition** : Détection automatique via paramètre `categoryId`
+- **Palettes de couleurs** : 3 onglets (Pastel, Clair, Foncé) + sélecteur personnalisé
+- **Pré-remplissage** : Chargement automatique des données en mode édition
+- **Titre dynamique** : Adaptation selon le type et le mode
+
+**Refactoring DRY** :
+```javascript
+// Fonction helper pour éviter la duplication
+function initAddCategoryButton(buttonId, type, renderCallback) {
+    // Logique mutualisée pour tous les boutons d'ajout
+}
+
+function openEditCategoryModal(categoryId, type, callback) {
+    // Logique mutualisée pour tous les boutons de modification
+}
+```
+
+**Avantages** :
+- Moins de code (30% de réduction)
+- Maintenance facilitée (un seul endroit à modifier)
+- Cohérence UX garantie
 
 ### Chart.js 4.4.0
 
@@ -678,6 +737,7 @@ window.onCategoryUpdated = () => {
 - **Graphiques en camembert (doughnut)** : Dépenses et revenus par catégorie (mois en cours)
 - **Graphiques linéaires (line)** : Évolution du solde sur 30 jours
 - **Graphiques en aires empilées (stacked area)** : Évolution des dépenses et revenus sur 12 mois
+- **Graphiques en barres (bar)** : Économies mensuelles sur 12 mois
 
 **Configuration personnalisée** :
 - Couleurs harmonisées avec la palette de l'application
@@ -701,6 +761,36 @@ window.onCategoryUpdated = () => {
 - **Performant** : Rendu Canvas optimisé
 - **Accessible** : Support des lecteurs d'écran
 - **Interactif** : Callbacks personnalisables pour interactions avancées
+
+### chartjs-chart-treemap 2.3.0
+
+**Utilisation** : Visualisation en Treemap de la répartition des économies
+
+**Caractéristiques** :
+- **Blocs arrondis** : Border-radius de 16px pour cohérence avec le design
+- **Couleurs alternées** : Nuances de Vert Sauge (#99BDB4) et Rose Corail (#F2B1A0)
+- **Labels intégrés** : Nom de catégorie et montant affichés dans chaque bloc
+- **Navigation temporelle** : Filtre par mois avec boutons de navigation
+- **Tri décroissant** : Affichage des montants les plus importants en premier
+- **Agrégation intelligente** : Somme automatique des allocations multiples par catégorie
+
+**Implémentation** :
+```javascript
+{
+    type: 'treemap',
+    borderRadius: 16,
+    spacing: 2,
+    backgroundColor: (ctx) => generateColor(ctx.dataIndex),
+    borderColor: (ctx) => generateBorderColor(ctx.dataIndex),
+    borderWidth: 3
+}
+```
+
+**Pourquoi Treemap** :
+- **Visualisation proportionnelle** : La taille des blocs représente le montant alloué
+- **Comparaison immédiate** : Identification rapide des catégories prioritaires
+- **Esthétique moderne** : Correspond au style "Soft Minimalism"
+- **Interactif** : Tooltips au survol avec détails complets
 
 ### Modules ES6
 
@@ -788,6 +878,28 @@ window.onCategoryUpdated = () => {
 5. **Compression** : Minification CSS/JS pour production
 6. **Mise en cache des graphiques** : Éviter la recréation complète lors des mises à jour mineures
 
+### Nouvelles Fonctionnalités Implémentées
+
+#### Répartition des Économies
+
+**Tableau de bord** :
+- Graphique Treemap avec navigation mensuelle
+- Blocs arrondis (16px) aux couleurs Sauge et Corail
+- Tri par ordre décroissant de montant
+- Agrégation automatique par catégorie
+
+**Page Objectifs** :
+- Interface de pilotage avec navigation par mois
+- Calcul automatique : Montant à répartir = Revenus - Dépenses
+- Formulaire avec validation en temps réel
+- Historique des allocations trié par date
+- Messages de feedback contextuels
+
+**Paramètres** :
+- Section dédiée aux catégories d'économie
+- Modal unifié avec palettes de couleurs
+- Modification et suppression avec nettoyage automatique
+
 ### Améliorations UX Possibles
 
 1. **Recherche** : Recherche dans les transactions
@@ -799,6 +911,7 @@ window.onCategoryUpdated = () => {
 4. **Notifications** : Alertes de budget dépassé
 5. **Thèmes** : Mode sombre, thèmes personnalisés
 6. **Export de graphiques** : Export en PNG/PDF des visualisations
+7. **Objectifs d'épargne** : Cumul et progression vers des objectifs spécifiques
 
 ---
 
@@ -900,8 +1013,10 @@ Pécule est une application qui allie :
 - **Responsive complet** : Adaptation fluide de mobile à desktop
 - **Accessibilité** : Respect des normes WCAG AA
 - **Performance** : Optimisations pour réactivité et fluidité
-- **Visualisations avancées** : Graphiques interactifs avec Chart.js et interactions intuitives
+- **Visualisations avancées** : Graphiques interactifs avec Chart.js (Treemap, Aires, Barres) et interactions intuitives
+- **Gestion intelligente des économies** : Allocation par objectifs d'épargne avec validation et historique
 - **Expérience utilisateur soignée** : Micro-interactions, tooltips optimisés, mise en avant dynamique
+- **Code DRY et maintenable** : Refactoring avec fonctions helper et composants réutilisables
 
 Cette architecture permet une évolution future facilitée et une maintenance simplifiée, tout en offrant une expérience utilisateur de qualité professionnelle avec des visualisations de données claires et interactives.
 
@@ -911,7 +1026,7 @@ Cette architecture permet une évolution future facilitée et une maintenance si
 
 **Documentation technique complète de Pécule**
 
-*Dernière mise à jour : 2024*
+*Dernière mise à jour : Janvier 2026*
 
 </div>
 

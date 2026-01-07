@@ -24,6 +24,7 @@
 - 📅 **Calendrier visuel** : Visualisation des transactions par date avec indicateurs colorés
 - 🔄 **Transactions récurrentes** : Automatisation des revenus et dépenses mensuelles
 - 🎯 **Objectifs et budgets** : Suivi de progression avec alertes visuelles
+- 💰 **Répartition des économies** : Allocation intelligente de vos économies mensuelles par objectifs d'épargne
 - 💾 **Sauvegarde locale** : Vos données restent privées sur votre appareil
 
 ---
@@ -72,7 +73,10 @@
 Vue d'ensemble complète de votre situation financière :
 
 - **Cartes de résumé** : Revenus totaux, dépenses totales et solde actuel du mois
-- **Graphique en camembert** : Répartition des dépenses par catégorie
+- **Graphiques en camembert** : Répartition des dépenses et revenus par catégorie
+- **Graphiques d'évolution** : Évolution des dépenses et revenus sur 12 mois
+- **Graphique des économies** : Économies mensuelles (revenus - dépenses) sur 12 mois
+- **Graphique Treemap** : Répartition visuelle des économies par catégories d'épargne avec navigation mensuelle
 - **Graphique linéaire** : Évolution du solde sur les 30 derniers jours
 - **Prédiction intelligente** : Estimation du solde de fin de mois basée sur :
   - Les transactions récurrentes restantes
@@ -109,12 +113,31 @@ Définissez et suivez vos objectifs financiers :
   - 🟠 Orange : Attention, proche de la limite
   - 🔴 Rouge : Budget dépassé
 
+#### 💰 Répartition des Économies (Nouveau)
+
+Pilotez intelligemment l'allocation de vos économies mensuelles :
+
+- **Navigation mensuelle** : Sélecteur de période pour naviguer entre les mois
+- **Calcul automatique** : Affichage des économies du mois (Revenus - Dépenses)
+- **Formulaire d'allocation** :
+  - Sélection de catégorie d'épargne
+  - Saisie du montant (validation automatique)
+  - Description optionnelle
+- **Reste à répartir** : Mise à jour dynamique en temps réel
+- **Historique** : Liste des allocations effectuées avec possibilité de suppression
+- **Validation intelligente** : Impossible d'allouer plus que les économies disponibles
+- **Messages de feedback** :
+  - ✅ Succès : "Bravo ! Chaque euro est à sa place." (quand tout est réparti)
+  - ℹ️ Info : Message d'encouragement si économies ≤ 0
+
 ### ⚙️ Paramètres
 
 Personnalisation et gestion des données :
 
-- **Gestion des catégories** : Création, modification et suppression avec couleurs personnalisées
+- **Gestion des catégories de transactions** : Création, modification et suppression avec popup élégant
+- **Gestion des catégories d'économie** : Section dédiée pour les objectifs d'épargne
 - **Palettes de couleurs** : Choix parmi des palettes prédéfinies (Pastel, Clair, Foncé) ou couleur personnalisée
+- **Modal unifié** : Popup réutilisable avec sélecteur de couleurs par onglets
 - **Sauvegarde** : Export de toutes vos données en JSON ou TXT
 - **Restauration** : Import de sauvegardes pour récupérer vos données
 
@@ -177,7 +200,8 @@ Chaque module expose uniquement son interface publique via un fichier `index.js`
 - **HTML5** : Structure sémantique
 - **CSS3** : Styles modernes avec variables CSS et Grid/Flexbox
 - **JavaScript ES6+** : Modules, classes, arrow functions
-- **Chart.js 4.4.0** : Graphiques interactifs (camembert, ligne)
+- **Chart.js 4.4.0** : Graphiques interactifs (camembert, ligne, aires)
+- **chartjs-chart-treemap 2.3.0** : Visualisation Treemap pour répartition des économies
 - **LocalStorage** : Persistance des données côté client
 
 ---

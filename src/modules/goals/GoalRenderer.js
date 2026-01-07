@@ -277,16 +277,12 @@ export function renderSavingsAllocation() {
     const data = loadData();
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
     
-    console.log('renderSavingsAllocation - monthKey:', monthKey);
-    console.log('renderSavingsAllocation - savingsAllocations:', data.savingsAllocations);
-    
     // S'assurer que savingsAllocations existe
     if (!data.savingsAllocations) {
         data.savingsAllocations = {};
     }
     
     const allocations = data.savingsAllocations[monthKey] || [];
-    console.log('renderSavingsAllocation - allocations trouvées:', allocations);
     
     // Filtrer les catégories de type 'savings'
     const savingsCategories = data.categories.filter(c => c.type === 'savings');
@@ -412,8 +408,6 @@ function renderAllocationForm(savingsCategories, totalSavings, allocations) {
         const dateB = b.date ? new Date(b.date) : new Date(0);
         return dateB - dateA;
     });
-    
-    console.log('Allocations triées pour historique:', sortedAllocations);
     
     const historyHtml = sortedAllocations.length > 0 ? `
         <div class="allocation-history">
@@ -571,19 +565,12 @@ function handleAllocationSubmit(event) {
     data.savingsAllocations[monthKey].push(newAllocation);
     saveData(data);
     
-    console.log('Allocation créée:', newAllocation);
-    console.log('Toutes les allocations du mois:', data.savingsAllocations[monthKey]);
-    
     // Réinitialiser le formulaire
     event.target.reset();
     
-    // Recharger l'affichage
+    // Recharger l'affichage et notifier les modules
     renderSavingsAllocation();
-    
-    // Notifier le dashboard pour mettre à jour le Treemap
-    if (window.renderSavingsTreemap) {
-        window.renderSavingsTreemap();
-    }
+    if (window.renderSavingsTreemap) window.renderSavingsTreemap();
 }
 
 /**
@@ -609,10 +596,6 @@ function deleteAllocation(allocationId) {
     
     saveData(data);
     renderSavingsAllocation();
-    
-    // Notifier le dashboard
-    if (window.renderSavingsTreemap) {
-        window.renderSavingsTreemap();
-    }
+    if (window.renderSavingsTreemap) window.renderSavingsTreemap();
 }
 

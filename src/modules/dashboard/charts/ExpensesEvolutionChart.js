@@ -132,6 +132,39 @@ function createExpensesEvolutionChart(ctx, labels, datasets) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            onHover: function(e, activeElements) {
+                const chart = this;
+                
+                // Stocker les valeurs originales si pas déjà fait
+                if (!chart._originalLineStyles) {
+                    chart._originalLineStyles = chart.data.datasets.map(d => ({
+                        borderWidth: d.borderWidth || 2,
+                        pointRadius: d.pointRadius || 3
+                    }));
+                }
+                
+                if (activeElements.length > 0) {
+                    const index = activeElements[0].datasetIndex;
+                    
+                    // Agrandir la série survolée
+                    chart.data.datasets.forEach((dataset, i) => {
+                        if (i === index) {
+                            dataset.borderWidth = 4;
+                            dataset.pointRadius = 6;
+                        }
+                    });
+                    chart.update('none');
+                } else {
+                    // Restaurer les styles originaux
+                    chart.data.datasets.forEach((dataset, i) => {
+                        if (chart._originalLineStyles[i]) {
+                            dataset.borderWidth = chart._originalLineStyles[i].borderWidth;
+                            dataset.pointRadius = chart._originalLineStyles[i].pointRadius;
+                        }
+                    });
+                    chart.update('none');
+                }
+            },
             interaction: {
                 mode: 'index',
                 intersect: false
@@ -153,53 +186,59 @@ function createExpensesEvolutionChart(ctx, labels, datasets) {
                             const chart = this.chart;
                             const index = legendItem.datasetIndex;
                             
-                            // Stocker les couleurs originales si pas déjà fait
-                            if (!chart._originalColors) {
-                                chart._originalColors = chart.data.datasets.map(d => ({
-                                    backgroundColor: d.backgroundColor,
-                                    borderColor: d.borderColor,
-                                    borderWidth: d.borderWidth
+                            // Stocker les valeurs originales si pas déjà fait
+                            if (!chart._originalLineStyles) {
+                                chart._originalLineStyles = chart.data.datasets.map(d => ({
+                                    borderWidth: d.borderWidth || 2,
+                                    pointRadius: d.pointRadius || 3
                                 }));
                             }
                             
-                            // Modifier l'opacité de toutes les séries
+                            // Agrandir la série survolée
                             chart.data.datasets.forEach((dataset, i) => {
-                                const meta = chart.getDatasetMeta(i);
                                 if (i === index) {
-                                    // Mettre en avant la série survolée
-                                    meta.hidden = false;
                                     dataset.borderWidth = 4;
-                                    if (dataset.backgroundColor) {
-                                        dataset.backgroundColor = dataset.backgroundColor.replace('80', 'CC'); // Plus opaque
-                                    }
-                                } else {
-                                    // Réduire l'opacité des autres séries
-                                    meta.hidden = false; // Ne pas cacher, juste réduire l'opacité
-                                    dataset.borderWidth = 1;
-                                    if (dataset.backgroundColor) {
-                                        dataset.backgroundColor = dataset.backgroundColor.replace('80', '20').replace('CC', '20'); // Très transparent
-                                    }
+                                    dataset.pointRadius = 6;
                                 }
                             });
-                            chart.update('none'); // Mise à jour sans animation
+                            
+                            // Agrandir le point dans la légende avec CSS
+                            const legendItemElement = e.native.target.closest('li');
+                            if (legendItemElement) {
+                                const pointElement = legendItemElement.querySelector('span[style*="background"], span[style*="Background"]');
+                                if (pointElement) {
+                                    pointElement.style.transform = 'scale(1.4)';
+                                    pointElement.style.transition = 'transform 0.2s ease';
+                                }
+                            }
+                            
+                            chart.update('none');
                         }
                     },
                     onLeave: function(e, legendItem) {
                         e.native.target.style.cursor = 'default';
-                        if (legendItem && this.chart._originalColors) {
-                            const chart = this.chart;
-                            
-                            // Restaurer les couleurs originales
+                        const chart = this.chart;
+                        
+                        // Restaurer les styles originaux
+                        if (chart._originalLineStyles) {
                             chart.data.datasets.forEach((dataset, i) => {
-                                const meta = chart.getDatasetMeta(i);
-                                if (!meta.hidden && chart._originalColors[i]) {
-                                    dataset.backgroundColor = chart._originalColors[i].backgroundColor;
-                                    dataset.borderColor = chart._originalColors[i].borderColor;
-                                    dataset.borderWidth = chart._originalColors[i].borderWidth;
+                                if (chart._originalLineStyles[i]) {
+                                    dataset.borderWidth = chart._originalLineStyles[i].borderWidth;
+                                    dataset.pointRadius = chart._originalLineStyles[i].pointRadius;
                                 }
                             });
-                            chart.update('none'); // Mise à jour sans animation
                         }
+                        
+                        // Restaurer le point dans la légende
+                        const legendItemElement = e.native.target.closest('li');
+                        if (legendItemElement) {
+                            const pointElement = legendItemElement.querySelector('span[style*="background"], span[style*="Background"]');
+                            if (pointElement) {
+                                pointElement.style.transform = 'scale(1)';
+                            }
+                        }
+                        
+                        chart.update('none');
                     },
                     labels: {
                         padding: 18,

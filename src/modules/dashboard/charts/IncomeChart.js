@@ -83,6 +83,29 @@ export function renderIncomeChart() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                onHover: function(e, activeElements) {
+                    const chart = this;
+                    const dataset = chart.data.datasets[0];
+                    
+                    if (activeElements.length > 0) {
+                        const index = activeElements[0].index;
+                        
+                        // Créer un tableau d'offsets pour chaque segment
+                        if (!dataset.offset || !Array.isArray(dataset.offset)) {
+                            dataset.offset = new Array(chart.data.labels.length).fill(0);
+                        }
+                        
+                        // Agrandir le segment survolé
+                        dataset.offset = dataset.offset.map((_, i) => i === index ? 15 : 0);
+                        chart.update('none');
+                    } else {
+                        // Si aucun élément actif, restaurer les offsets
+                        if (dataset.offset && Array.isArray(dataset.offset)) {
+                            dataset.offset = dataset.offset.map(() => 0);
+                            chart.update('none');
+                        }
+                    }
+                },
                 plugins: {
                     legend: {
                         position: 'bottom',
@@ -90,42 +113,50 @@ export function renderIncomeChart() {
                             e.native.target.style.cursor = 'pointer';
                             if (legendItem) {
                                 const chart = this.chart;
-                                const index = legendItem.index; // Pour doughnut, utiliser index au lieu de datasetIndex
+                                const index = legendItem.index;
                                 const dataset = chart.data.datasets[0];
                                 
-                                // Stocker les couleurs originales si pas déjà fait
-                                if (!chart._originalColors) {
-                                    chart._originalColors = [...dataset.backgroundColor];
+                                // Créer un tableau d'offsets pour chaque segment
+                                if (!dataset.offset || !Array.isArray(dataset.offset)) {
+                                    dataset.offset = new Array(chart.data.labels.length).fill(0);
                                 }
                                 
-                                // Modifier l'opacité de tous les segments
-                                dataset.backgroundColor = dataset.backgroundColor.map((color, i) => {
-                                    if (i === index) {
-                                        return color; // Garder la couleur complète pour le segment survolé
-                                    } else {
-                                        // Réduire l'opacité des autres segments
-                                        if (color.startsWith('#')) {
-                                            const r = parseInt(color.slice(1, 3), 16);
-                                            const g = parseInt(color.slice(3, 5), 16);
-                                            const b = parseInt(color.slice(5, 7), 16);
-                                            return `rgba(${r}, ${g}, ${b}, 0.2)`;
-                                        }
-                                        return color.replace('1)', '0.2)').replace('1.0)', '0.2)');
+                                // Agrandir le segment survolé
+                                dataset.offset = dataset.offset.map((_, i) => i === index ? 15 : 0);
+                                
+                                // Agrandir le point dans la légende avec CSS
+                                const legendItemElement = e.native.target.closest('li');
+                                if (legendItemElement) {
+                                    const pointElement = legendItemElement.querySelector('span[style*="background"], span[style*="Background"]');
+                                    if (pointElement) {
+                                        pointElement.style.transform = 'scale(1.4)';
+                                        pointElement.style.transition = 'transform 0.2s ease';
                                     }
-                                });
+                                }
+                                
                                 chart.update('none');
                             }
                         },
                         onLeave: function(e, legendItem) {
                             e.native.target.style.cursor = 'default';
-                            if (legendItem && this.chart._originalColors) {
-                                const chart = this.chart;
-                                const dataset = chart.data.datasets[0];
-                                
-                                // Restaurer les couleurs originales
-                                dataset.backgroundColor = chart._originalColors;
-                                chart.update('none');
+                            const chart = this.chart;
+                            const dataset = chart.data.datasets[0];
+                            
+                            // Restaurer les offsets
+                            if (dataset.offset && Array.isArray(dataset.offset)) {
+                                dataset.offset = dataset.offset.map(() => 0);
                             }
+                            
+                            // Restaurer le point dans la légende
+                            const legendItemElement = e.native.target.closest('li');
+                            if (legendItemElement) {
+                                const pointElement = legendItemElement.querySelector('span[style*="background"], span[style*="Background"]');
+                                if (pointElement) {
+                                    pointElement.style.transform = 'scale(1)';
+                                }
+                            }
+                            
+                            chart.update('none');
                         },
                         labels: {
                             padding: 18,
@@ -225,6 +256,29 @@ export function renderIncomeChart() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                onHover: function(e, activeElements) {
+                    const chart = this;
+                    const dataset = chart.data.datasets[0];
+                    
+                    if (activeElements.length > 0) {
+                        const index = activeElements[0].index;
+                        
+                        // Créer un tableau d'offsets pour chaque segment
+                        if (!dataset.offset || !Array.isArray(dataset.offset)) {
+                            dataset.offset = new Array(chart.data.labels.length).fill(0);
+                        }
+                        
+                        // Agrandir le segment survolé
+                        dataset.offset = dataset.offset.map((_, i) => i === index ? 15 : 0);
+                        chart.update('none');
+                    } else {
+                        // Si aucun élément actif, restaurer les offsets
+                        if (dataset.offset && Array.isArray(dataset.offset)) {
+                            dataset.offset = dataset.offset.map(() => 0);
+                            chart.update('none');
+                        }
+                    }
+                },
                 plugins: {
                     legend: {
                         position: 'bottom',
@@ -232,42 +286,50 @@ export function renderIncomeChart() {
                             e.native.target.style.cursor = 'pointer';
                             if (legendItem) {
                                 const chart = this.chart;
-                                const index = legendItem.index; // Pour doughnut, utiliser index au lieu de datasetIndex
+                                const index = legendItem.index;
                                 const dataset = chart.data.datasets[0];
                                 
-                                // Stocker les couleurs originales si pas déjà fait
-                                if (!chart._originalColors) {
-                                    chart._originalColors = [...dataset.backgroundColor];
+                                // Créer un tableau d'offsets pour chaque segment
+                                if (!dataset.offset || !Array.isArray(dataset.offset)) {
+                                    dataset.offset = new Array(chart.data.labels.length).fill(0);
                                 }
                                 
-                                // Modifier l'opacité de tous les segments
-                                dataset.backgroundColor = dataset.backgroundColor.map((color, i) => {
-                                    if (i === index) {
-                                        return color; // Garder la couleur complète pour le segment survolé
-                                    } else {
-                                        // Réduire l'opacité des autres segments
-                                        if (color.startsWith('#')) {
-                                            const r = parseInt(color.slice(1, 3), 16);
-                                            const g = parseInt(color.slice(3, 5), 16);
-                                            const b = parseInt(color.slice(5, 7), 16);
-                                            return `rgba(${r}, ${g}, ${b}, 0.2)`;
-                                        }
-                                        return color.replace('1)', '0.2)').replace('1.0)', '0.2)');
+                                // Agrandir le segment survolé
+                                dataset.offset = dataset.offset.map((_, i) => i === index ? 15 : 0);
+                                
+                                // Agrandir le point dans la légende avec CSS
+                                const legendItemElement = e.native.target.closest('li');
+                                if (legendItemElement) {
+                                    const pointElement = legendItemElement.querySelector('span[style*="background"], span[style*="Background"]');
+                                    if (pointElement) {
+                                        pointElement.style.transform = 'scale(1.4)';
+                                        pointElement.style.transition = 'transform 0.2s ease';
                                     }
-                                });
+                                }
+                                
                                 chart.update('none');
                             }
                         },
                         onLeave: function(e, legendItem) {
                             e.native.target.style.cursor = 'default';
-                            if (legendItem && this.chart._originalColors) {
-                                const chart = this.chart;
-                                const dataset = chart.data.datasets[0];
-                                
-                                // Restaurer les couleurs originales
-                                dataset.backgroundColor = chart._originalColors;
-                                chart.update('none');
+                            const chart = this.chart;
+                            const dataset = chart.data.datasets[0];
+                            
+                            // Restaurer les offsets
+                            if (dataset.offset && Array.isArray(dataset.offset)) {
+                                dataset.offset = dataset.offset.map(() => 0);
                             }
+                            
+                            // Restaurer le point dans la légende
+                            const legendItemElement = e.native.target.closest('li');
+                            if (legendItemElement) {
+                                const pointElement = legendItemElement.querySelector('span[style*="background"], span[style*="Background"]');
+                                if (pointElement) {
+                                    pointElement.style.transform = 'scale(1)';
+                                }
+                            }
+                            
+                            chart.update('none');
                         },
                         labels: {
                             padding: 18,

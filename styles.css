@@ -284,13 +284,14 @@ body {
 .form-group input[type="text"]:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(153, 189, 180, 0.15);
+    box-shadow: 0 0 0 3.2px rgba(153, 189, 180, 0.15);
     background: white;
 }
 
 .form-group input[type="text"]:focus-visible {
-    outline: 3px solid var(--primary);
-    outline-offset: 2px;
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3.2px rgba(153, 189, 180, 0.15);
 }
 
 /* Sélecteur de couleur */
@@ -349,7 +350,7 @@ body {
 
 .color-palette {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 6.4px;
     padding: 6.4px 0;
 }
@@ -1473,7 +1474,7 @@ body {
 .form-group textarea:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(153, 189, 180, 0.15);
+    box-shadow: 0 0 0 3.2px rgba(153, 189, 180, 0.15);
     background: white;
 }
 
@@ -1481,8 +1482,9 @@ body {
 .form-group input[type="date"]:focus-visible,
 .form-group select:focus-visible,
 .form-group textarea:focus-visible {
-    outline: 3px solid var(--primary);
-    outline-offset: 2px;
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3.2px rgba(153, 189, 180, 0.15);
 }
 
 .form-group select {

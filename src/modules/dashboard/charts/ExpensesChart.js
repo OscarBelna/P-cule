@@ -6,6 +6,35 @@ import { formatCurrency } from '../../shared/index.js';
 let expensesChart = null;
 
 /**
+ * Éclaircit une couleur hexadécimale en la mélangeant avec du blanc
+ * @param {string} hex - Couleur hexadécimale (ex: '#99BDB4')
+ * @param {number} factor - Facteur d'éclaircissement (0-1, défaut: 0.6 pour 60% de blanc)
+ * @returns {string} Couleur hexadécimale éclaircie
+ */
+function lightenColor(hex, factor = 0.6) {
+    // Retirer le # si présent
+    hex = hex.replace('#', '');
+    
+    // Convertir en RGB
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    // Mélanger avec du blanc (255, 255, 255)
+    const lightenedR = Math.floor(r + (255 - r) * factor);
+    const lightenedG = Math.floor(g + (255 - g) * factor);
+    const lightenedB = Math.floor(b + (255 - b) * factor);
+    
+    // Reconvertir en hexadécimal
+    const toHex = (n) => {
+        const hex = n.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+    };
+    
+    return `#${toHex(lightenedR)}${toHex(lightenedG)}${toHex(lightenedB)}`;
+}
+
+/**
  * Crée le graphique en camembert pour les dépenses par catégorie
  */
 export function renderExpensesChart() {
@@ -40,14 +69,15 @@ export function renderExpensesChart() {
     const labels = [];
     const values = [];
     const colors = [];
+    const borderColors = [];
     
     Object.keys(expensesByCategory).forEach(categoryId => {
         const category = data.categories.find(cat => cat.id === categoryId);
-        if (category) {
-            labels.push(category.name);
-            values.push(expensesByCategory[categoryId]);
-            colors.push(category.color);
-        }
+        const color = category ? category.color : '#99BDB4';
+        labels.push(category ? category.name : 'Inconnu');
+        values.push(expensesByCategory[categoryId]);
+        colors.push(lightenColor(color)); // Intérieur plus clair
+        borderColors.push(color); // Contour de la couleur normale
     });
     
     // Détruire le graphique existant s'il existe
@@ -77,7 +107,7 @@ export function renderExpensesChart() {
                     data: values,
                     backgroundColor: colors,
                     borderWidth: 3,
-                    borderColor: '#F2F1E6'
+                    borderColor: borderColors
                 }]
             },
             options: {
@@ -250,7 +280,7 @@ export function renderExpensesChart() {
                     data: values,
                     backgroundColor: colors,
                     borderWidth: 3,
-                    borderColor: '#F2F1E6'
+                    borderColor: borderColors
                 }]
             },
             options: {

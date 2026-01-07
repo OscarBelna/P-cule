@@ -65,12 +65,16 @@ export function renderCalendar(currentDate = new Date()) {
     
     // Jours du mois actuel
     const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
+    // Sélectionner le jour en cours seulement si on est dans le mois actuel
+    const selectedDate = isCurrentMonth ? todayStr : null;
     
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const dayTransactions = transactionsByDate[dateStr];
         const isToday = isCurrentMonth && day === today.getDate();
+        const isSelected = selectedDate !== null && dateStr === selectedDate;
         
         let indicators = '';
         if (dayTransactions) {
@@ -83,7 +87,7 @@ export function renderCalendar(currentDate = new Date()) {
         }
         
         grid.innerHTML += `
-            <div class="calendar-day ${isToday ? 'today' : ''}" data-date="${dateStr}">
+            <div class="calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}" data-date="${dateStr}">
                 <span class="calendar-day-number">${day}</span>
                 ${indicators ? `<div class="calendar-day-indicators">${indicators}</div>` : ''}
             </div>
@@ -102,17 +106,28 @@ export function renderCalendar(currentDate = new Date()) {
         dayEl.addEventListener('click', () => {
             const date = dayEl.getAttribute('data-date');
             if (date) {
+                // Retirer la sélection précédente
+                grid.querySelectorAll('.calendar-day.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                // Ajouter la sélection au jour cliqué
+                dayEl.classList.add('selected');
                 showDayDetails(date);
             }
         });
     });
+    
+    // Afficher automatiquement les détails du jour en cours si c'est le mois actuel
+    if (isCurrentMonth) {
+        showDayDetails(todayStr);
+    }
 }
 
 /**
  * Affiche les détails d'un jour
  * @param {string} dateStr - La date au format YYYY-MM-DD
  */
-function showDayDetails(dateStr) {
+export function showDayDetails(dateStr) {
     const detailsCard = document.getElementById('day-details');
     const detailsTitle = document.getElementById('day-details-title');
     const transactionsList = document.getElementById('day-transactions-list');

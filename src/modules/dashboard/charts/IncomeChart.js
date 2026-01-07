@@ -107,7 +107,10 @@ export function renderIncomeChart() {
                     data: values,
                     backgroundColor: colors,
                     borderWidth: 3,
-                    borderColor: borderColors
+                    borderColor: borderColors,
+                    hoverBackgroundColor: colors, // Garder la même couleur au survol
+                    hoverBorderColor: borderColors // Garder la même couleur de bordure au survol
+                    // hoverBorderWidth n'est pas défini, sera géré par onHover
                 }]
             },
             options: {
@@ -119,7 +122,7 @@ export function renderIncomeChart() {
                     
                     // Stocker la valeur originale de borderWidth si pas déjà fait
                     if (!chart._originalBorderWidth) {
-                        chart._originalBorderWidth = dataset.borderWidth;
+                        chart._originalBorderWidth = typeof dataset.borderWidth === 'number' ? dataset.borderWidth : 3;
                     }
                     
                     if (activeElements.length > 0) {
@@ -129,11 +132,15 @@ export function renderIncomeChart() {
                         const borderWidths = new Array(chart.data.labels.length).fill(chart._originalBorderWidth);
                         borderWidths[index] = 6; // Bordure plus épaisse au survol
                         dataset.borderWidth = borderWidths;
-                        chart.update('none');
+                        chart.update('active');
                     } else {
                         // Restaurer la bordure originale
-                        dataset.borderWidth = chart._originalBorderWidth;
-                        chart.update('none');
+                        if (typeof chart._originalBorderWidth === 'number') {
+                            dataset.borderWidth = chart._originalBorderWidth;
+                        } else {
+                            dataset.borderWidth = 3;
+                        }
+                        chart.update('active');
                     }
                 },
                 plugins: {
@@ -148,7 +155,7 @@ export function renderIncomeChart() {
                                 
                                 // Stocker la valeur originale de borderWidth si pas déjà fait
                                 if (!chart._originalBorderWidth) {
-                                    chart._originalBorderWidth = dataset.borderWidth;
+                                    chart._originalBorderWidth = typeof dataset.borderWidth === 'number' ? dataset.borderWidth : 3;
                                 }
                                 
                                 // Créer un tableau de borderWidth avec bordure plus épaisse pour le segment survolé
@@ -166,7 +173,7 @@ export function renderIncomeChart() {
                                     }
                                 }
                                 
-                                chart.update('none');
+                                chart.update('active');
                             }
                         },
                         onLeave: function(e, legendItem) {
@@ -176,7 +183,11 @@ export function renderIncomeChart() {
                             
                             // Restaurer la bordure originale
                             if (chart._originalBorderWidth !== undefined) {
-                                dataset.borderWidth = chart._originalBorderWidth;
+                                if (typeof chart._originalBorderWidth === 'number') {
+                                    dataset.borderWidth = chart._originalBorderWidth;
+                                } else {
+                                    dataset.borderWidth = 3;
+                                }
                             }
                             
                             // Restaurer le point dans la légende
@@ -188,7 +199,7 @@ export function renderIncomeChart() {
                                 }
                             }
                             
-                            chart.update('none');
+                            chart.update('active');
                         },
                         labels: {
                             padding: 18,
@@ -282,7 +293,10 @@ export function renderIncomeChart() {
                     data: values,
                     backgroundColor: colors,
                     borderWidth: 3,
-                    borderColor: borderColors
+                    borderColor: borderColors,
+                    hoverBackgroundColor: colors, // Garder la même couleur au survol
+                    hoverBorderColor: borderColors // Garder la même couleur de bordure au survol
+                    // hoverBorderWidth n'est pas défini, sera géré par onHover
                 }]
             },
             options: {
@@ -294,7 +308,7 @@ export function renderIncomeChart() {
                     
                     // Stocker la valeur originale de borderWidth si pas déjà fait
                     if (!chart._originalBorderWidth) {
-                        chart._originalBorderWidth = dataset.borderWidth;
+                        chart._originalBorderWidth = typeof dataset.borderWidth === 'number' ? dataset.borderWidth : 3;
                     }
                     
                     if (activeElements.length > 0) {
@@ -304,11 +318,15 @@ export function renderIncomeChart() {
                         const borderWidths = new Array(chart.data.labels.length).fill(chart._originalBorderWidth);
                         borderWidths[index] = 6; // Bordure plus épaisse au survol
                         dataset.borderWidth = borderWidths;
-                        chart.update('none');
+                        chart.update('active');
                     } else {
                         // Restaurer la bordure originale
-                        dataset.borderWidth = chart._originalBorderWidth;
-                        chart.update('none');
+                        if (typeof chart._originalBorderWidth === 'number') {
+                            dataset.borderWidth = chart._originalBorderWidth;
+                        } else {
+                            dataset.borderWidth = 3;
+                        }
+                        chart.update('active');
                     }
                 },
                 plugins: {
@@ -323,7 +341,7 @@ export function renderIncomeChart() {
                                 
                                 // Stocker la valeur originale de borderWidth si pas déjà fait
                                 if (!chart._originalBorderWidth) {
-                                    chart._originalBorderWidth = dataset.borderWidth;
+                                    chart._originalBorderWidth = typeof dataset.borderWidth === 'number' ? dataset.borderWidth : 3;
                                 }
                                 
                                 // Créer un tableau de borderWidth avec bordure plus épaisse pour le segment survolé
@@ -341,7 +359,7 @@ export function renderIncomeChart() {
                                     }
                                 }
                                 
-                                chart.update('none');
+                                chart.update('active');
                             }
                         },
                         onLeave: function(e, legendItem) {
@@ -351,7 +369,11 @@ export function renderIncomeChart() {
                             
                             // Restaurer la bordure originale
                             if (chart._originalBorderWidth !== undefined) {
-                                dataset.borderWidth = chart._originalBorderWidth;
+                                if (typeof chart._originalBorderWidth === 'number') {
+                                    dataset.borderWidth = chart._originalBorderWidth;
+                                } else {
+                                    dataset.borderWidth = 3;
+                                }
                             }
                             
                             // Restaurer le point dans la légende
@@ -363,7 +385,7 @@ export function renderIncomeChart() {
                                 }
                             }
                             
-                            chart.update('none');
+                            chart.update('active');
                         },
                         labels: {
                             padding: 18,

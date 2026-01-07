@@ -90,6 +90,47 @@ export function renderExpensesChart() {
                 plugins: {
                     legend: {
                         position: 'bottom',
+                        onHover: function(e, legendItem) {
+                            e.native.target.style.cursor = 'pointer';
+                            if (legendItem) {
+                                const chart = this.chart;
+                                const index = legendItem.index; // Pour doughnut, utiliser index au lieu de datasetIndex
+                                const dataset = chart.data.datasets[0];
+                                
+                                // Stocker les couleurs originales si pas déjà fait
+                                if (!chart._originalColors) {
+                                    chart._originalColors = [...dataset.backgroundColor];
+                                }
+                                
+                                // Modifier l'opacité de tous les segments
+                                dataset.backgroundColor = dataset.backgroundColor.map((color, i) => {
+                                    if (i === index) {
+                                        return color; // Garder la couleur complète pour le segment survolé
+                                    } else {
+                                        // Réduire l'opacité des autres segments
+                                        if (color.startsWith('#')) {
+                                            const r = parseInt(color.slice(1, 3), 16);
+                                            const g = parseInt(color.slice(3, 5), 16);
+                                            const b = parseInt(color.slice(5, 7), 16);
+                                            return `rgba(${r}, ${g}, ${b}, 0.2)`;
+                                        }
+                                        return color.replace('1)', '0.2)').replace('1.0)', '0.2)');
+                                    }
+                                });
+                                chart.update('none');
+                            }
+                        },
+                        onLeave: function(e, legendItem) {
+                            e.native.target.style.cursor = 'default';
+                            if (legendItem && this.chart._originalColors) {
+                                const chart = this.chart;
+                                const dataset = chart.data.datasets[0];
+                                
+                                // Restaurer les couleurs originales
+                                dataset.backgroundColor = chart._originalColors;
+                                chart.update('none');
+                            }
+                        },
                         labels: {
                             padding: 18,
                             usePointStyle: true,
@@ -139,6 +180,47 @@ export function renderExpensesChart() {
                 plugins: {
                     legend: {
                         position: 'bottom',
+                        onHover: function(e, legendItem) {
+                            e.native.target.style.cursor = 'pointer';
+                            if (legendItem) {
+                                const chart = this.chart;
+                                const index = legendItem.index; // Pour doughnut, utiliser index au lieu de datasetIndex
+                                const dataset = chart.data.datasets[0];
+                                
+                                // Stocker les couleurs originales si pas déjà fait
+                                if (!chart._originalColors) {
+                                    chart._originalColors = [...dataset.backgroundColor];
+                                }
+                                
+                                // Modifier l'opacité de tous les segments
+                                dataset.backgroundColor = dataset.backgroundColor.map((color, i) => {
+                                    if (i === index) {
+                                        return color; // Garder la couleur complète pour le segment survolé
+                                    } else {
+                                        // Réduire l'opacité des autres segments
+                                        if (color.startsWith('#')) {
+                                            const r = parseInt(color.slice(1, 3), 16);
+                                            const g = parseInt(color.slice(3, 5), 16);
+                                            const b = parseInt(color.slice(5, 7), 16);
+                                            return `rgba(${r}, ${g}, ${b}, 0.2)`;
+                                        }
+                                        return color.replace('1)', '0.2)').replace('1.0)', '0.2)');
+                                    }
+                                });
+                                chart.update('none');
+                            }
+                        },
+                        onLeave: function(e, legendItem) {
+                            e.native.target.style.cursor = 'default';
+                            if (legendItem && this.chart._originalColors) {
+                                const chart = this.chart;
+                                const dataset = chart.data.datasets[0];
+                                
+                                // Restaurer les couleurs originales
+                                dataset.backgroundColor = chart._originalColors;
+                                chart.update('none');
+                            }
+                        },
                         labels: {
                             padding: 18,
                             usePointStyle: true,
@@ -254,6 +336,47 @@ export function renderIncomeChart() {
                 plugins: {
                     legend: {
                         position: 'bottom',
+                        onHover: function(e, legendItem) {
+                            e.native.target.style.cursor = 'pointer';
+                            if (legendItem) {
+                                const chart = this.chart;
+                                const index = legendItem.index; // Pour doughnut, utiliser index au lieu de datasetIndex
+                                const dataset = chart.data.datasets[0];
+                                
+                                // Stocker les couleurs originales si pas déjà fait
+                                if (!chart._originalColors) {
+                                    chart._originalColors = [...dataset.backgroundColor];
+                                }
+                                
+                                // Modifier l'opacité de tous les segments
+                                dataset.backgroundColor = dataset.backgroundColor.map((color, i) => {
+                                    if (i === index) {
+                                        return color; // Garder la couleur complète pour le segment survolé
+                                    } else {
+                                        // Réduire l'opacité des autres segments
+                                        if (color.startsWith('#')) {
+                                            const r = parseInt(color.slice(1, 3), 16);
+                                            const g = parseInt(color.slice(3, 5), 16);
+                                            const b = parseInt(color.slice(5, 7), 16);
+                                            return `rgba(${r}, ${g}, ${b}, 0.2)`;
+                                        }
+                                        return color.replace('1)', '0.2)').replace('1.0)', '0.2)');
+                                    }
+                                });
+                                chart.update('none');
+                            }
+                        },
+                        onLeave: function(e, legendItem) {
+                            e.native.target.style.cursor = 'default';
+                            if (legendItem && this.chart._originalColors) {
+                                const chart = this.chart;
+                                const dataset = chart.data.datasets[0];
+                                
+                                // Restaurer les couleurs originales
+                                dataset.backgroundColor = chart._originalColors;
+                                chart.update('none');
+                            }
+                        },
                         labels: {
                             padding: 18,
                             usePointStyle: true,
@@ -303,6 +426,47 @@ export function renderIncomeChart() {
                 plugins: {
                     legend: {
                         position: 'bottom',
+                        onHover: function(e, legendItem) {
+                            e.native.target.style.cursor = 'pointer';
+                            if (legendItem) {
+                                const chart = this.chart;
+                                const index = legendItem.index; // Pour doughnut, utiliser index au lieu de datasetIndex
+                                const dataset = chart.data.datasets[0];
+                                
+                                // Stocker les couleurs originales si pas déjà fait
+                                if (!chart._originalColors) {
+                                    chart._originalColors = [...dataset.backgroundColor];
+                                }
+                                
+                                // Modifier l'opacité de tous les segments
+                                dataset.backgroundColor = dataset.backgroundColor.map((color, i) => {
+                                    if (i === index) {
+                                        return color; // Garder la couleur complète pour le segment survolé
+                                    } else {
+                                        // Réduire l'opacité des autres segments
+                                        if (color.startsWith('#')) {
+                                            const r = parseInt(color.slice(1, 3), 16);
+                                            const g = parseInt(color.slice(3, 5), 16);
+                                            const b = parseInt(color.slice(5, 7), 16);
+                                            return `rgba(${r}, ${g}, ${b}, 0.2)`;
+                                        }
+                                        return color.replace('1)', '0.2)').replace('1.0)', '0.2)');
+                                    }
+                                });
+                                chart.update('none');
+                            }
+                        },
+                        onLeave: function(e, legendItem) {
+                            e.native.target.style.cursor = 'default';
+                            if (legendItem && this.chart._originalColors) {
+                                const chart = this.chart;
+                                const dataset = chart.data.datasets[0];
+                                
+                                // Restaurer les couleurs originales
+                                dataset.backgroundColor = chart._originalColors;
+                                chart.update('none');
+                            }
+                        },
                         labels: {
                             padding: 18,
                             usePointStyle: true,
@@ -597,6 +761,68 @@ function createExpensesEvolutionChart(ctx, labels, datasets) {
             plugins: {
                 legend: {
                     position: 'bottom',
+                    onClick: function(e, legendItem) {
+                        // Comportement par défaut : toggle du dataset
+                        const index = legendItem.datasetIndex;
+                        const chart = this.chart;
+                        const meta = chart.getDatasetMeta(index);
+                        meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+                        chart.update();
+                    },
+                    onHover: function(e, legendItem) {
+                        e.native.target.style.cursor = 'pointer';
+                        if (legendItem) {
+                            const chart = this.chart;
+                            const index = legendItem.datasetIndex;
+                            
+                            // Stocker les couleurs originales si pas déjà fait
+                            if (!chart._originalColors) {
+                                chart._originalColors = chart.data.datasets.map(d => ({
+                                    backgroundColor: d.backgroundColor,
+                                    borderColor: d.borderColor,
+                                    borderWidth: d.borderWidth
+                                }));
+                            }
+                            
+                            // Modifier l'opacité de toutes les séries
+                            chart.data.datasets.forEach((dataset, i) => {
+                                const meta = chart.getDatasetMeta(i);
+                                if (i === index) {
+                                    // Mettre en avant la série survolée
+                                    meta.hidden = false;
+                                    dataset.borderWidth = 4;
+                                    if (dataset.backgroundColor) {
+                                        dataset.backgroundColor = dataset.backgroundColor.replace('80', 'CC'); // Plus opaque
+                                    }
+                                } else {
+                                    // Réduire l'opacité des autres séries
+                                    meta.hidden = false; // Ne pas cacher, juste réduire l'opacité
+                                    dataset.borderWidth = 1;
+                                    if (dataset.backgroundColor) {
+                                        dataset.backgroundColor = dataset.backgroundColor.replace('80', '20').replace('CC', '20'); // Très transparent
+                                    }
+                                }
+                            });
+                            chart.update('none'); // Mise à jour sans animation
+                        }
+                    },
+                    onLeave: function(e, legendItem) {
+                        e.native.target.style.cursor = 'default';
+                        if (legendItem && this.chart._originalColors) {
+                            const chart = this.chart;
+                            
+                            // Restaurer les couleurs originales
+                            chart.data.datasets.forEach((dataset, i) => {
+                                const meta = chart.getDatasetMeta(i);
+                                if (!meta.hidden && chart._originalColors[i]) {
+                                    dataset.backgroundColor = chart._originalColors[i].backgroundColor;
+                                    dataset.borderColor = chart._originalColors[i].borderColor;
+                                    dataset.borderWidth = chart._originalColors[i].borderWidth;
+                                }
+                            });
+                            chart.update('none'); // Mise à jour sans animation
+                        }
+                    },
                     labels: {
                         padding: 18,
                         usePointStyle: true,
@@ -604,7 +830,15 @@ function createExpensesEvolutionChart(ctx, labels, datasets) {
                             size: 13,
                             family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                         },
-                        color: '#2C2C2C'
+                        color: '#2C2C2C',
+                        generateLabels: function(chart) {
+                            const original = Chart.defaults.plugins.legend.labels.generateLabels;
+                            const labels = original.call(this, chart);
+                            labels.forEach(label => {
+                                label.fontColor = '#2C2C2C';
+                            });
+                            return labels;
+                        }
                     }
                 },
                 tooltip: {
@@ -775,6 +1009,13 @@ function createIncomeEvolutionChart(ctx, labels, datasets) {
         incomeEvolutionChart.destroy();
     }
     
+    // Stocker les couleurs originales pour chaque dataset
+    const originalColors = datasets.map(d => ({
+        backgroundColor: d.backgroundColor,
+        borderColor: d.borderColor,
+        borderWidth: d.borderWidth
+    }));
+    
     incomeEvolutionChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -791,6 +1032,68 @@ function createIncomeEvolutionChart(ctx, labels, datasets) {
             plugins: {
                 legend: {
                     position: 'bottom',
+                    onClick: function(e, legendItem) {
+                        // Comportement par défaut : toggle du dataset
+                        const index = legendItem.datasetIndex;
+                        const chart = this.chart;
+                        const meta = chart.getDatasetMeta(index);
+                        meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+                        chart.update();
+                    },
+                    onHover: function(e, legendItem) {
+                        e.native.target.style.cursor = 'pointer';
+                        if (legendItem) {
+                            const chart = this.chart;
+                            const index = legendItem.datasetIndex;
+                            
+                            // Stocker les couleurs originales si pas déjà fait
+                            if (!chart._originalColors) {
+                                chart._originalColors = chart.data.datasets.map(d => ({
+                                    backgroundColor: d.backgroundColor,
+                                    borderColor: d.borderColor,
+                                    borderWidth: d.borderWidth
+                                }));
+                            }
+                            
+                            // Modifier l'opacité de toutes les séries
+                            chart.data.datasets.forEach((dataset, i) => {
+                                const meta = chart.getDatasetMeta(i);
+                                if (i === index) {
+                                    // Mettre en avant la série survolée
+                                    meta.hidden = false;
+                                    dataset.borderWidth = 4;
+                                    if (dataset.backgroundColor) {
+                                        dataset.backgroundColor = dataset.backgroundColor.replace('80', 'CC'); // Plus opaque
+                                    }
+                                } else {
+                                    // Réduire l'opacité des autres séries
+                                    meta.hidden = false; // Ne pas cacher, juste réduire l'opacité
+                                    dataset.borderWidth = 1;
+                                    if (dataset.backgroundColor) {
+                                        dataset.backgroundColor = dataset.backgroundColor.replace('80', '20').replace('CC', '20'); // Très transparent
+                                    }
+                                }
+                            });
+                            chart.update('none'); // Mise à jour sans animation
+                        }
+                    },
+                    onLeave: function(e, legendItem) {
+                        e.native.target.style.cursor = 'default';
+                        if (legendItem && this.chart._originalColors) {
+                            const chart = this.chart;
+                            
+                            // Restaurer les couleurs originales
+                            chart.data.datasets.forEach((dataset, i) => {
+                                const meta = chart.getDatasetMeta(i);
+                                if (!meta.hidden && chart._originalColors[i]) {
+                                    dataset.backgroundColor = chart._originalColors[i].backgroundColor;
+                                    dataset.borderColor = chart._originalColors[i].borderColor;
+                                    dataset.borderWidth = chart._originalColors[i].borderWidth;
+                                }
+                            });
+                            chart.update('none'); // Mise à jour sans animation
+                        }
+                    },
                     labels: {
                         padding: 18,
                         usePointStyle: true,
@@ -798,7 +1101,15 @@ function createIncomeEvolutionChart(ctx, labels, datasets) {
                             size: 13,
                             family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                         },
-                        color: '#2C2C2C'
+                        color: '#2C2C2C',
+                        generateLabels: function(chart) {
+                            const original = Chart.defaults.plugins.legend.labels.generateLabels;
+                            const labels = original.call(this, chart);
+                            labels.forEach(label => {
+                                label.fontColor = '#2C2C2C';
+                            });
+                            return labels;
+                        }
                     }
                 },
                 tooltip: {

@@ -907,6 +907,41 @@ body {
     }
 }
 
+/* Styles pour les légendes cliquables des graphiques */
+
+.chart-card .chart-container li,
+.chart-card canvas + div li {
+    cursor: pointer;
+    transition: all var(--transition-base);
+    border-radius: var(--radius-sm);
+    padding: 4px 8px;
+    margin: 2px;
+}
+
+.chart-card .chart-container li:hover,
+.chart-card canvas + div li:hover {
+    background-color: var(--primary-light);
+    opacity: 0.8;
+    transform: translateY(-1px);
+}
+
+/* Style pour les éléments de légende Chart.js */
+.chart-card [class*="legend"] li,
+.chart-card div[style*="display: flex"] li {
+    cursor: pointer !important;
+    transition: all var(--transition-base) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 4px 8px !important;
+    margin: 2px !important;
+}
+
+.chart-card [class*="legend"] li:hover,
+.chart-card div[style*="display: flex"] li:hover {
+    background-color: var(--primary-light) !important;
+    opacity: 0.8 !important;
+    transform: translateY(-1px) !important;
+}
+
 /* Section Prédiction */
 .prediction-section {
     margin-top: 16px;

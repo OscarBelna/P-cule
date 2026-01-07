@@ -2600,6 +2600,12 @@ body {
     font-style: italic;
 }
 
+.treemap-message {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    font-weight: 500;
+}
+
 /* Responsive Mobile */
 @media (max-width: 768px) {
     .chart-header-with-filter {

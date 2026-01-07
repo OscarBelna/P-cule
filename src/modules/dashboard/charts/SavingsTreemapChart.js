@@ -109,22 +109,39 @@ export function renderSavingsTreemap() {
     // Calculer les économies du mois
     const totalSavings = calculateSavingsForMonth(year, month);
     
-    // Si pas d'allocations ou économies négatives
+    // Détruire le graphique existant
+    if (savingsTreemapChart) {
+        savingsTreemapChart.destroy();
+        savingsTreemapChart = null;
+    }
+    
+    // Vérifier si un message existe
+    let messageEl = ctx.parentElement.querySelector('.treemap-message');
+    
+    // Si pas d'allocations ou économies négatives, afficher un message mais garder le canvas
     if (allocations.length === 0 || totalSavings <= 0) {
-        const parent = ctx.parentElement;
-        if (parent) {
-            const messageClass = totalSavings <= 0 ? 'info-message' : 'placeholder';
-            const message = totalSavings <= 0 
-                ? 'Aucune économie ce mois-ci'
-                : 'Aucune répartition définie pour ce mois';
-            parent.innerHTML = `<p class="${messageClass}">${message}</p>`;
+        if (!messageEl) {
+            messageEl = document.createElement('div');
+            messageEl.className = 'treemap-message';
+            ctx.parentElement.appendChild(messageEl);
         }
-        if (savingsTreemapChart) {
-            savingsTreemapChart.destroy();
-            savingsTreemapChart = null;
-        }
+        
+        const messageClass = totalSavings <= 0 ? 'info-message-text' : 'placeholder';
+        const message = totalSavings <= 0 
+            ? 'Aucune économie ce mois-ci'
+            : 'Aucune répartition définie pour ce mois';
+        messageEl.className = `treemap-message ${messageClass}`;
+        messageEl.textContent = message;
+        ctx.style.display = 'none';
+        
         return;
     }
+    
+    // Il y a des données, masquer le message et afficher le canvas
+    if (messageEl) {
+        messageEl.remove();
+    }
+    ctx.style.display = 'block';
     
     // Filtrer les catégories de type 'savings'
     const savingsCategories = data.categories.filter(c => c.type === 'savings');
@@ -160,35 +177,34 @@ export function renderSavingsTreemap() {
         .filter(item => item !== null);
     
     if (treemapData.length === 0) {
-        const parent = ctx.parentElement;
-        if (parent) {
-            parent.innerHTML = '<p class="placeholder">Aucune catégorie d\'économie valide</p>';
+        messageEl = ctx.parentElement.querySelector('.treemap-message');
+        
+        if (!messageEl) {
+            messageEl = document.createElement('div');
+            messageEl.className = 'treemap-message';
+            ctx.parentElement.appendChild(messageEl);
         }
-        if (savingsTreemapChart) {
-            savingsTreemapChart.destroy();
-            savingsTreemapChart = null;
-        }
+        
+        messageEl.className = 'treemap-message placeholder';
+        messageEl.textContent = 'Aucune catégorie d\'économie valide';
+        ctx.style.display = 'none';
         return;
     }
     
-    // Restaurer le canvas si nécessaire
-    if (ctx.parentElement.innerHTML.includes('<p')) {
-        ctx.parentElement.innerHTML = '<canvas id="savings-treemap-chart"></canvas>';
-        const newCtx = document.getElementById('savings-treemap-chart');
-        createTreemapChart(newCtx, treemapData);
-    } else {
-        createTreemapChart(ctx, treemapData);
+    // Il y a des données, masquer le message et créer le graphique
+    messageEl = ctx.parentElement.querySelector('.treemap-message');
+    if (messageEl) {
+        messageEl.remove();
     }
+    ctx.style.display = 'block';
+    
+    createTreemapChart(ctx, treemapData);
 }
 
 /**
  * Crée l'instance Chart.js Treemap
  */
 function createTreemapChart(ctx, data) {
-    // Détruire le graphique existant
-    if (savingsTreemapChart) {
-        savingsTreemapChart.destroy();
-    }
     
     savingsTreemapChart = new Chart(ctx, {
         type: 'treemap',
@@ -281,4 +297,5 @@ export function syncTreemapMonth(year, month) {
     currentTreemapMonth = new Date(year, month, 1);
     renderSavingsTreemap();
 }
+
 

@@ -413,16 +413,14 @@ body {
 }
 
 .date-selector-dropdown {
-    position: absolute;
-    top: calc(100% + var(--spacing-xs));
-    left: 0;
+    position: fixed;
     background: var(--surface-elevated);
     border: 2px solid var(--primary);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     padding: var(--spacing-md);
     min-width: 300px;
-    z-index: 10000;
+    z-index: 10001;
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
@@ -572,10 +570,11 @@ body {
 
 @media (max-width: 768px) {
     .date-selector-dropdown {
-        left: 0;
-        right: 0;
-        width: 100%;
+        left: var(--spacing-md) !important;
+        right: var(--spacing-md) !important;
+        width: auto;
         min-width: auto;
+        max-width: calc(100vw - 2 * var(--spacing-md));
     }
 }
 
@@ -1717,9 +1716,12 @@ body {
     max-width: 400px;
     max-height: 90vh;
     overflow-y: auto;
+    overflow-x: visible;
     box-shadow: var(--shadow-xl);
     animation: slideUp var(--transition-base);
     border: 1px solid var(--border-light);
+    position: relative;
+    z-index: 2001;
 }
 
 @media (min-width: 1024px) {

@@ -81,6 +81,12 @@ export function initDateSelector(prefix, allowClear = false) {
         today.setHours(0, 0, 0, 0);
         currentDate = new Date(today);
         renderCalendar();
+        
+        // Calculer la position du dropdown en position fixed
+        const buttonRect = button.getBoundingClientRect();
+        dropdown.style.top = `${buttonRect.bottom + 4}px`;
+        dropdown.style.left = `${buttonRect.left}px`;
+        
         button.classList.add('active');
         dropdown.classList.add('show');
     }

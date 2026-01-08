@@ -188,60 +188,99 @@ export function closeEditTransactionModal() {
  */
 export function showDeleteConfirmation(transactionId, buttonElement) {
     const popup = document.getElementById('delete-confirmation-popup');
-    const confirmBtn = document.getElementById('delete-confirm-btn');
-    const cancelBtn = document.getElementById('delete-cancel-btn');
     
     if (!popup) return;
     
-    // Positionner le popup au-dessus du bouton
+    // Positionner le popup au-dessus ou en dessous du bouton selon l'espace disponible
     const buttonRect = buttonElement.getBoundingClientRect();
     const popupContent = popup.querySelector('.delete-popup-content');
     
-    // Calculer la position (au-dessus du bouton, centré horizontalement)
-    const popupTop = buttonRect.top - popupContent.offsetHeight - 8; // 8px d'espace
-    const popupLeft = buttonRect.left + (buttonRect.width / 2) - (popupContent.offsetWidth / 2);
+    // Afficher temporairement le popup hors écran pour mesurer sa taille
+    popup.style.top = '-9999px';
+    popup.style.left = '-9999px';
+    popup.classList.add('active');
+    
+    // Forcer un reflow pour que le navigateur calcule les dimensions
+    void popupContent.offsetHeight;
+    
+    const popupHeight = popupContent.offsetHeight || 150; // Hauteur par défaut si non calculée
+    const popupWidth = popupContent.offsetWidth || 200; // Largeur par défaut si non calculée
+    
+    // Calculer la position horizontale (centré par rapport au bouton)
+    const popupLeft = buttonRect.left + (buttonRect.width / 2) - (popupWidth / 2);
     
     // Ajuster si le popup dépasse à gauche ou à droite
-    const adjustedLeft = Math.max(10, Math.min(popupLeft, window.innerWidth - popupContent.offsetWidth - 10));
+    const adjustedLeft = Math.max(10, Math.min(popupLeft, window.innerWidth - popupWidth - 10));
     
+    // Vérifier l'espace disponible en haut et en bas
+    const spaceAbove = buttonRect.top;
+    const spaceBelow = window.innerHeight - buttonRect.bottom;
+    const spacing = 8; // Espace entre le bouton et le popup
+    
+    let popupTop;
+    // Si pas assez d'espace en haut, afficher en dessous
+    if (spaceAbove < popupHeight + spacing) {
+        popupTop = buttonRect.bottom + spacing;
+    } else {
+        // Afficher au-dessus du bouton
+        popupTop = buttonRect.top - popupHeight - spacing;
+    }
+    
+    // S'assurer que le popup ne dépasse pas en bas de l'écran
+    if (popupTop + popupHeight > window.innerHeight - 10) {
+        popupTop = window.innerHeight - popupHeight - 10;
+    }
+    
+    // S'assurer que le popup ne dépasse pas en haut de l'écran
+    if (popupTop < 10) {
+        popupTop = 10;
+    }
+    
+    // Positionner le popup
     popup.style.top = `${popupTop}px`;
     popup.style.left = `${adjustedLeft}px`;
     
-    // Afficher le popup
-    popup.classList.add('active');
-    
-    // Gérer la confirmation
-    const handleConfirm = () => {
-        confirmDeleteTransaction(transactionId);
-        closeDeleteConfirmation();
-    };
-    
-    // Gérer l'annulation
-    const handleCancel = () => {
-        closeDeleteConfirmation();
-    };
-    
-    // Nettoyer les anciens event listeners
-    const newConfirmBtn = confirmBtn.cloneNode(true);
-    const newCancelBtn = cancelBtn.cloneNode(true);
-    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-    
-    // Ajouter les nouveaux event listeners
-    newConfirmBtn.addEventListener('click', handleConfirm);
-    newCancelBtn.addEventListener('click', handleCancel);
-    
-    // Fermer en cliquant en dehors
-    const handleClickOutside = (e) => {
-        if (!popupContent.contains(e.target) && !buttonElement.contains(e.target)) {
+    // Utiliser requestAnimationFrame pour s'assurer que le popup est positionné avant d'ajouter les listeners
+    requestAnimationFrame(() => {
+        // Récupérer les boutons après l'affichage du popup
+        const confirmBtn = document.getElementById('delete-confirm-btn');
+        const cancelBtn = document.getElementById('delete-cancel-btn');
+        
+        if (!confirmBtn || !cancelBtn) return;
+        
+        // Gérer la confirmation
+        const handleConfirm = () => {
+            confirmDeleteTransaction(transactionId);
             closeDeleteConfirmation();
-            document.removeEventListener('click', handleClickOutside);
-        }
-    };
-    
-    setTimeout(() => {
-        document.addEventListener('click', handleClickOutside);
-    }, 100);
+        };
+        
+        // Gérer l'annulation
+        const handleCancel = () => {
+            closeDeleteConfirmation();
+        };
+        
+        // Nettoyer les anciens event listeners en clonant et remplaçant les boutons
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        
+        // Ajouter les nouveaux event listeners
+        newConfirmBtn.addEventListener('click', handleConfirm);
+        newCancelBtn.addEventListener('click', handleCancel);
+        
+        // Fermer en cliquant en dehors
+        const handleClickOutside = (e) => {
+            if (!popupContent.contains(e.target) && !buttonElement.contains(e.target)) {
+                closeDeleteConfirmation();
+                document.removeEventListener('click', handleClickOutside);
+            }
+        };
+        
+        setTimeout(() => {
+            document.addEventListener('click', handleClickOutside);
+        }, 100);
+    });
 }
 
 /**

@@ -325,8 +325,13 @@ function updateCategoryFilter() {
     allOption.textContent = 'Toutes les catégories';
     categoryFilterSelect.appendChild(allOption);
     
-    // Ajouter uniquement les catégories qui ont des transactions
+    // Ajouter uniquement les catégories de transactions (pas les catégories d'économie)
     data.categories.forEach(category => {
+        // Exclure les catégories d'économie (type === 'savings')
+        if (category.type === 'savings') {
+            return;
+        }
+        
         // N'afficher que les catégories disponibles (qui ont des transactions)
         if (!availableCategories.has(category.id)) {
             return;

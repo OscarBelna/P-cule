@@ -40,6 +40,9 @@ export function getAllTransactions() {
                     case 'weekly':
                         currentDate.setDate(currentDate.getDate() + 7);
                         break;
+                    case 'bimonthly':
+                        currentDate.setDate(currentDate.getDate() + 14); // Toutes les deux semaines
+                        break;
                     case 'monthly':
                         currentDate.setMonth(currentDate.getMonth() + 1);
                         break;

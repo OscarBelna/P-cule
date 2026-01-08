@@ -12,6 +12,7 @@ function getRecurrenceLabel(recurrence) {
     const labels = {
         daily: 'Journalier',
         weekly: 'Hebdomadaire',
+        bimonthly: 'Bimensuel',
         monthly: 'Mensuel',
         quarterly: 'Trimestriel',
         yearly: 'Annuel'

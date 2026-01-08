@@ -179,6 +179,7 @@ function updateRecurringText() {
     const typeLabels = {
         daily: 'Journalière',
         weekly: 'Hebdomadaire',
+        bimonthly: 'Bimensuelle',
         monthly: 'Mensuelle',
         quarterly: 'Trimestrielle',
         yearly: 'Annuelle'
@@ -217,6 +218,7 @@ function updateEditRecurringText() {
     const typeLabels = {
         daily: 'Journalière',
         weekly: 'Hebdomadaire',
+        bimonthly: 'Bimensuelle',
         monthly: 'Mensuelle',
         quarterly: 'Trimestrielle',
         yearly: 'Annuelle'

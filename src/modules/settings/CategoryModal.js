@@ -462,13 +462,15 @@ function handleCategoryModalSubmit() {
         closeCategoryModal();
         setTimeout(() => {
             // Si c'est une catégorie de transaction, mettre à jour le select
-            if (categoryModalType === 'transaction') {
+            if (categoryModalType === 'transaction' && !editingCategoryId) {
                 const categorySelect = document.getElementById('transaction-category');
                 if (categorySelect) {
+                    // Mettre à jour la liste des catégories
                     if (window.populateCategorySelect) {
                         window.populateCategorySelect();
                     }
-                    categorySelect.value = newCategory.id;
+                    // Sélectionner la nouvelle catégorie créée
+                    categorySelect.value = categoryIdToReturn;
                     // Mettre à jour la couleur du select après sélection
                     if (window.updateCategoryColorIndicator) {
                         window.updateCategoryColorIndicator();

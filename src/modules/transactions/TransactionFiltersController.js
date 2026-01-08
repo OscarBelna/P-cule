@@ -6,7 +6,6 @@ import { loadData } from '../shared/index.js';
 let selectedFilterMonth = null;
 let selectedFilterYear = null;
 let selectedCategoryId = '';
-let selectedRecurrenceFilter = '';
 let currentDisplayYear = null;
 
 // Références aux éléments DOM
@@ -27,9 +26,6 @@ export function initTransactionFilters() {
     
     // Initialiser le filtre catégorie
     initCategoryFilter();
-    
-    // Initialiser le filtre récurrence
-    initRecurrenceFilter();
 }
 
 /**
@@ -363,24 +359,10 @@ function updateCategoryFilter() {
 }
 
 /**
- * Initialise le filtre récurrence
- */
-function initRecurrenceFilter() {
-    const recurrenceFilter = document.getElementById('transactions-recurrence-filter');
-    if (!recurrenceFilter) return;
-    
-    // Écouter les changements
-    recurrenceFilter.addEventListener('change', () => {
-        selectedRecurrenceFilter = recurrenceFilter.value;
-        applyFilters();
-    });
-}
-
-/**
  * Applique les filtres et met à jour l'affichage
  */
 function applyFilters() {
-    renderTransactions(selectedFilterMonth, selectedFilterYear, selectedCategoryId, selectedRecurrenceFilter);
+    renderTransactions(selectedFilterMonth, selectedFilterYear, selectedCategoryId, '');
 }
 
 /**
@@ -391,7 +373,7 @@ export function getTransactionFilters() {
         month: selectedFilterMonth,
         year: selectedFilterYear,
         categoryId: selectedCategoryId,
-        recurrence: selectedRecurrenceFilter
+        recurrence: ''
     };
 }
 

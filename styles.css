@@ -2138,15 +2138,13 @@ body {
 }
 
 /* Style pour les options des selects de filtre */
-#transactions-category-filter option,
-#transactions-recurrence-filter option {
+#transactions-category-filter option {
     padding: var(--spacing-sm);
     background: var(--surface-elevated);
     color: var(--text-primary);
 }
 
-#transactions-category-filter option:checked,
-#transactions-recurrence-filter option:checked {
+#transactions-category-filter option:checked {
     background: var(--primary);
     color: white;
 }

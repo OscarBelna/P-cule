@@ -9,17 +9,17 @@ let incomeChart = null;
 /**
  * Crée le graphique en camembert pour les revenus par catégorie
  */
-export function renderIncomeChart() {
+export function renderIncomeChart(selectedMonth = null, selectedYear = null) {
     const ctx = document.getElementById('income-chart');
     if (!ctx) return;
     
     const transactions = getAllTransactions();
     const data = loadData();
     const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
+    const currentMonth = selectedMonth !== null ? selectedMonth : today.getMonth();
+    const currentYear = selectedYear !== null ? selectedYear : today.getFullYear();
     
-    // Filtrer les revenus du mois en cours
+    // Filtrer les revenus du mois sélectionné
     const currentMonthIncomes = transactions.filter(transaction => {
         const transactionDate = new Date(transaction.date);
         return transactionDate.getMonth() === currentMonth && 

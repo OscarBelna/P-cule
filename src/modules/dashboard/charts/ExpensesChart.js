@@ -9,17 +9,17 @@ let expensesChart = null;
 /**
  * Crée le graphique en camembert pour les dépenses par catégorie
  */
-export function renderExpensesChart() {
+export function renderExpensesChart(selectedMonth = null, selectedYear = null) {
     const ctx = document.getElementById('expenses-chart');
     if (!ctx) return;
     
     const transactions = getAllTransactions();
     const data = loadData();
     const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
+    const currentMonth = selectedMonth !== null ? selectedMonth : today.getMonth();
+    const currentYear = selectedYear !== null ? selectedYear : today.getFullYear();
     
-    // Filtrer les dépenses du mois en cours
+    // Filtrer les dépenses du mois sélectionné
     const currentMonthExpenses = transactions.filter(transaction => {
         const transactionDate = new Date(transaction.date);
         return transactionDate.getMonth() === currentMonth && 

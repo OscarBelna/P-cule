@@ -58,7 +58,13 @@
         <!-- Tableau de bord -->
         <section id="dashboard" class="page active">
             <div class="page-content">
-                <h1>Tableau de bord</h1>
+                <div class="dashboard-header">
+                    <h1>Tableau de bord</h1>
+                    <div class="dashboard-month-filter">
+                        <label for="dashboard-month-select">Mois :</label>
+                        <input type="month" id="dashboard-month-select" class="month-input">
+                    </div>
+                </div>
                 
                 <!-- Cartes de résumé -->
                 <div class="summary-cards">
@@ -142,22 +148,7 @@
                         </div>
                     </div>
                     <div class="card chart-card">
-                        <div class="chart-header-with-filter">
-                            <h2>Répartition des Économies</h2>
-                            <div class="month-selector">
-                                <button class="btn-icon" id="treemap-prev-month" title="Mois précédent">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                                    </svg>
-                                </button>
-                                <span id="treemap-current-month">janvier 2025</span>
-                                <button class="btn-icon" id="treemap-next-month" title="Mois suivant">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
+                        <h2>Répartition des Économies</h2>
                         <div class="chart-container">
                             <canvas id="savings-treemap-chart"></canvas>
                         </div>

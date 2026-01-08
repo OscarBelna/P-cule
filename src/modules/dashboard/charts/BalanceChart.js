@@ -7,52 +7,104 @@ let balanceChart = null;
 /**
  * Crée le graphique linéaire pour l'évolution du solde
  */
-export function renderBalanceChart() {
+export function renderBalanceChart(selectedMonth = null, selectedYear = null) {
     const ctx = document.getElementById('balance-chart');
     if (!ctx) return;
     
     const transactions = getAllTransactions();
     const today = new Date();
-    const thirtyDaysAgo = new Date(today);
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
-    // Filtrer les transactions des 30 derniers jours
-    const recentTransactions = transactions.filter(transaction => {
-        const transactionDate = new Date(transaction.date);
-        return transactionDate >= thirtyDaysAgo && transactionDate <= today;
-    });
+    // Si un mois est sélectionné, afficher les jours de ce mois, sinon les 30 derniers jours
+    let startDate, endDate, dates, balances;
     
-    // Trier par date
-    recentTransactions.sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    // Créer un tableau de dates pour les 30 derniers jours
-    const dates = [];
-    const balances = [];
-    let runningBalance = 0;
-    
-    // Calculer le solde initial (avant les 30 derniers jours)
-    transactions.forEach(transaction => {
-        const transactionDate = new Date(transaction.date);
-        if (transactionDate < thirtyDaysAgo) {
-            runningBalance += transaction.amount;
-        }
-    });
-    
-    // Générer les dates des 30 derniers jours
-    for (let i = 29; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        dates.push(date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
+    if (selectedMonth !== null && selectedYear !== null) {
+        // Afficher tous les jours du mois sélectionné
+        const firstDay = new Date(selectedYear, selectedMonth, 1);
+        const lastDay = new Date(selectedYear, selectedMonth + 1, 0);
+        startDate = firstDay;
+        endDate = lastDay;
         
-        // Ajouter les transactions de ce jour
-        const dateStr = date.toISOString().split('T')[0];
-        const dayTransactions = recentTransactions.filter(t => t.date === dateStr);
-        dayTransactions.forEach(t => {
-            runningBalance += t.amount;
+        // Filtrer les transactions du mois sélectionné
+        const monthTransactions = transactions.filter(transaction => {
+            const transactionDate = new Date(transaction.date);
+            return transactionDate >= startDate && transactionDate <= endDate;
         });
         
-        balances.push(runningBalance);
+        // Trier par date
+        monthTransactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        // Calculer le solde initial (avant le mois sélectionné)
+        let runningBalance = 0;
+        transactions.forEach(transaction => {
+            const transactionDate = new Date(transaction.date);
+            if (transactionDate < startDate) {
+                runningBalance += transaction.amount;
+            }
+        });
+        
+        // Générer les dates du mois
+        dates = [];
+        balances = [];
+        const daysInMonth = lastDay.getDate();
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(selectedYear, selectedMonth, day);
+            dates.push(date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
+            
+            // Ajouter les transactions de ce jour
+            const dateStr = date.toISOString().split('T')[0];
+            const dayTransactions = monthTransactions.filter(t => t.date === dateStr);
+            dayTransactions.forEach(t => {
+                runningBalance += t.amount;
+            });
+            
+            balances.push(runningBalance);
+        }
+    } else {
+        // Comportement par défaut : 30 derniers jours
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        startDate = thirtyDaysAgo;
+        endDate = today;
+        
+        // Filtrer les transactions des 30 derniers jours
+        const recentTransactions = transactions.filter(transaction => {
+            const transactionDate = new Date(transaction.date);
+            return transactionDate >= startDate && transactionDate <= endDate;
+        });
+        
+        // Trier par date
+        recentTransactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        // Calculer le solde initial (avant les 30 derniers jours)
+        let runningBalance = 0;
+        transactions.forEach(transaction => {
+            const transactionDate = new Date(transaction.date);
+            if (transactionDate < startDate) {
+                runningBalance += transaction.amount;
+            }
+        });
+        
+        // Générer les dates des 30 derniers jours
+        dates = [];
+        balances = [];
+        
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            dates.push(date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
+            
+            // Ajouter les transactions de ce jour
+            const dateStr = date.toISOString().split('T')[0];
+            const dayTransactions = recentTransactions.filter(t => t.date === dateStr);
+            dayTransactions.forEach(t => {
+                runningBalance += t.amount;
+            });
+            
+            balances.push(runningBalance);
+        }
     }
+    
     
     // Détruire le graphique existant s'il existe
     if (balanceChart) {
@@ -129,4 +181,5 @@ export function renderBalanceChart() {
         }
     });
 }
+
 

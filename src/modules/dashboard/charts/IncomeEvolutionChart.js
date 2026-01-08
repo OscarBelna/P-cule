@@ -8,13 +8,17 @@ let incomeEvolutionChart = null;
 /**
  * Crée le graphique d'évolution des revenus par catégorie (12 derniers mois)
  */
-export function renderIncomeEvolutionChart() {
+export function renderIncomeEvolutionChart(selectedMonth = null, selectedYear = null) {
     const ctx = document.getElementById('income-evolution-chart');
     if (!ctx) return;
     
     const transactions = getAllTransactions();
     const data = loadData();
     const today = new Date();
+    
+    // Utiliser le mois sélectionné comme référence, sinon le mois en cours
+    const referenceMonth = selectedMonth !== null ? selectedMonth : today.getMonth();
+    const referenceYear = selectedYear !== null ? selectedYear : today.getFullYear();
     
     // Obtenir toutes les catégories avec revenus
     const incomeCategoryIds = new Set();
@@ -39,11 +43,11 @@ export function renderIncomeEvolutionChart() {
         return;
     }
     
-    // Générer les 12 derniers mois
+    // Générer les 12 mois précédant le mois de référence (inclus)
     const months = [];
     const monthKeys = [];
     for (let i = 11; i >= 0; i--) {
-        const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        const date = new Date(referenceYear, referenceMonth - i, 1);
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         monthKeys.push(monthKey);
         months.push(date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }));

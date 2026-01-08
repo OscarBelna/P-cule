@@ -5,42 +5,16 @@ import { formatCurrency } from '../../shared/index.js';
 // Variable pour stocker l'instance du graphique
 let savingsTreemapChart = null;
 let currentTreemapMonth = new Date();
+let externalMonth = null;
+let externalYear = null;
 
 /**
- * Initialise le contrôleur du Treemap avec les boutons de navigation
+ * Initialise le contrôleur du Treemap
  */
 export function initSavingsTreemap() {
-    const prevBtn = document.getElementById('treemap-prev-month');
-    const nextBtn = document.getElementById('treemap-next-month');
-    
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-            currentTreemapMonth.setMonth(currentTreemapMonth.getMonth() - 1);
-            renderSavingsTreemap();
-        });
-    }
-    
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            currentTreemapMonth.setMonth(currentTreemapMonth.getMonth() + 1);
-            renderSavingsTreemap();
-        });
-    }
-    
+    // Le treemap est maintenant contrôlé par le filtre principal du dashboard
+    // Plus besoin de boutons de navigation séparés
     renderSavingsTreemap();
-}
-
-/**
- * Met à jour le label du mois actuel
- */
-function updateMonthLabel() {
-    const label = document.getElementById('treemap-current-month');
-    if (label) {
-        label.textContent = currentTreemapMonth.toLocaleDateString('fr-FR', { 
-            month: 'long', 
-            year: 'numeric' 
-        });
-    }
 }
 
 /**
@@ -87,15 +61,26 @@ function generateColor(index, total) {
 /**
  * Crée le graphique Treemap des économies réparties
  */
-export function renderSavingsTreemap() {
+export function renderSavingsTreemap(selectedMonth = null, selectedYear = null) {
     const ctx = document.getElementById('savings-treemap-chart');
     if (!ctx) return;
     
-    updateMonthLabel();
+    // Utiliser le mois sélectionné externe si fourni, sinon utiliser le mois du treemap
+    let year, month;
+    if (selectedMonth !== null && selectedYear !== null) {
+        year = selectedYear;
+        month = selectedMonth;
+        // Synchroniser le mois du treemap avec le mois sélectionné
+        currentTreemapMonth = new Date(year, month, 1);
+        externalMonth = selectedMonth;
+        externalYear = selectedYear;
+    } else {
+        // Utiliser le mois du treemap (par défaut)
+        year = currentTreemapMonth.getFullYear();
+        month = currentTreemapMonth.getMonth();
+    }
     
     const data = loadData();
-    const year = currentTreemapMonth.getFullYear();
-    const month = currentTreemapMonth.getMonth();
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
     
     // S'assurer que savingsAllocations existe

@@ -1574,6 +1574,147 @@ body {
     color: var(--text-primary);
 }
 
+/* Calendrier des objectifs de revenu */
+.income-goal-calendar {
+    margin-top: var(--spacing-lg);
+}
+
+.income-goal-calendar h3 {
+    font-size: 14px;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.income-goal-calendar-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.income-goal-calendar-year {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.income-goal-calendar-year-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--border);
+}
+
+.income-goal-calendar-months {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.income-goal-calendar-month {
+    background: var(--surface-elevated);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    transition: all var(--transition-base);
+    position: relative;
+    cursor: pointer;
+}
+
+.income-goal-calendar-month:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+}
+
+.income-goal-calendar-month.current-month {
+    border-color: var(--primary);
+    background: rgba(153, 189, 180, 0.05);
+    box-shadow: var(--shadow-md);
+}
+
+.income-goal-calendar-month.past-month {
+    opacity: 0.7;
+}
+
+.income-goal-calendar-month.future-month {
+    opacity: 0.9;
+}
+
+.income-goal-calendar-month.achieved {
+    background: rgba(153, 189, 180, 0.1);
+    border-color: var(--primary);
+    border-width: 2px;
+}
+
+.income-goal-calendar-month.achieved .income-goal-calendar-month-amount {
+    color: var(--primary);
+}
+
+.income-goal-calendar-month.not-achieved {
+    background: var(--surface-elevated);
+    border-color: var(--border);
+}
+
+.income-goal-calendar-month.not-achieved .income-goal-calendar-month-amount {
+    color: var(--text-secondary);
+}
+
+.income-goal-calendar-month.editing {
+    border-color: var(--primary);
+    border-width: 2px;
+    box-shadow: var(--shadow-md);
+}
+
+.income-goal-calendar-month-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: capitalize;
+}
+
+.income-goal-calendar-month-amount {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.income-goal-calendar-edit-input {
+    width: 100%;
+    padding: 4px;
+    border: 2px solid var(--primary);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    background: var(--surface-elevated);
+    color: var(--text-primary);
+    outline: none;
+}
+
+.income-goal-calendar-edit-input:focus {
+    border-color: var(--primary-dark);
+    box-shadow: 0 0 0 3px rgba(153, 189, 180, 0.2);
+}
+
+.income-goal-calendar-month-badge {
+    position: absolute;
+    top: var(--spacing-xs);
+    right: var(--spacing-xs);
+    background: var(--primary);
+    color: var(--surface-elevated);
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 /* Budgets par catégorie */
 .budgets-list {
     margin-top: 19.2px;

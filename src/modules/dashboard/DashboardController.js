@@ -4,6 +4,8 @@ import { adjustSummaryCardsSizes } from './DashboardRenderer.js';
 let selectedMonth = null;
 let selectedYear = null;
 let currentDisplayYear = null;
+let monthSelectorDropdown = null;
+let monthSelectorButton = null;
 
 /**
  * Initialise le tableau de bord
@@ -20,9 +22,8 @@ export function initDashboard() {
     
     // Fermer le menu si on clique en dehors
     document.addEventListener('click', (e) => {
-        const dropdown = document.getElementById('month-selector-dropdown');
-        const button = document.getElementById('dashboard-month-select');
-        if (dropdown && button && !dropdown.contains(e.target) && !button.contains(e.target)) {
+        if (monthSelectorDropdown && monthSelectorButton && 
+            !monthSelectorDropdown.contains(e.target) && !monthSelectorButton.contains(e.target)) {
             closeMonthSelector();
         }
     });
@@ -56,21 +57,21 @@ export function initDashboard() {
  * Initialise le menu de sélection de mois personnalisé
  */
 function initCustomMonthSelector() {
-    const button = document.getElementById('dashboard-month-select');
-    const dropdown = document.getElementById('month-selector-dropdown');
+    monthSelectorButton = document.getElementById('dashboard-month-select');
+    monthSelectorDropdown = document.getElementById('month-selector-dropdown');
     const yearDisplay = document.getElementById('month-selector-year');
     const prevYearBtn = document.getElementById('month-prev-year');
     const nextYearBtn = document.getElementById('month-next-year');
     const grid = document.getElementById('month-selector-grid');
     
-    if (!button || !dropdown || !grid) return;
+    if (!monthSelectorButton || !monthSelectorDropdown || !grid) return;
     
     // Mettre à jour l'affichage initial
     updateMonthSelectorDisplay();
     renderMonthGrid();
     
     // Ouvrir/fermer le menu
-    button.addEventListener('click', (e) => {
+    monthSelectorButton.addEventListener('click', (e) => {
         e.stopPropagation();
         toggleMonthSelector();
     });
@@ -165,7 +166,7 @@ function initCustomMonthSelector() {
     
     // Ouvrir/fermer le menu
     function toggleMonthSelector() {
-        if (dropdown.classList.contains('show')) {
+        if (monthSelectorDropdown.classList.contains('show')) {
             closeMonthSelector();
         } else {
             openMonthSelector();
@@ -175,13 +176,20 @@ function initCustomMonthSelector() {
     function openMonthSelector() {
         currentDisplayYear = selectedYear;
         renderMonthGrid();
-        button.classList.add('active');
-        dropdown.classList.add('show');
+        monthSelectorButton.classList.add('active');
+        monthSelectorDropdown.classList.add('show');
     }
-    
-    function closeMonthSelector() {
-        button.classList.remove('active');
-        dropdown.classList.remove('show');
+}
+
+/**
+ * Ferme le sélecteur de mois
+ */
+function closeMonthSelector() {
+    if (monthSelectorButton) {
+        monthSelectorButton.classList.remove('active');
+    }
+    if (monthSelectorDropdown) {
+        monthSelectorDropdown.classList.remove('show');
     }
 }
 

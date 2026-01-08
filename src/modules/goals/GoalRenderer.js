@@ -10,10 +10,10 @@ let currentAllocationMonth = new Date();
  */
 export function renderGoals() {
     const data = loadData();
-    const goals = data.goals || { incomeGoal: null, categoryBudgets: [] };
+    const goals = data.goals || { incomeGoals: { monthly: {} }, categoryBudgets: [] };
     
     // Afficher l'objectif de revenu
-    renderIncomeGoal(goals.incomeGoal);
+    renderIncomeGoal(goals.incomeGoals);
     
     // Afficher les budgets par catégorie
     renderCategoryBudgets(goals.categoryBudgets || []);
@@ -80,24 +80,23 @@ function populateBudgetCategorySelect() {
 /**
  * Affiche l'objectif de revenu avec la barre de progression
  */
-function renderIncomeGoal(incomeGoal) {
-    const amountInput = document.getElementById('income-goal-amount');
+function renderIncomeGoal(incomeGoals) {
+    if (!incomeGoals) {
+        incomeGoals = { monthly: {} };
+    }
+    
     const progressContainer = document.getElementById('income-goal-progress');
     const progressBar = document.getElementById('income-goal-progress-bar');
     const statusElement = document.getElementById('income-goal-status');
     const currentElement = document.getElementById('income-goal-current');
     const targetElement = document.getElementById('income-goal-target');
     
-    if (!incomeGoal) {
-        if (progressContainer) progressContainer.style.display = 'none';
-        return;
-    }
-    
     // Calculer le revenu actuel du mois
     const transactions = getAllTransactions();
     const today = new Date();
     const currentMonth = today.getMonth();
     const currentYear = today.getFullYear();
+    const currentMonthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
     
     const currentMonthIncome = transactions
         .filter(t => {
@@ -108,12 +107,23 @@ function renderIncomeGoal(incomeGoal) {
         })
         .reduce((sum, t) => sum + t.amount, 0);
     
-    const progress = Math.min((currentMonthIncome / incomeGoal) * 100, 100);
+    // Obtenir l'objectif du mois en cours
+    const currentGoal = incomeGoals.monthly?.[currentMonthKey] || null;
+    
+    // Afficher le calendrier des objectifs
+    renderIncomeGoalCalendar(incomeGoals);
+    
+    if (!currentGoal) {
+        if (progressContainer) progressContainer.style.display = 'none';
+        return;
+    }
+    
+    const progress = Math.min((currentMonthIncome / currentGoal) * 100, 100);
     
     if (progressContainer) progressContainer.style.display = 'block';
     if (progressBar) progressBar.style.width = `${progress}%`;
     if (currentElement) currentElement.textContent = formatCurrency(currentMonthIncome);
-    if (targetElement) targetElement.textContent = formatCurrency(incomeGoal);
+    if (targetElement) targetElement.textContent = formatCurrency(currentGoal);
     
     // Déterminer le statut
     if (statusElement && progressBar) {
@@ -132,6 +142,142 @@ function renderIncomeGoal(incomeGoal) {
         }
     }
 }
+
+/**
+ * Calcule le revenu réel d'un mois donné
+ * @param {number} month - Mois (0-11)
+ * @param {number} year - Année
+ * @returns {number} - Total des revenus du mois
+ */
+function getMonthIncome(month, year) {
+    const transactions = getAllTransactions();
+    return transactions
+        .filter(t => {
+            const date = new Date(t.date);
+            return date.getMonth() === month && 
+                   date.getFullYear() === year &&
+                   t.amount > 0;
+        })
+        .reduce((sum, t) => sum + t.amount, 0);
+}
+
+/**
+ * Affiche le calendrier des objectifs de revenu
+ */
+function renderIncomeGoalCalendar(incomeGoals) {
+    const container = document.getElementById('income-goal-calendar-list');
+    
+    if (!container) return;
+    
+    const monthlyGoals = incomeGoals.monthly || {};
+    
+    // Générer une plage de 12 mois (6 avant, mois actuel, 6 après)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    
+    const months = [];
+    
+    // Générer les 12 mois
+    for (let i = -6; i <= 6; i++) {
+        const monthDate = new Date(currentYear, currentMonth + i, 1);
+        const year = monthDate.getFullYear();
+        const month = monthDate.getMonth();
+        const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+        
+        const isCurrentMonth = month === currentMonth && year === currentYear;
+        const isPast = monthDate < today;
+        const isFuture = monthDate > today;
+        
+        // Récupérer l'objectif pour ce mois (0 si non défini)
+        const goalAmount = monthlyGoals[monthKey] || 0;
+        
+        // Calculer les revenus réels du mois
+        const actualIncome = getMonthIncome(month, year);
+        
+        // Déterminer si l'objectif est atteint
+        const isAchieved = goalAmount > 0 && actualIncome >= goalAmount;
+        
+        months.push({
+            date: new Date(monthDate),
+            monthKey,
+            goalAmount,
+            actualIncome,
+            isAchieved,
+            isCurrentMonth,
+            isPast,
+            isFuture
+        });
+    }
+    
+    // Grouper les mois par année
+    const monthsByYear = {};
+    months.forEach(month => {
+        const year = month.date.getFullYear();
+        if (!monthsByYear[year]) {
+            monthsByYear[year] = [];
+        }
+        monthsByYear[year].push(month);
+    });
+    
+    // Générer le HTML du calendrier
+    let htmlContent = '<div class="income-goal-calendar-grid">';
+    
+    // Message si aucun objectif défini
+    const hasAnyGoal = Object.keys(monthlyGoals).some(key => monthlyGoals[key] > 0);
+    if (!hasAnyGoal) {
+        htmlContent += `
+            <div class="empty-state" style="padding: 16px; text-align: center; color: var(--text-secondary); margin-bottom: 16px;">
+                <p style="margin: 0;">Cliquez sur un mois pour définir un objectif</p>
+            </div>
+        `;
+    }
+    
+    Object.keys(monthsByYear).sort().forEach(year => {
+        htmlContent += `<div class="income-goal-calendar-year">`;
+        htmlContent += `<div class="income-goal-calendar-year-header">${year}</div>`;
+        htmlContent += `<div class="income-goal-calendar-months">`;
+        
+        monthsByYear[year].forEach(month => {
+            const monthName = month.date.toLocaleDateString('fr-FR', { month: 'long' });
+            const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+            
+            let monthClass = 'income-goal-calendar-month';
+            if (month.isCurrentMonth) {
+                monthClass += ' current-month';
+            } else if (month.isPast) {
+                monthClass += ' past-month';
+            } else if (month.isFuture) {
+                monthClass += ' future-month';
+            }
+            
+            // Ajouter classe selon si l'objectif est atteint
+            if (month.isAchieved) {
+                monthClass += ' achieved';
+            } else if (month.goalAmount > 0) {
+                monthClass += ' not-achieved';
+            }
+            
+            const displayAmount = month.goalAmount > 0 ? formatCurrency(month.goalAmount) : '—';
+            
+            htmlContent += `
+                <div class="${monthClass}" data-month-key="${month.monthKey}" data-goal-amount="${month.goalAmount}">
+                    <div class="income-goal-calendar-month-name">${capitalizedMonthName}</div>
+                    <div class="income-goal-calendar-month-amount">${displayAmount}</div>
+                    ${month.isCurrentMonth ? '<div class="income-goal-calendar-month-badge">Mois actuel</div>' : ''}
+                </div>
+            `;
+        });
+        
+        htmlContent += `</div></div>`;
+    });
+    
+    htmlContent += '</div>';
+    
+    container.innerHTML = htmlContent;
+}
+
 
 /**
  * Affiche les budgets par catégorie avec les barres de progression

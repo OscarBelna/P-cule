@@ -89,9 +89,34 @@ export function renderIncomeEvolutionChart(selectedMonth = null, selectedYear = 
             pointHoverRadius: 5,
             pointBackgroundColor: color,
             pointBorderColor: '#F2F1E6',
-            pointBorderWidth: 2
+            pointBorderWidth: 2,
+            stack: 'income' // Empiler les catégories
         };
     });
+    
+    // Ajouter le dataset d'objectif si des objectifs sont définis
+    const incomeGoals = data.goals?.incomeGoals || { constant: null, monthly: {} };
+    const goalData = calculateGoalData(monthKeys, incomeGoals);
+    
+    if (goalData && goalData.some(value => value > 0)) {
+        datasets.push({
+            label: 'Objectif',
+            data: goalData,
+            borderColor: '#99BDB4', // Couleur primaire
+            borderWidth: 2,
+            borderDash: [5, 5], // Ligne en pointillés
+            fill: false,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#99BDB4',
+            pointBorderColor: '#F2F1E6',
+            pointBorderWidth: 2,
+            tension: 0.4,
+            order: 0, // Afficher l'objectif au-dessus des autres datasets
+            // Ne pas empiler l'objectif (pas de stack)
+            yAxisID: 'y'
+        });
+    }
     
     // Vérifier s'il y a des données
     const hasData = datasets.some(dataset => dataset.data.some(value => value > 0));
@@ -116,6 +141,44 @@ export function renderIncomeEvolutionChart(selectedMonth = null, selectedYear = 
     } else {
         createIncomeEvolutionChart(ctx, months, datasets);
     }
+}
+
+/**
+ * Calcule les valeurs d'objectif pour chaque mois affiché
+ * @param {Array<string>} monthKeys - Les clés de mois au format "YYYY-MM"
+ * @param {Object} incomeGoals - Les objectifs de revenu (constant + monthly)
+ * @returns {Array<number>} Les valeurs d'objectif pour chaque mois
+ */
+function calculateGoalData(monthKeys, incomeGoals) {
+    const goalData = [];
+    const monthlyGoals = incomeGoals.monthly || {};
+    const constantGoal = incomeGoals.constant;
+    
+    monthKeys.forEach(monthKey => {
+        let goalValue = 0;
+        
+        // Priorité aux objectifs mensuels spécifiques
+        if (monthlyGoals[monthKey]) {
+            goalValue = monthlyGoals[monthKey];
+        } else if (constantGoal) {
+            // Vérifier si le mois est dans la période de l'objectif constant
+            const monthDate = new Date(monthKey + '-01');
+            const startDate = new Date(constantGoal.startDate + '-01');
+            const endDate = new Date(constantGoal.endDate + '-01');
+            
+            // Ajuster endDate au dernier jour du mois
+            endDate.setMonth(endDate.getMonth() + 1);
+            endDate.setDate(0);
+            
+            if (monthDate >= startDate && monthDate <= endDate) {
+                goalValue = constantGoal.amount;
+            }
+        }
+        
+        goalData.push(goalValue);
+    });
+    
+    return goalData;
 }
 
 /**
@@ -335,7 +398,7 @@ function createIncomeEvolutionChart(ctx, labels, datasets) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    stacked: true,
+                    stacked: true, // Empiler les catégories
                     ticks: {
                         callback: function(value) {
                             return formatCurrency(value);
@@ -348,7 +411,7 @@ function createIncomeEvolutionChart(ctx, labels, datasets) {
                     }
                 },
                 x: {
-                    stacked: true,
+                    stacked: true, // Empiler les catégories
                     grid: {
                         display: false
                     },

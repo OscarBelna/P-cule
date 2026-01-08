@@ -65,7 +65,7 @@ function init() {
     // Initialiser les données si elles n'existent pas
     const data = loadData();
     if (data.categories.length === 0 && data.transactions.length === 0 && 
-        (!data.goals || (!data.goals.incomeGoal && data.goals.categoryBudgets.length === 0))) {
+        (!data.goals || ((!data.goals.incomeGoals || (!data.goals.incomeGoals.constant && Object.keys(data.goals.incomeGoals.monthly || {}).length === 0)) && data.goals.categoryBudgets.length === 0))) {
         saveData(defaultData);
     }
 }

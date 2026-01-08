@@ -1155,11 +1155,11 @@ body {
 @keyframes slideUp {
     from {
         opacity: 0;
-        transform: translateY(24px) scale(0.95);
+        transform: translateY(24px);
     }
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
     }
 }
 
@@ -1722,6 +1722,20 @@ body {
     border: 1px solid var(--border-light);
     position: relative;
     z-index: 2001;
+}
+
+/* Désactiver l'animation translateY pour le modal de récurrence pour éviter les scrollbars temporaires */
+#recurrence-modal .modal-content {
+    animation: fadeInOnly var(--transition-base);
+}
+
+@keyframes fadeInOnly {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @media (min-width: 1024px) {

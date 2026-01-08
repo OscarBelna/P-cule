@@ -23,13 +23,14 @@ function getRecurrenceLabel(recurrence) {
 
 /**
  * Remplit le select des catégories pour les transactions
+ * @param {boolean} forceReset - Si true, force la réinitialisation au placeholder
  */
-export function populateCategorySelect() {
+export function populateCategorySelect(forceReset = false) {
     const select = document.getElementById('transaction-category');
     if (!select) return;
     
     const data = loadData();
-    const currentValue = select.value; // Sauvegarder la valeur actuelle
+    const currentValue = forceReset ? '' : select.value; // Sauvegarder la valeur actuelle (ou forcer à vide)
     
     select.innerHTML = '';
     

@@ -109,8 +109,8 @@ function handleTransactionSubmit() {
     if (typeInput) typeInput.value = 'expense'; // Par défaut sur "Dépense"
     resetRecurrenceConfig();
     
-    // Réinitialiser le select de catégorie pour afficher le placeholder
-    populateCategorySelect();
+    // Réinitialiser le select de catégorie pour afficher le placeholder (forcer la réinitialisation)
+    populateCategorySelect(true);
     
     // Recharger l'affichage
     renderTransactions();

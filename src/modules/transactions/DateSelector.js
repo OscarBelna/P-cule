@@ -26,12 +26,13 @@ export function initDateSelector(prefix, allowClear = false) {
     let currentDate = new Date(today); // Le calendrier commence toujours à aujourd'hui
     let selectedDate = null;
     
-    // Initialiser selectedDate si une valeur existe
+    // Initialiser selectedDate : utiliser la valeur existante ou la date d'aujourd'hui par défaut
     if (hiddenInput.value) {
         selectedDate = new Date(hiddenInput.value + 'T00:00:00');
     } else {
-        // Pas de date sélectionnée
-        selectedDate = null;
+        // Par défaut, sélectionner la date d'aujourd'hui
+        selectedDate = new Date(today);
+        hiddenInput.value = today.toISOString().split('T')[0];
     }
     
     updateDisplay();

@@ -266,6 +266,20 @@ function initCategoryFilter() {
     // Écouter les changements
     categoryFilter.addEventListener('change', () => {
         selectedCategoryId = categoryFilter.value;
+        
+        // Mettre à jour la couleur du select
+        const data = loadData();
+        if (selectedCategoryId) {
+            const selectedCategory = data.categories.find(cat => cat.id === selectedCategoryId);
+            if (selectedCategory && selectedCategory.color) {
+                categoryFilter.style.color = selectedCategory.color;
+            } else {
+                categoryFilter.style.color = '';
+            }
+        } else {
+            categoryFilter.style.color = '';
+        }
+        
         // Mettre à jour la grille des mois si la fonction est disponible
         if (renderMonthGridFunction) {
             renderMonthGridFunction();
@@ -324,16 +338,27 @@ function updateCategoryFilter() {
         
         const option = document.createElement('option');
         option.value = category.id;
-        option.textContent = category.name;
+        // Ajouter le rond de couleur dans la liste déroulante
+        option.textContent = `⬤ ${category.name}`;
+        // Colorer le texte de l'option avec la couleur de la catégorie
+        option.style.color = category.color;
         categoryFilterSelect.appendChild(option);
     });
     
     // Restaurer la valeur sélectionnée si elle est toujours disponible
     if (currentValue && availableCategories.has(currentValue)) {
         categoryFilterSelect.value = currentValue;
+        // Mettre à jour la couleur du select selon la catégorie sélectionnée
+        const selectedCategory = data.categories.find(cat => cat.id === currentValue);
+        if (selectedCategory && selectedCategory.color) {
+            categoryFilterSelect.style.color = selectedCategory.color;
+        } else {
+            categoryFilterSelect.style.color = '';
+        }
     } else {
         categoryFilterSelect.value = '';
         selectedCategoryId = '';
+        categoryFilterSelect.style.color = '';
     }
 }
 

@@ -150,6 +150,27 @@ export function renderTransactions(filterMonth = null, filterYear = null, filter
                     return false; // Récurrence expirée
                 }
             }
+        } else if (filterRecurrence === 'recurring-inactive') {
+            // Afficher uniquement les transactions récurrentes non actives (expirées)
+            if (!transaction.recurrence) {
+                return false;
+            }
+            
+            // Vérifier si la récurrence est expirée
+            const recurrence = typeof transaction.recurrence === 'string' 
+                ? { type: transaction.recurrence, endDate: null }
+                : transaction.recurrence;
+            
+            if (!recurrence.endDate) {
+                return false; // Pas de date de fin = toujours active
+            }
+            
+            const endDate = new Date(recurrence.endDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (endDate >= today) {
+                return false; // Récurrence encore active
+            }
         }
         
         return true;
@@ -201,13 +222,26 @@ export function renderTransactions(filterMonth = null, filterYear = null, filter
         // Ne permettre la modification que pour les transactions originales (pas les récurrentes générées)
         const canEdit = !transaction.isRecurring && !transaction.originalId;
         
+        // Vérifier si la récurrence est active ou inactive
+        let recurrenceStatusBadge = '';
+        if (transaction.recurrence) {
+            const recurrence = typeof transaction.recurrence === 'string' 
+                ? { type: transaction.recurrence, endDate: null }
+                : transaction.recurrence;
+            
+            const isActive = !recurrence.endDate || new Date(recurrence.endDate) >= new Date();
+            const statusIcon = isActive ? '🟢' : '🔴';
+            const statusText = isActive ? 'Active' : 'Inactive';
+            recurrenceStatusBadge = `<span class="recurrence-status-badge ${isActive ? 'active' : 'inactive'}" title="Récurrence ${statusText.toLowerCase()}">${statusIcon}</span>`;
+        }
+        
         return `
             <div class="transaction-item ${isIncome ? 'income' : 'expense'}">
                 <div class="transaction-info">
                     <div class="transaction-header">
                         <span class="transaction-category-badge" style="background-color: ${categoryColor}"></span>
                         <span class="transaction-category-name">${escapeHtml(categoryName)}</span>
-                        ${transaction.recurrence ? `<span class="transaction-recurring-badge">🔄 ${getRecurrenceLabel(transaction.recurrence)}</span>` : ''}
+                        ${transaction.recurrence ? `<span class="transaction-recurring-badge">🔄 ${getRecurrenceLabel(transaction.recurrence)}${recurrenceStatusBadge}</span>` : ''}
                     </div>
                     ${transaction.description ? `<div class="transaction-description">${escapeHtml(transaction.description)}</div>` : ''}
                     <div class="transaction-date">${formattedDate}</div>

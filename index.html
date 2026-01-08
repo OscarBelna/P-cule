@@ -61,8 +61,33 @@
                 <div class="dashboard-header">
                     <h1>Tableau de bord</h1>
                     <div class="dashboard-month-filter">
-                        <label for="dashboard-month-select">Mois :</label>
-                        <input type="month" id="dashboard-month-select" class="month-input">
+                        <button class="month-selector-btn" id="dashboard-month-select" type="button">
+                            <svg class="month-selector-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span class="month-selector-text" id="month-selector-text">janvier 2024</span>
+                            <svg class="month-selector-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div class="month-selector-dropdown" id="month-selector-dropdown">
+                            <div class="month-selector-header">
+                                <button class="month-selector-nav-btn" id="month-prev-year" type="button" title="Année précédente">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                    </svg>
+                                </button>
+                                <span class="month-selector-year" id="month-selector-year">2024</span>
+                                <button class="month-selector-nav-btn" id="month-next-year" type="button" title="Année suivante">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="month-selector-grid" id="month-selector-grid">
+                                <!-- Les mois seront générés par JavaScript -->
+                            </div>
+                        </div>
                     </div>
                 </div>
                 

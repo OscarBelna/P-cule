@@ -1,6 +1,10 @@
 import { loadData, saveData } from '../shared/index.js';
 import { renderTransactions } from './TransactionRenderer.js';
 import { loadRecurrenceFromTransaction, getRecurrenceConfig, resetRecurrenceConfig } from './RecurrenceController.js';
+import { initDateSelector } from './DateSelector.js';
+
+// Stocker l'instance du sélecteur de date pour l'édition
+let editTransactionDateSelector = null;
 
 /**
  * Initialise le modal de modification de transaction
@@ -12,6 +16,9 @@ export function initEditTransactionModal() {
     const form = document.getElementById('edit-transaction-form');
     
     if (!modal) return;
+    
+    // Initialiser le sélecteur de date personnalisé
+    editTransactionDateSelector = initDateSelector('edit-transaction-date');
     
     // Fermer le modal en cliquant sur le fond
     modal.addEventListener('click', (e) => {
@@ -111,7 +118,13 @@ export function openEditTransactionModal(transactionId) {
     
     if (idInput) idInput.value = transaction.id;
     if (amountInput) amountInput.value = Math.abs(transaction.amount);
-    if (dateInput) dateInput.value = transaction.date;
+    if (dateInput) {
+        dateInput.value = transaction.date;
+        // Mettre à jour le sélecteur de date personnalisé
+        if (editTransactionDateSelector) {
+            editTransactionDateSelector.setDate(transaction.date);
+        }
+    }
     if (typeInput) typeInput.value = transaction.amount > 0 ? 'income' : 'expense';
     if (descriptionInput) descriptionInput.value = transaction.description || '';
     // Charger la configuration de récurrence

@@ -1,13 +1,20 @@
+import { initDateSelector } from './DateSelector.js';
+
 // État de la configuration de récurrence
 let recurrenceConfig = {
     type: 'monthly',
     endDate: null
 };
 
+// Stocker l'instance du sélecteur de date pour la récurrence
+let recurrenceDateSelector = null;
+
 /**
  * Initialise le modal de configuration de récurrence
  */
 export function initRecurrenceModal() {
+    // Initialiser le sélecteur de date personnalisé (avec possibilité d'effacer)
+    recurrenceDateSelector = initDateSelector('recurrence-end-date', true);
     const modal = document.getElementById('recurrence-modal');
     const closeBtn = document.getElementById('recurrence-modal-close');
     const cancelBtn = document.getElementById('recurrence-modal-cancel');
@@ -101,12 +108,24 @@ function openRecurrenceModal(editMode = false) {
     const modal = document.getElementById('recurrence-modal');
     const typeSelect = document.getElementById('recurrence-type');
     const endDateInput = document.getElementById('recurrence-end-date');
+    const dateTextEl = document.getElementById('recurrence-end-date-text');
     
     if (!modal) return;
     
     // Remplir avec les valeurs actuelles
     if (typeSelect) typeSelect.value = recurrenceConfig.type || 'monthly';
-    if (endDateInput) endDateInput.value = recurrenceConfig.endDate || '';
+    if (endDateInput) {
+        endDateInput.value = recurrenceConfig.endDate || '';
+        // Mettre à jour le sélecteur de date personnalisé
+        if (recurrenceDateSelector) {
+            if (recurrenceConfig.endDate) {
+                recurrenceDateSelector.setDate(recurrenceConfig.endDate);
+            } else {
+                // Réinitialiser à "Aucune date"
+                recurrenceDateSelector.clearDate();
+            }
+        }
+    }
     
     // Afficher le modal
     modal.classList.add('active');

@@ -268,11 +268,39 @@
                         
                         <div class="form-group">
                             <label for="transaction-date">Date</label>
-                            <input 
-                                type="date" 
-                                id="transaction-date" 
-                                required
-                            >
+                            <div class="date-selector-wrapper">
+                                <button class="date-selector-btn" id="transaction-date-btn" type="button">
+                                    <svg class="date-selector-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span class="date-selector-text" id="transaction-date-text">Aujourd'hui</span>
+                                    <svg class="date-selector-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <input type="hidden" id="transaction-date" required>
+                                <div class="date-selector-dropdown" id="transaction-date-dropdown">
+                                    <div class="date-selector-header">
+                                        <button class="date-selector-nav-btn" id="transaction-date-prev-month" type="button" title="Mois précédent">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                            </svg>
+                                        </button>
+                                        <div class="date-selector-month-year">
+                                            <span class="date-selector-month" id="transaction-date-month">janvier</span>
+                                            <span class="date-selector-year" id="transaction-date-year">2024</span>
+                                        </div>
+                                        <button class="date-selector-nav-btn" id="transaction-date-next-month" type="button" title="Mois suivant">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="date-selector-calendar" id="transaction-date-calendar">
+                                        <!-- Le calendrier sera généré par JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="form-group">
@@ -572,11 +600,39 @@
                     
                     <div class="form-group">
                         <label for="edit-transaction-date">Date</label>
-                        <input 
-                            type="date" 
-                            id="edit-transaction-date" 
-                            required
-                        >
+                        <div class="date-selector-wrapper">
+                            <button class="date-selector-btn" id="edit-transaction-date-btn" type="button">
+                                <svg class="date-selector-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <span class="date-selector-text" id="edit-transaction-date-text">Aujourd'hui</span>
+                                <svg class="date-selector-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <input type="hidden" id="edit-transaction-date" required>
+                            <div class="date-selector-dropdown" id="edit-transaction-date-dropdown">
+                                <div class="date-selector-header">
+                                    <button class="date-selector-nav-btn" id="edit-transaction-date-prev-month" type="button" title="Mois précédent">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </button>
+                                    <div class="date-selector-month-year">
+                                        <span class="date-selector-month" id="edit-transaction-date-month">janvier</span>
+                                        <span class="date-selector-year" id="edit-transaction-date-year">2024</span>
+                                    </div>
+                                    <button class="date-selector-nav-btn" id="edit-transaction-date-next-month" type="button" title="Mois suivant">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="date-selector-calendar" id="edit-transaction-date-calendar">
+                                    <!-- Le calendrier sera généré par JavaScript -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -649,11 +705,39 @@
                     
                     <div class="form-group">
                         <label for="recurrence-end-date">Date de fin (optionnel)</label>
-                        <input 
-                            type="date" 
-                            id="recurrence-end-date"
-                            placeholder="Sans date de fin"
-                        >
+                        <div class="date-selector-wrapper">
+                            <button class="date-selector-btn" id="recurrence-end-date-btn" type="button">
+                                <svg class="date-selector-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <span class="date-selector-text" id="recurrence-end-date-text">Aucune date</span>
+                                <svg class="date-selector-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <input type="hidden" id="recurrence-end-date">
+                            <div class="date-selector-dropdown" id="recurrence-end-date-dropdown">
+                                <div class="date-selector-header">
+                                    <button class="date-selector-nav-btn" id="recurrence-end-date-prev-month" type="button" title="Mois précédent">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </button>
+                                    <div class="date-selector-month-year">
+                                        <span class="date-selector-month" id="recurrence-end-date-month">janvier</span>
+                                        <span class="date-selector-year" id="recurrence-end-date-year">2024</span>
+                                    </div>
+                                    <button class="date-selector-nav-btn" id="recurrence-end-date-next-month" type="button" title="Mois suivant">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="date-selector-calendar" id="recurrence-end-date-calendar">
+                                    <!-- Le calendrier sera généré par JavaScript -->
+                                </div>
+                            </div>
+                        </div>
                         <small style="display: block; margin-top: 4px; color: var(--text-secondary); font-size: 12px;">
                             Laissez vide pour une récurrence infinie
                         </small>

@@ -1,21 +1,24 @@
 import { loadData, saveData } from '../shared/index.js';
 import { populateCategorySelect, renderTransactions, updateCategoryColorIndicator } from './TransactionRenderer.js';
 import { getRecurrenceConfig, resetRecurrenceConfig } from './RecurrenceController.js';
+import { initDateSelector } from './DateSelector.js';
+
+// Stocker les instances des sélecteurs de date
+let transactionDateSelector = null;
+let editTransactionDateSelector = null;
 
 /**
  * Initialise le formulaire de transaction
  */
 export function initTransactionForm() {
     const form = document.getElementById('transaction-form');
-    const dateInput = document.getElementById('transaction-date');
     const createCategoryBtn = document.getElementById('create-category-btn');
     const categorySelect = document.getElementById('transaction-category');
     
     if (!form) return;
     
-    // Définir la date par défaut à aujourd'hui
-    const today = new Date().toISOString().split('T')[0];
-    if (dateInput) dateInput.value = today;
+    // Initialiser le sélecteur de date personnalisé
+    transactionDateSelector = initDateSelector('transaction-date');
     
     // Populate category select
     populateCategorySelect();

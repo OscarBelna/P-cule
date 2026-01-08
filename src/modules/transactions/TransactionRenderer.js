@@ -98,35 +98,93 @@ export function updateCategoryColorIndicator() {
 
 /**
  * Affiche les transactions
+ * @param {number|null} filterMonth - Mois à filtrer (0-11, null pour tous)
+ * @param {number|null} filterYear - Année à filtrer (null pour tous)
+ * @param {string} filterCategoryId - ID de la catégorie à filtrer ('' pour toutes)
+ * @param {string} filterRecurrence - Filtre récurrence ('recurring' pour récurrentes actives uniquement, '' pour toutes)
  */
-export function renderTransactions() {
+export function renderTransactions(filterMonth = null, filterYear = null, filterCategoryId = '', filterRecurrence = '') {
     const container = document.getElementById('transactions-container');
     if (!container) return;
     
     const allTransactions = getAllTransactions();
     const data = loadData();
     
-    // Filtrer pour ne garder que les transactions originales (pas les récurrentes générées)
-    const transactions = allTransactions.filter(transaction => {
+    // Filtrer les transactions
+    let transactions = allTransactions.filter(transaction => {
         // Garder seulement les transactions originales (pas celles générées automatiquement)
-        return !transaction.isRecurring && !transaction.originalId;
+        if (transaction.isRecurring || transaction.originalId) {
+            return false;
+        }
+        
+        // Filtre par mois/année
+        if (filterMonth !== null && filterYear !== null) {
+            const transactionDate = new Date(transaction.date);
+            if (transactionDate.getMonth() !== filterMonth || transactionDate.getFullYear() !== filterYear) {
+                return false;
+            }
+        }
+        
+        // Filtre par catégorie
+        if (filterCategoryId && transaction.categoryId !== filterCategoryId) {
+            return false;
+        }
+        
+        // Filtre par récurrence
+        if (filterRecurrence === 'recurring') {
+            // Afficher uniquement les transactions récurrentes encore actives
+            if (!transaction.recurrence) {
+                return false;
+            }
+            
+            // Vérifier si la récurrence est encore active
+            const recurrence = typeof transaction.recurrence === 'string' 
+                ? { type: transaction.recurrence, endDate: null }
+                : transaction.recurrence;
+            
+            if (recurrence.endDate) {
+                const endDate = new Date(recurrence.endDate);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (endDate < today) {
+                    return false; // Récurrence expirée
+                }
+            }
+        }
+        
+        return true;
     });
     
+    // Trier par date (plus récent en premier)
+    transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    // Limiter à 20 transactions si aucun filtre de mois n'est appliqué
+    const totalTransactions = transactions.length;
+    if (filterMonth === null && filterYear === null) {
+        transactions = transactions.slice(0, 20);
+    }
+    
     if (transactions.length === 0) {
+        let message = 'Aucune transaction pour le moment';
+        let subMessage = 'Ajoutez votre première transaction ci-dessus';
+        
+        // Personnaliser le message selon les filtres actifs
+        if (filterMonth !== null || filterCategoryId || filterRecurrence) {
+            message = 'Aucune transaction trouvée';
+            subMessage = 'Essayez de modifier les filtres pour voir plus de résultats';
+        }
+        
         container.innerHTML = `
             <div class="empty-state">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
-                <p>Aucune transaction pour le moment</p>
-                <p style="font-size: 14px; margin-top: 8px;">Ajoutez votre première transaction ci-dessus</p>
+                <p>${message}</p>
+                <p style="font-size: 14px; margin-top: 8px;">${subMessage}</p>
             </div>
         `;
         return;
     }
-    
-    // Trier par date (plus récent en premier)
-    transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
     
     container.innerHTML = transactions.map(transaction => {
         const category = data.categories.find(cat => cat.id === transaction.categoryId);

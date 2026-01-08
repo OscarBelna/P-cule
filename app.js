@@ -5,7 +5,7 @@ import { initNavigation } from './src/ui/NavigationController.js';
 import { initDashboard, renderDashboard } from './src/modules/dashboard/index.js';
 import { initSavingsTreemap } from './src/modules/dashboard/charts/SavingsTreemapChart.js';
 import { initCalendar, renderCalendar } from './src/modules/calendar/index.js';
-import { initTransactionForm, renderTransactions, populateCategorySelect, initRecurrenceModal } from './src/modules/transactions/index.js';
+import { initTransactionForm, renderTransactions, populateCategorySelect, initRecurrenceModal, initTransactionFilters } from './src/modules/transactions/index.js';
 import { updateCategoryColorIndicator } from './src/modules/transactions/TransactionRenderer.js';
 import { initGoals, renderGoals } from './src/modules/goals/index.js';
 import { initCategoryForm, initSavingsCategoryForm, renderCategories, renderSavingsCategories, initCategoryModal, initBackupImport, openCategoryModal } from './src/modules/settings/index.js';
@@ -47,6 +47,7 @@ function init() {
     initCalendar();
     initTransactionForm();
     initRecurrenceModal();
+    initTransactionFilters();
     initGoals();
     initCategoryForm();
     initSavingsCategoryForm();

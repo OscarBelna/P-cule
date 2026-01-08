@@ -2,6 +2,7 @@ import { loadData, saveData } from '../shared/index.js';
 import { populateCategorySelect, renderTransactions, updateCategoryColorIndicator } from './TransactionRenderer.js';
 import { getRecurrenceConfig, resetRecurrenceConfig } from './RecurrenceController.js';
 import { initDateSelector } from './DateSelector.js';
+import { getTransactionFilters } from './TransactionFiltersController.js';
 
 // Stocker les instances des sélecteurs de date
 let transactionDateSelector = null;
@@ -112,8 +113,9 @@ function handleTransactionSubmit() {
     // Réinitialiser le select de catégorie pour afficher le placeholder (forcer la réinitialisation)
     populateCategorySelect(true);
     
-    // Recharger l'affichage
-    renderTransactions();
+    // Recharger l'affichage en préservant les filtres actuels
+    const filters = getTransactionFilters();
+    renderTransactions(filters.month, filters.year, filters.categoryId, filters.recurrence);
     // Notifier les autres modules
     if (window.renderCalendar) window.renderCalendar();
     if (window.renderDashboard) window.renderDashboard();

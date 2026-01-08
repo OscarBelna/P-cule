@@ -356,6 +356,64 @@
                 <!-- Liste des transactions -->
                 <div class="transactions-list">
                     <h2>Historique</h2>
+                    
+                    <!-- Filtres -->
+                    <div class="transactions-filters">
+                        <!-- Filtre mois -->
+                        <div class="filter-group">
+                            <label for="transactions-month-filter">Mois</label>
+                            <div class="month-selector-wrapper">
+                                <button class="month-selector-btn" id="transactions-month-select" type="button">
+                                    <svg class="month-selector-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span class="month-selector-text" id="transactions-month-selector-text">Tous les mois</span>
+                                    <svg class="month-selector-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div class="month-selector-dropdown" id="transactions-month-selector-dropdown">
+                                    <div class="month-selector-header">
+                                        <button class="month-selector-nav-btn" id="transactions-month-prev-year" type="button" title="Année précédente">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                            </svg>
+                                        </button>
+                                        <span class="month-selector-year" id="transactions-month-selector-year">2024</span>
+                                        <button class="month-selector-nav-btn" id="transactions-month-next-year" type="button" title="Année suivante">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="month-selector-months-grid" id="transactions-month-selector-grid">
+                                        <!-- Les mois seront générés par JavaScript -->
+                                    </div>
+                                    <div class="month-selector-footer">
+                                        <button type="button" class="month-selector-clear-btn" id="transactions-month-clear">Tous les mois</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtre catégorie -->
+                        <div class="filter-group">
+                            <label for="transactions-category-filter">Catégorie</label>
+                            <select id="transactions-category-filter">
+                                <option value="">Toutes les catégories</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filtre récurrence -->
+                        <div class="filter-group">
+                            <label for="transactions-recurrence-filter">Récurrence</label>
+                            <select id="transactions-recurrence-filter">
+                                <option value="">Toutes les transactions</option>
+                                <option value="recurring">Récurrentes actives uniquement</option>
+                            </select>
+                        </div>
+                    </div>
+                    
                     <div id="transactions-container">
                         <!-- Les transactions seront injectées ici par JavaScript -->
                     </div>

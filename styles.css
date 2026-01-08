@@ -2076,6 +2076,152 @@ body {
     margin-top: var(--spacing-lg);
 }
 
+/* Filtres des transactions */
+.transactions-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--surface-elevated);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.filter-group select {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.filter-group select:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.filter-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3.2px rgba(153, 189, 180, 0.15);
+}
+
+.month-selector-wrapper {
+    position: relative;
+}
+
+.month-selector-months-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+}
+
+.month-selector-month-item {
+    padding: var(--spacing-sm) var(--spacing-xs);
+    border: 2px solid transparent;
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    text-transform: capitalize;
+}
+
+.month-selector-month-item:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.month-selector-month-item.selected {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary-dark);
+    font-weight: 600;
+    box-shadow: var(--shadow-md);
+}
+
+.month-selector-month-item:active {
+    transform: translateY(0);
+}
+
+.month-selector-month-item.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--surface);
+    color: var(--text-secondary);
+}
+
+.month-selector-month-item.disabled:hover {
+    background: var(--surface);
+    border-color: transparent;
+    color: var(--text-secondary);
+    transform: none;
+    box-shadow: none;
+}
+
+.month-selector-footer {
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 2px solid var(--border-light);
+}
+
+.month-selector-clear-btn {
+    width: 100%;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.month-selector-clear-btn:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+@media (max-width: 768px) {
+    .transactions-filters {
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        min-width: 100%;
+    }
+    
+    .month-selector-months-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
 @media (min-width: 1024px) {
     .transactions-list {
         max-width: none;

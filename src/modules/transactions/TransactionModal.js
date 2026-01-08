@@ -2,6 +2,7 @@ import { loadData, saveData } from '../shared/index.js';
 import { renderTransactions } from './TransactionRenderer.js';
 import { loadRecurrenceFromTransaction, getRecurrenceConfig, resetRecurrenceConfig } from './RecurrenceController.js';
 import { initDateSelector } from './DateSelector.js';
+import { getTransactionFilters } from './TransactionFiltersController.js';
 
 // Stocker l'instance du sélecteur de date pour l'édition
 let editTransactionDateSelector = null;
@@ -271,8 +272,9 @@ function confirmDeleteTransaction(transactionId) {
     data.transactions.splice(transactionIndex, 1);
     saveData(data);
     
-    // Recharger l'affichage
-    renderTransactions();
+    // Recharger l'affichage en préservant les filtres actuels
+    const filters = getTransactionFilters();
+    renderTransactions(filters.month, filters.year, filters.categoryId, filters.recurrence);
     // Notifier les autres modules
     if (window.renderCalendar) window.renderCalendar();
     if (window.renderDashboard) window.renderDashboard();
@@ -352,8 +354,9 @@ function handleEditTransactionSubmit() {
     // Réinitialiser la configuration de récurrence
     resetRecurrenceConfig();
     
-    // Recharger l'affichage
-    renderTransactions();
+    // Recharger l'affichage en préservant les filtres actuels
+    const filters = getTransactionFilters();
+    renderTransactions(filters.month, filters.year, filters.categoryId, filters.recurrence);
     // Notifier les autres modules
     if (window.renderCalendar) window.renderCalendar();
     if (window.renderDashboard) window.renderDashboard();

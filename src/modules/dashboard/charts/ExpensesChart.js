@@ -10,8 +10,16 @@ let expensesChart = null;
  * Crée le graphique en camembert pour les dépenses par catégorie
  */
 export function renderExpensesChart(selectedMonth = null, selectedYear = null) {
-    const ctx = document.getElementById('expenses-chart');
-    if (!ctx) return;
+    let container = document.querySelector('#expenses-chart')?.parentElement;
+    if (!container) {
+        const chartCard = Array.from(document.querySelectorAll('.chart-card')).find(card => 
+            card.querySelector('h2')?.textContent.includes('Dépenses par catégorie')
+        );
+        container = chartCard?.querySelector('.chart-container');
+    }
+    if (!container) return;
+    
+    let ctx = document.getElementById('expenses-chart');
     
     const transactions = getAllTransactions();
     const data = loadData();
@@ -48,34 +56,29 @@ export function renderExpensesChart(selectedMonth = null, selectedYear = null) {
         const color = category ? category.color : '#99BDB4';
         labels.push(category ? category.name : 'Inconnu');
         values.push(expensesByCategory[categoryId]);
-        colors.push(lightenColor(color)); // Intérieur plus clair
-        borderColors.push(color); // Contour de la couleur normale
+        colors.push(lightenColor(color));
+        borderColors.push(color);
     });
     
-    // Détruire le graphique existant s'il existe
     if (expensesChart) {
         expensesChart.destroy();
+        expensesChart = null;
     }
     
-    // Créer le nouveau graphique
     if (labels.length === 0) {
-        const parent = ctx.parentElement;
-        if (parent) {
-            parent.innerHTML = '<p class="placeholder">Aucune dépense ce mois-ci</p>';
+        if (!container.innerHTML.includes('<p class="placeholder">')) {
+            container.innerHTML = '<p class="placeholder">Aucune dépense ce mois-ci</p>';
         }
-        expensesChart = null;
         return;
     }
     
-    // Restaurer le canvas si nécessaire
-    let chartCtx = ctx;
-    if (ctx.parentElement.innerHTML.includes('<p')) {
-        ctx.parentElement.innerHTML = '<canvas id="expenses-chart"></canvas>';
-        chartCtx = document.getElementById('expenses-chart');
+    if (!ctx || container.innerHTML.includes('<p')) {
+        container.innerHTML = '<canvas id="expenses-chart"></canvas>';
+        ctx = document.getElementById('expenses-chart');
     }
     
-    // Créer le graphique avec la configuration partagée
+    if (!ctx) return;
     const config = createDoughnutChartConfig(labels, values, colors, borderColors, formatCurrency);
-    expensesChart = new Chart(chartCtx, config);
+    expensesChart = new Chart(ctx, config);
 }
 

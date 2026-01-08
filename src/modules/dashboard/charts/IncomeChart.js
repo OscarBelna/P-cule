@@ -10,8 +10,16 @@ let incomeChart = null;
  * Crée le graphique en camembert pour les revenus par catégorie
  */
 export function renderIncomeChart(selectedMonth = null, selectedYear = null) {
-    const ctx = document.getElementById('income-chart');
-    if (!ctx) return;
+    let container = document.querySelector('#income-chart')?.parentElement;
+    if (!container) {
+        const chartCard = Array.from(document.querySelectorAll('.chart-card')).find(card => 
+            card.querySelector('h2')?.textContent.includes('Revenus par catégorie')
+        );
+        container = chartCard?.querySelector('.chart-container');
+    }
+    if (!container) return;
+    
+    let ctx = document.getElementById('income-chart');
     
     const transactions = getAllTransactions();
     const data = loadData();
@@ -48,33 +56,28 @@ export function renderIncomeChart(selectedMonth = null, selectedYear = null) {
         const color = category ? category.color : '#99BDB4';
         labels.push(category ? category.name : 'Inconnu');
         values.push(incomesByCategory[categoryId]);
-        colors.push(lightenColor(color)); // Intérieur plus clair
-        borderColors.push(color); // Contour de la couleur normale
+        colors.push(lightenColor(color));
+        borderColors.push(color);
     });
     
-    // Détruire le graphique existant s'il existe
     if (incomeChart) {
         incomeChart.destroy();
+        incomeChart = null;
     }
     
-    // Créer le nouveau graphique
     if (labels.length === 0) {
-        const parent = ctx.parentElement;
-        if (parent) {
-            parent.innerHTML = '<p class="placeholder">Aucun revenu ce mois-ci</p>';
+        if (!container.innerHTML.includes('<p class="placeholder">')) {
+            container.innerHTML = '<p class="placeholder">Aucun revenu ce mois-ci</p>';
         }
-        incomeChart = null;
         return;
     }
     
-    // Restaurer le canvas si nécessaire
-    let chartCtx = ctx;
-    if (ctx.parentElement.innerHTML.includes('<p')) {
-        ctx.parentElement.innerHTML = '<canvas id="income-chart"></canvas>';
-        chartCtx = document.getElementById('income-chart');
+    if (!ctx || container.innerHTML.includes('<p')) {
+        container.innerHTML = '<canvas id="income-chart"></canvas>';
+        ctx = document.getElementById('income-chart');
     }
     
-    // Créer le graphique avec la configuration partagée
+    if (!ctx) return;
     const config = createDoughnutChartConfig(labels, values, colors, borderColors, formatCurrency);
-    incomeChart = new Chart(chartCtx, config);
+    incomeChart = new Chart(ctx, config);
 }

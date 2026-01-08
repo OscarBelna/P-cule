@@ -23,13 +23,19 @@ function updateChartTitles(month, year) {
     const monthName = monthNames[month];
     const monthLabel = isCurrentMonth ? 'mois en cours' : `${monthName} ${year}`;
     
-    // Mettre à jour les titres
-    const expensesTitle = document.querySelector('#expenses-chart')?.closest('.chart-card')?.querySelector('h2');
-    const incomeTitle = document.querySelector('#income-chart')?.closest('.chart-card')?.querySelector('h2');
-    const balanceTitle = document.querySelector('#balance-chart')?.closest('.chart-card')?.querySelector('h2');
-    const expensesEvolutionTitle = document.querySelector('#expenses-evolution-chart')?.closest('.chart-card')?.querySelector('h2');
-    const incomeEvolutionTitle = document.querySelector('#income-evolution-chart')?.closest('.chart-card')?.querySelector('h2');
-    const savingsTitle = document.querySelector('#savings-chart')?.closest('.chart-card')?.querySelector('h2');
+    const findTitle = (text) => {
+        return Array.from(document.querySelectorAll('.chart-card')).find(card => {
+            const h2 = card.querySelector('h2');
+            return h2 && h2.textContent.includes(text);
+        })?.querySelector('h2');
+    };
+    
+    const expensesTitle = findTitle('Dépenses par catégorie');
+    const incomeTitle = findTitle('Revenus par catégorie');
+    const balanceTitle = findTitle('Évolution du solde');
+    const expensesEvolutionTitle = findTitle('Évolution des dépenses');
+    const incomeEvolutionTitle = findTitle('Évolution des revenus');
+    const savingsTitle = findTitle('Économies par mois');
     
     if (expensesTitle) {
         expensesTitle.textContent = `Dépenses par catégorie (${monthLabel})`;

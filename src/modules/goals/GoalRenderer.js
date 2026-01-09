@@ -336,8 +336,12 @@ function renderCategoryBudgets(budgets) {
             statusText = 'Dans les limites';
         }
         
+        // Générer une rotation aléatoire entre -25° et 25° pour l'autocollant
+        const randomRotation = isExceeded ? Math.random() * 50 - 25 : 0;
+        
         return `
             <div class="budget-item ${isExceeded ? 'budget-exceeded' : ''}">
+                ${isExceeded ? `<img src="assets/AutocollantTriste.png" alt="Budget dépassé" class="budget-exceeded-sticker" style="transform: rotate(${randomRotation}deg);">` : ''}
                 <div class="budget-header">
                     <div class="budget-category-info">
                         <div class="budget-category-color" style="background-color: ${category.color}"></div>

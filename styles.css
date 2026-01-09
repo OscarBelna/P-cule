@@ -1754,6 +1754,8 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    position: relative;
+    overflow: visible;
 }
 
 .budget-item:hover {
@@ -1869,6 +1871,24 @@ body {
 .budget-item.budget-exceeded:hover {
     box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.3), var(--shadow-md);
     border-color: var(--danger);
+}
+
+.budget-exceeded-sticker {
+    position: absolute;
+    bottom: -30px;
+    right: -30px;
+    width: 80px;
+    height: auto;
+    z-index: 10;
+    pointer-events: none;
+}
+
+@media (max-width: 479px) {
+    .budget-exceeded-sticker {
+        width: 60px;
+        bottom: -20px;
+        right: -20px;
+    }
 }
 
 .budget-alert-wrapper {

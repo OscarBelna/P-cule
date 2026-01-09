@@ -156,16 +156,7 @@ function setFilterCategory(categoryId) {
  * Change l'affichage des transactions récurrentes
  */
 function setShowRecurring(show) {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:180',message:'setShowRecurring: entry',data:{show,previous:currentFilters.showRecurring},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
-    
     currentFilters.showRecurring = show;
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:184',message:'setShowRecurring: après mise à jour',data:{currentFilters},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
-    
     renderCurrentView();
 }
 
@@ -232,26 +223,12 @@ function renderCurrentView() {
     // Mettre à jour la légende
     renderLegend(currentFilters);
     
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:252',message:'renderCurrentView: après renderLegend',data:{filters:currentFilters},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-    
     // Reconnecter les event listeners de la légende après le rendu
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:258',message:'renderCurrentView: avant connectLegendListeners',data:{functionExists:typeof connectLegendListeners},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-    
     try {
         connectLegendListeners();
     } catch (error) {
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:262',message:'renderCurrentView: erreur dans connectLegendListeners',data:{error:error.message,stack:error.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
+        console.error('Erreur dans connectLegendListeners:', error);
     }
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:268',message:'renderCurrentView: après connectLegendListeners',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
 }
 
 /**
@@ -259,54 +236,36 @@ function renderCurrentView() {
  * Cette fonction doit être appelée après chaque rendu de la légende
  */
 function connectLegendListeners() {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:277',message:'connectLegendListeners: entry',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
-    
     const legendItems = document.querySelectorAll('.calendar-legend-item');
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:281',message:'connectLegendListeners: éléments trouvés',data:{count:legendItems.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
     
     legendItems.forEach(item => {
         item.addEventListener('click', () => {
             const filterType = item.getAttribute('data-filter-type');
             
-            // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:285',message:'legend item clicked',data:{filterType,currentType:currentFilters.type,currentShowRecurring:currentFilters.showRecurring},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-            // #endregion
-            
             if (filterType) {
                 if (filterType === 'all') {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:289',message:'setting filter to all',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                    // #endregion
                     setFilterType('all');
                 } else if (filterType === 'income' || filterType === 'expense') {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:292',message:'setting filter type',data:{filterType},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                    // #endregion
                     setFilterType(filterType === currentFilters.type ? 'all' : filterType);
                 } else if (filterType === 'recurring') {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:295',message:'toggling showRecurring',data:{current:currentFilters.showRecurring,new:!currentFilters.showRecurring},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                    // #endregion
                     setShowRecurring(!currentFilters.showRecurring);
                 }
             }
         });
     });
     
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:301',message:'connectLegendListeners: exit',data:{listenersAttached:legendItems.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
-    
     // Attacher l'event listener pour le filtre de catégorie
     const categoryFilter = document.getElementById('calendar-category-filter');
     if (categoryFilter) {
+        // Sauvegarder la valeur sélectionnée avant le clonage
+        const savedValue = categoryFilter.value;
+        
         // Supprimer les anciens listeners pour éviter les doublons
         const newCategoryFilter = categoryFilter.cloneNode(true);
+        
+        // Restaurer la valeur sélectionnée après le clonage
+        newCategoryFilter.value = savedValue;
+        
         categoryFilter.parentNode.replaceChild(newCategoryFilter, categoryFilter);
         
         newCategoryFilter.addEventListener('change', (e) => {

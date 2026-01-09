@@ -866,15 +866,8 @@ export function showWeekDetails(startDate) {
  * Affiche la légende interactive
  */
 export function renderLegend(filters) {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarRenderer.js:868',message:'renderLegend: entry',data:{filters},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-    // #endregion
-    
     const legendContainer = document.getElementById('calendar-legend');
     if (!legendContainer) {
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarRenderer.js:872',message:'renderLegend: container not found',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
         return;
     }
     
@@ -896,7 +889,6 @@ export function renderLegend(filters) {
                 <span>Récurrentes</span>
             </div>
             <div class="calendar-legend-category">
-                <label for="calendar-category-filter">Catégorie:</label>
                 <select id="calendar-category-filter">
                     <option value="">Toutes les catégories</option>
                 </select>
@@ -904,16 +896,15 @@ export function renderLegend(filters) {
         </div>
     `;
     
-    // Remplir le select de catégorie
-    populateCategorySelect('calendar-category-filter');
+    // Remplir le select de catégorie avec la valeur du filtre actuel
+    populateCategorySelect('calendar-category-filter', null, filters.categoryId || null);
     
-    // Restaurer la valeur sélectionnée si elle existe
+    // Vérifier que la valeur est correctement définie
     const categorySelect = document.getElementById('calendar-category-filter');
-    if (categorySelect && filters.categoryId) {
-        categorySelect.value = filters.categoryId;
+    if (categorySelect) {
+        // S'assurer que le texte affiché est correct
+        if (categorySelect.value === '' && categorySelect.options.length > 0) {
+            categorySelect.selectedIndex = 0; // Sélectionner "Toutes les catégories"
+        }
     }
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarRenderer.js:890',message:'renderLegend: HTML généré',data:{typeActive:filters.type === 'all',recurringActive:filters.showRecurring},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-    // #endregion
 }

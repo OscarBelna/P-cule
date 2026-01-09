@@ -4,15 +4,23 @@ import { loadData } from './StorageService.js';
  * Remplit un select de catégories de manière générique
  * @param {string} selectId - L'ID de l'élément select à remplir
  * @param {Function} onUpdateCallback - Callback optionnel appelé après la mise à jour
+ * @param {string|null} valueToSet - Valeur optionnelle à définir après le remplissage
  */
-export function populateCategorySelect(selectId, onUpdateCallback = null) {
+export function populateCategorySelect(selectId, onUpdateCallback = null, valueToSet = null) {
     const select = document.getElementById(selectId);
     if (!select) return;
     
     const data = loadData();
-    const currentValue = select.value; // Sauvegarder la valeur actuelle
+    // Utiliser valueToSet si fourni, sinon utiliser la valeur actuelle du select
+    const valueToRestore = valueToSet !== null ? valueToSet : select.value;
     
     select.innerHTML = '';
+    
+    // Ajouter l'option "Toutes les catégories" en premier
+    const allOption = document.createElement('option');
+    allOption.value = '';
+    allOption.textContent = 'Toutes les catégories';
+    select.appendChild(allOption);
     
     // Ajouter les catégories
     data.categories.forEach(category => {
@@ -27,19 +35,15 @@ export function populateCategorySelect(selectId, onUpdateCallback = null) {
         select.appendChild(option);
     });
     
-    // Restaurer la valeur sélectionnée ou ajouter le placeholder si aucune catégorie n'est sélectionnée
-    if (currentValue && data.categories.find(cat => cat.id === currentValue)) {
-        select.value = currentValue;
+    // Restaurer la valeur sélectionnée si elle existe et est valide
+    if (valueToRestore && data.categories.find(cat => cat.id === valueToRestore)) {
+        select.value = valueToRestore;
     } else {
-        // Ajouter l'option placeholder seulement quand aucune catégorie n'est sélectionnée
-        const placeholderOption = document.createElement('option');
-        placeholderOption.value = '';
-        placeholderOption.textContent = 'Sélectionnez une catégorie';
-        placeholderOption.disabled = true;
-        placeholderOption.hidden = true;
-        select.insertBefore(placeholderOption, select.firstChild);
         select.value = '';
-        select.selectedIndex = 0; // Sélectionner le placeholder
+        // S'assurer que "Toutes les catégories" est sélectionnée
+        if (select.options.length > 0 && select.options[0].value === '') {
+            select.selectedIndex = 0;
+        }
     }
     
     // Appeler le callback si fourni

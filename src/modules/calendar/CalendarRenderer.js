@@ -1,4 +1,4 @@
-import { getAllTransactions } from '../shared/index.js';
+import { getAllTransactions, populateCategorySelect } from '../shared/index.js';
 import { loadData } from '../shared/index.js';
 import { escapeHtml, formatCurrency, formatDateLocal, parseDateLocal } from '../shared/index.js';
 
@@ -866,12 +866,23 @@ export function showWeekDetails(startDate) {
  * Affiche la légende interactive
  */
 export function renderLegend(filters) {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarRenderer.js:868',message:'renderLegend: entry',data:{filters},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
+    
     const legendContainer = document.getElementById('calendar-legend');
-    if (!legendContainer) return;
+    if (!legendContainer) {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarRenderer.js:872',message:'renderLegend: container not found',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        return;
+    }
     
     legendContainer.innerHTML = `
-        <div class="calendar-legend-title">Légende</div>
         <div class="calendar-legend-items">
+            <div class="calendar-legend-item ${filters.type === 'all' ? 'active' : ''}" data-filter-type="all">
+                <span>Tous</span>
+            </div>
             <div class="calendar-legend-item ${filters.type === 'income' ? 'active' : ''}" data-filter-type="income">
                 <div class="calendar-legend-indicator income"></div>
                 <span>Revenus</span>
@@ -884,8 +895,25 @@ export function renderLegend(filters) {
                 <div class="calendar-legend-indicator recurring">🔄</div>
                 <span>Récurrentes</span>
             </div>
+            <div class="calendar-legend-category">
+                <label for="calendar-category-filter">Catégorie:</label>
+                <select id="calendar-category-filter">
+                    <option value="">Toutes les catégories</option>
+                </select>
+            </div>
         </div>
     `;
     
-    // Reconnecter les event listeners (sera fait dans initCalendar)
+    // Remplir le select de catégorie
+    populateCategorySelect('calendar-category-filter');
+    
+    // Restaurer la valeur sélectionnée si elle existe
+    const categorySelect = document.getElementById('calendar-category-filter');
+    if (categorySelect && filters.categoryId) {
+        categorySelect.value = filters.categoryId;
+    }
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarRenderer.js:890',message:'renderLegend: HTML généré',data:{typeActive:filters.type === 'all',recurringActive:filters.showRecurring},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
 }

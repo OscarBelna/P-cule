@@ -50,38 +50,8 @@ export function initCalendar() {
         });
     });
     
-    // Filtres
-    const filterButtons = document.querySelectorAll('.calendar-filter-type-btn');
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const filterType = btn.getAttribute('data-filter-type');
-            if (filterType) {
-                setFilterType(filterType);
-            }
-        });
-    });
-    
-    const categoryFilter = document.getElementById('calendar-category-filter');
-    if (categoryFilter) {
-        categoryFilter.addEventListener('change', (e) => {
-            setFilterCategory(e.target.value || null);
-        });
-    }
-    
-    const recurringToggle = document.getElementById('calendar-show-recurring');
-    if (recurringToggle) {
-        recurringToggle.addEventListener('change', (e) => {
-            setShowRecurring(e.target.checked);
-        });
-    }
-    
-    // Recherche de date
-    if (dateSearch) {
-        dateSearch.addEventListener('change', (e) => {
-            if (e.target.value) {
-            }
-        });
-    }
+    // Les filtres (Type, Récurrentes, Catégorie) sont maintenant gérés par la légende interactive
+    // Les event listeners seront attachés par connectLegendListeners() après le rendu initial
     
     // Légende interactive
     const legendItems = document.querySelectorAll('.calendar-legend-item');
@@ -89,7 +59,9 @@ export function initCalendar() {
         item.addEventListener('click', () => {
             const filterType = item.getAttribute('data-filter-type');
             if (filterType) {
-                if (filterType === 'income' || filterType === 'expense') {
+                if (filterType === 'all') {
+                    setFilterType('all');
+                } else if (filterType === 'income' || filterType === 'expense') {
                     setFilterType(filterType === currentFilters.type ? 'all' : filterType);
                 } else if (filterType === 'recurring') {
                     setShowRecurring(!currentFilters.showRecurring);
@@ -184,22 +156,25 @@ function setFilterCategory(categoryId) {
  * Change l'affichage des transactions récurrentes
  */
 function setShowRecurring(show) {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:180',message:'setShowRecurring: entry',data:{show,previous:currentFilters.showRecurring},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    
     currentFilters.showRecurring = show;
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:184',message:'setShowRecurring: après mise à jour',data:{currentFilters},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    
     renderCurrentView();
 }
 
 /**
  * Met à jour l'état visuel des boutons de filtre
+ * (Les filtres sont maintenant gérés par la légende interactive)
  */
 function updateFilterButtons() {
-    const filterButtons = document.querySelectorAll('.calendar-filter-type-btn');
-    filterButtons.forEach(btn => {
-        if (btn.getAttribute('data-filter-type') === currentFilters.type) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
+    // Les boutons de filtre sont maintenant dans la légende, gérés par renderLegend
 }
 
 /**
@@ -218,6 +193,17 @@ export function goToDate(date) {
     if (!isNaN(dateObj.getTime())) {
         currentCalendarDate = dateObj;
         renderCurrentView();
+    }
+}
+
+/**
+ * Gère la recherche de date
+ */
+function handleDateSearch(dateString) {
+    goToDate(dateString);
+    // Si on est en vue année, basculer en vue mois
+    if (currentViewType === 'year') {
+        setViewType('month');
     }
 }
 
@@ -245,6 +231,88 @@ function renderCurrentView() {
     
     // Mettre à jour la légende
     renderLegend(currentFilters);
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:252',message:'renderCurrentView: après renderLegend',data:{filters:currentFilters},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    // Reconnecter les event listeners de la légende après le rendu
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:258',message:'renderCurrentView: avant connectLegendListeners',data:{functionExists:typeof connectLegendListeners},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    try {
+        connectLegendListeners();
+    } catch (error) {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:262',message:'renderCurrentView: erreur dans connectLegendListeners',data:{error:error.message,stack:error.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+    }
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:268',message:'renderCurrentView: après connectLegendListeners',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+}
+
+/**
+ * Connecte les event listeners de la légende interactive
+ * Cette fonction doit être appelée après chaque rendu de la légende
+ */
+function connectLegendListeners() {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:277',message:'connectLegendListeners: entry',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
+    
+    const legendItems = document.querySelectorAll('.calendar-legend-item');
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:281',message:'connectLegendListeners: éléments trouvés',data:{count:legendItems.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
+    
+    legendItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const filterType = item.getAttribute('data-filter-type');
+            
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:285',message:'legend item clicked',data:{filterType,currentType:currentFilters.type,currentShowRecurring:currentFilters.showRecurring},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
+            
+            if (filterType) {
+                if (filterType === 'all') {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:289',message:'setting filter to all',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                    // #endregion
+                    setFilterType('all');
+                } else if (filterType === 'income' || filterType === 'expense') {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:292',message:'setting filter type',data:{filterType},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                    // #endregion
+                    setFilterType(filterType === currentFilters.type ? 'all' : filterType);
+                } else if (filterType === 'recurring') {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:295',message:'toggling showRecurring',data:{current:currentFilters.showRecurring,new:!currentFilters.showRecurring},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+                    // #endregion
+                    setShowRecurring(!currentFilters.showRecurring);
+                }
+            }
+        });
+    });
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarController.js:301',message:'connectLegendListeners: exit',data:{listenersAttached:legendItems.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
+    
+    // Attacher l'event listener pour le filtre de catégorie
+    const categoryFilter = document.getElementById('calendar-category-filter');
+    if (categoryFilter) {
+        // Supprimer les anciens listeners pour éviter les doublons
+        const newCategoryFilter = categoryFilter.cloneNode(true);
+        categoryFilter.parentNode.replaceChild(newCategoryFilter, categoryFilter);
+        
+        newCategoryFilter.addEventListener('change', (e) => {
+            setFilterCategory(e.target.value || null);
+        });
+    }
 }
 
 /**
@@ -381,4 +449,3 @@ export function getWeekSummary(startDate) {
         endDate: weekEnd
     };
 }
-

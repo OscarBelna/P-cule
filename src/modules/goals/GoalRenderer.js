@@ -322,10 +322,11 @@ function renderCategoryBudgets(budgets) {
         
         const progress = Math.min((categoryExpenses / budget.amount) * 100, 100);
         const remaining = budget.amount - categoryExpenses;
+        const isExceeded = categoryExpenses > budget.amount;
         
         let progressClass = '';
         let statusText = '';
-        if (progress >= 100) {
+        if (isExceeded) {
             progressClass = 'danger';
             statusText = 'Budget dépassé';
         } else if (progress >= 80) {
@@ -336,7 +337,7 @@ function renderCategoryBudgets(budgets) {
         }
         
         return `
-            <div class="budget-item">
+            <div class="budget-item ${isExceeded ? 'budget-exceeded' : ''}">
                 <div class="budget-header">
                     <div class="budget-category-info">
                         <div class="budget-category-color" style="background-color: ${category.color}"></div>
@@ -344,6 +345,7 @@ function renderCategoryBudgets(budgets) {
                     </div>
                     <div class="budget-amount">${formatCurrency(budget.amount)}</div>
                 </div>
+                ${isExceeded ? '<div class="budget-alert-wrapper"><span class="budget-alert-badge">⚠️ Budget dépassé</span></div>' : ''}
                 <div class="budget-progress">
                     <div class="progress-bar">
                         <div class="progress-fill ${progressClass}" style="width: ${progress}%">

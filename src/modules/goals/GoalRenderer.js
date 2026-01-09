@@ -349,7 +349,7 @@ function renderCategoryBudgets(budgets) {
                     </div>
                     <div class="budget-amount">${formatCurrency(budget.amount)}</div>
                 </div>
-                ${isExceeded ? '<div class="budget-alert-wrapper"><span class="budget-alert-badge">⚠️ Budget dépassé</span></div>' : ''}
+                <div class="budget-alert-wrapper">${isExceeded ? '<span class="budget-alert-badge">⚠️ Budget dépassé</span>' : ''}</div>
                 <div class="budget-progress">
                     <div class="progress-bar">
                         <div class="progress-fill ${progressClass}" style="width: ${progress}%">

@@ -34,8 +34,13 @@ export function populateCategorySelect(forceReset = false) {
     
     select.innerHTML = '';
     
+    // Filtrer les catégories : exclure les catégories d'économie (type === 'savings')
+    const transactionCategories = data.categories.filter(category => 
+        !category.type || category.type !== 'savings'
+    );
+    
     // Ajouter les catégories
-    data.categories.forEach(category => {
+    transactionCategories.forEach(category => {
         const option = document.createElement('option');
         option.value = category.id;
         // Ajouter le rond de couleur dans la liste déroulante
@@ -48,7 +53,7 @@ export function populateCategorySelect(forceReset = false) {
     });
     
     // Restaurer la valeur sélectionnée ou ajouter le placeholder si aucune catégorie n'est sélectionnée
-    if (currentValue && data.categories.find(cat => cat.id === currentValue)) {
+    if (currentValue && transactionCategories.find(cat => cat.id === currentValue)) {
         select.value = currentValue;
     } else {
         // Ajouter l'option placeholder seulement quand aucune catégorie n'est sélectionnée

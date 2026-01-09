@@ -140,8 +140,13 @@ export function openEditTransactionModal(transactionId) {
     if (categorySelect) {
         categorySelect.innerHTML = '';
         
+        // Filtrer les catégories : exclure les catégories d'économie (type === 'savings')
+        const transactionCategories = data.categories.filter(category => 
+            !category.type || category.type !== 'savings'
+        );
+        
         // Ajouter les catégories avec les ronds de couleur
-        data.categories.forEach(category => {
+        transactionCategories.forEach(category => {
             const option = document.createElement('option');
             option.value = category.id;
             // Ajouter le rond de couleur dans la liste déroulante
@@ -157,7 +162,7 @@ export function openEditTransactionModal(transactionId) {
         });
         
         // Mettre à jour la couleur du select avec la catégorie sélectionnée
-        const selectedCategory = data.categories.find(cat => cat.id === transaction.categoryId);
+        const selectedCategory = transactionCategories.find(cat => cat.id === transaction.categoryId);
         if (selectedCategory && selectedCategory.color) {
             categorySelect.style.color = selectedCategory.color;
         }

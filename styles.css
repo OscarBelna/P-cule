@@ -3751,6 +3751,33 @@ body {
     box-shadow: 0 4px 12px rgba(153, 189, 180, 0.3);
 }
 
+/* Toggle switch pour le filtre récurrence - sans encadré */
+.calendar-legend-recurring {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+.calendar-legend-recurring:hover {
+    background: transparent !important;
+    border: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.calendar-legend-recurring.active {
+    background: transparent !important;
+    color: var(--text-primary);
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.calendar-legend-recurring.active:hover {
+    background: transparent !important;
+    border: none !important;
+}
+
 .calendar-legend-category {
     display: flex;
     align-items: center;
@@ -3808,6 +3835,52 @@ body {
     background: transparent;
     font-size: 0.875rem;
     border-radius: 0;
+}
+
+/* Toggle switch pour le filtre récurrence - sans encadré */
+.calendar-recurring-toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    flex-shrink: 0;
+}
+
+.calendar-legend-recurring.active .calendar-recurring-toggle {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.calendar-recurring-toggle-slider {
+    position: absolute;
+    top: 50%;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: translateY(-50%);
+}
+
+.calendar-legend-recurring.active .calendar-recurring-toggle-slider {
+    transform: translateY(-50%) translateX(20px);
+    box-shadow: 0 2px 6px rgba(153, 189, 180, 0.4);
+}
+
+.calendar-legend-recurring:hover .calendar-recurring-toggle {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(153, 189, 180, 0.1);
+}
+
+.calendar-legend-recurring.active:hover .calendar-recurring-toggle {
+    background: var(--primary-dark, #4a9b8a);
+    border-color: var(--primary-dark, #4a9b8a);
 }
 
 /* ===== DÉTAILS DU JOUR ===== */

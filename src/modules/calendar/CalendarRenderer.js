@@ -884,8 +884,10 @@ export function renderLegend(filters) {
                 <div class="calendar-legend-indicator expense"></div>
                 <span>Dépenses</span>
             </div>
-            <div class="calendar-legend-item ${filters.showRecurring ? 'active' : ''}" data-filter-type="recurring">
-                <div class="calendar-legend-indicator recurring">🔄</div>
+            <div class="calendar-legend-item calendar-legend-recurring ${filters.showRecurring ? 'active' : ''}" data-filter-type="recurring">
+                <div class="calendar-recurring-toggle">
+                    <div class="calendar-recurring-toggle-slider"></div>
+                </div>
                 <span>Récurrentes</span>
             </div>
             <div class="calendar-legend-category">

@@ -188,7 +188,7 @@ export function renderTransactions(filterMonth = null, filterYear = null, filter
         return true;
     });
     
-    // Grouper les transactions récurrentes journalières, hebdomadaires et bimensuelles par mois
+    // Grouper les transactions récurrentes journalières et hebdomadaires par mois
     const groupedTransactions = [];
     const processedGroups = new Map(); // Pour éviter les doublons
     
@@ -203,8 +203,8 @@ export function renderTransactions(filterMonth = null, filterYear = null, filter
                     ? { type: originalTransaction.recurrence, endDate: null }
                     : originalTransaction.recurrence;
                 
-                // Grouper uniquement pour daily, weekly, bimonthly
-                if (recurrence.type === 'daily' || recurrence.type === 'weekly' || recurrence.type === 'bimonthly') {
+                // Grouper uniquement pour daily, weekly (bimensuel = tous les 2 mois, donc pas de regroupement nécessaire)
+                if (recurrence.type === 'daily' || recurrence.type === 'weekly') {
                     const transactionDate = new Date(transaction.date);
                     const monthKey = `${transactionDate.getMonth()}-${transactionDate.getFullYear()}-${transaction.originalId || transaction.id}`;
                     

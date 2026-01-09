@@ -2,6 +2,8 @@
  * Composant de sélection de date personnalisé
  */
 
+import { formatDateLocal, parseDateLocal } from '../shared/index.js';
+
 /**
  * Initialise un sélecteur de date personnalisé
  * @param {string} prefix - Préfixe des IDs (ex: "transaction-date" ou "edit-transaction-date")
@@ -28,11 +30,11 @@ export function initDateSelector(prefix, allowClear = false) {
     
     // Initialiser selectedDate : utiliser la valeur existante ou la date d'aujourd'hui par défaut
     if (hiddenInput.value) {
-        selectedDate = new Date(hiddenInput.value + 'T00:00:00');
+        selectedDate = parseDateLocal(hiddenInput.value);
     } else {
         // Par défaut, sélectionner la date d'aujourd'hui
         selectedDate = new Date(today);
-        hiddenInput.value = today.toISOString().split('T')[0];
+        hiddenInput.value = formatDateLocal(today);
     }
     
     updateDisplay();
@@ -211,7 +213,7 @@ export function initDateSelector(prefix, allowClear = false) {
     
     function selectDate(date) {
         selectedDate = new Date(date);
-        hiddenInput.value = date.toISOString().split('T')[0];
+        hiddenInput.value = formatDateLocal(date);
         updateDisplay();
         closeDropdown();
         renderCalendar();
@@ -262,7 +264,7 @@ export function initDateSelector(prefix, allowClear = false) {
                 updateDisplay();
                 renderCalendar();
             } else {
-                selectedDate = new Date(date + 'T00:00:00');
+                selectedDate = parseDateLocal(date);
                 currentDate = new Date(selectedDate);
                 hiddenInput.value = date;
                 updateDisplay();

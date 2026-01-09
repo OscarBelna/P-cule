@@ -1,4 +1,5 @@
 import { loadData } from './StorageService.js';
+import { formatDateLocal, parseDateLocal } from './Formatters.js';
 
 /**
  * Obtient toutes les transactions (y compris récurrentes générées)
@@ -17,8 +18,8 @@ export function getAllTransactions() {
                 ? { type: transaction.recurrence, endDate: null } // Ancien format
                 : transaction.recurrence;
             
-            const transactionDate = new Date(transaction.date);
-            const endDate = recurrence.endDate ? new Date(recurrence.endDate) : null;
+            const transactionDate = parseDateLocal(transaction.date);
+            const endDate = recurrence.endDate ? parseDateLocal(recurrence.endDate) : null;
             
             // Déterminer la date maximale (fin de récurrence ou 2 ans dans le futur)
             const maxDate = endDate || new Date(today.getFullYear() + 2, today.getMonth(), 0);
@@ -61,7 +62,7 @@ export function getAllTransactions() {
                     break;
                 }
                 
-                const dateStr = currentDate.toISOString().split('T')[0];
+                const dateStr = formatDateLocal(currentDate);
                 
                 // Vérifier qu'on n'a pas déjà cette transaction récurrente
                 const exists = transactions.some(t => 

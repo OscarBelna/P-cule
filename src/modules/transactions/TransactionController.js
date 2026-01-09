@@ -1,4 +1,4 @@
-import { loadData, saveData } from '../shared/index.js';
+import { loadData, saveData, formatDateLocal } from '../shared/index.js';
 import { populateCategorySelect, renderTransactions, updateCategoryColorIndicator } from './TransactionRenderer.js';
 import { getRecurrenceConfig, resetRecurrenceConfig } from './RecurrenceController.js';
 import { initDateSelector } from './DateSelector.js';
@@ -106,7 +106,10 @@ function handleTransactionSubmit() {
     // Réinitialiser le formulaire
     const form = document.getElementById('transaction-form');
     if (form) form.reset();
-    if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+    if (dateInput) {
+        const today = new Date();
+        dateInput.value = formatDateLocal(today);
+    }
     if (typeInput) typeInput.value = 'expense'; // Par défaut sur "Dépense"
     resetRecurrenceConfig();
     

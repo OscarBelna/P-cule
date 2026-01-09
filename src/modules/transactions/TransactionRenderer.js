@@ -1,6 +1,6 @@
 import { getAllTransactions } from '../shared/index.js';
 import { loadData } from '../shared/index.js';
-import { escapeHtml } from '../shared/index.js';
+import { escapeHtml, parseDateLocal } from '../shared/index.js';
 
 /**
  * Obtient le label de récurrence pour l'affichage
@@ -285,7 +285,7 @@ export function renderTransactions(filterMonth = null, filterYear = null, filter
         const categoryColor = category ? category.color : '#64748b';
         const categoryName = category ? category.name : 'Catégorie supprimée';
         const isIncome = transaction.amount > 0;
-        const date = new Date(transaction.date);
+        const date = parseDateLocal(transaction.date);
         const formattedDate = date.toLocaleDateString('fr-FR', { 
             day: 'numeric', 
             month: 'long', 

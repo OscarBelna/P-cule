@@ -216,6 +216,13 @@
             <div class="page-content">
                 <h1>Calendrier</h1>
                 
+                <!-- Contrôles de vue -->
+                <div class="calendar-view-controls">
+                    <button class="calendar-view-btn active" data-view="month">Mois</button>
+                    <button class="calendar-view-btn" data-view="week">Semaine</button>
+                    <button class="calendar-view-btn" data-view="year">Année</button>
+                </div>
+                
                 <!-- Navigation du calendrier -->
                 <div class="calendar-header">
                     <button class="btn-icon" id="calendar-prev">
@@ -229,7 +236,45 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>
                     </button>
+                    <button class="btn-icon" id="calendar-today" title="Aujourd'hui">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </button>
                 </div>
+                
+                <!-- Filtres -->
+                <div class="calendar-filters">
+                    <div class="calendar-filter-group">
+                        <label>Type:</label>
+                        <div class="calendar-filter-buttons">
+                            <button class="calendar-filter-type-btn active" data-filter-type="all">Tous</button>
+                            <button class="calendar-filter-type-btn" data-filter-type="income">Revenus</button>
+                            <button class="calendar-filter-type-btn" data-filter-type="expense">Dépenses</button>
+                        </div>
+                    </div>
+                    <div class="calendar-filter-group">
+                        <label for="calendar-category-filter">Catégorie:</label>
+                        <select id="calendar-category-filter">
+                            <option value="">Toutes les catégories</option>
+                        </select>
+                    </div>
+                    <div class="calendar-filter-group">
+                        <label>
+                            <input type="checkbox" id="calendar-show-recurring" checked>
+                            Afficher récurrentes
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Résumé mensuel -->
+                <div id="calendar-month-summary" class="calendar-month-summary"></div>
+                
+                <!-- Résumé hebdomadaire -->
+                <div id="calendar-week-summary" class="calendar-week-summary" style="display: none;"></div>
+                
+                <!-- Résumé annuel -->
+                <div id="calendar-year-summary" class="calendar-year-summary" style="display: none;"></div>
                 
                 <!-- Calendrier -->
                 <div class="card">
@@ -237,6 +282,9 @@
                         <!-- Le calendrier sera généré par JavaScript -->
                     </div>
                 </div>
+                
+                <!-- Légende interactive -->
+                <div id="calendar-legend" class="calendar-legend"></div>
                 
                 <!-- Détails des transactions du jour sélectionné -->
                 <div id="day-details" class="card" style="display: none;">

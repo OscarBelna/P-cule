@@ -16,6 +16,7 @@ export function renderCalendar(currentDate = new Date(), filters = { type: 'all'
     // Réinitialiser la grille pour la vue mensuelle
     grid.className = 'calendar-grid';
     grid.style.gridTemplateColumns = '';
+    grid.style.gridTemplateRows = '';
     
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -400,6 +401,7 @@ export function renderWeekView(startDate, filters = { type: 'all', categoryId: n
     grid.innerHTML = '';
     grid.className = 'calendar-grid weeks-grid';
     grid.style.gridTemplateColumns = '';
+    grid.style.gridTemplateRows = '';
     
     weeksData.forEach(weekData => {
         const weekCard = document.createElement('div');

@@ -940,7 +940,6 @@ export function renderLegend(filters) {
     const pageContent = legendContainer.closest('.page-content');
     const computedStyle = window.getComputedStyle(legendContainer);
     const pageContentStyle = pageContent ? window.getComputedStyle(pageContent) : null;
-    fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarRenderer.js:868',message:'Dimensions légende avant rendu',data:{legendWidth:legendContainer.offsetWidth,legendClientWidth:legendContainer.clientWidth,legendScrollWidth:legendContainer.scrollWidth,computedWidth:computedStyle.width,computedMaxWidth:computedStyle.maxWidth,pageContentWidth:pageContent?.offsetWidth,pageContentMaxWidth:pageContentStyle?.maxWidth,pageContentPadding:pageContentStyle?.padding},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
     // #endregion
     
     legendContainer.innerHTML = `
@@ -991,7 +990,6 @@ export function renderLegend(filters) {
         const pageContentStyle = pageContent ? window.getComputedStyle(pageContent) : null;
         const mainContent = legendContainer.closest('.main-content');
         const mainContentStyle = mainContent ? window.getComputedStyle(mainContent) : null;
-        fetch('http://127.0.0.1:7243/ingest/b1ff4645-bdf9-4b3b-aeae-4520a30e0bb6',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CalendarRenderer.js:912',message:'Dimensions légende après rendu complet',data:{legendWidth:legendContainer.offsetWidth,legendClientWidth:legendContainer.clientWidth,legendScrollWidth:legendContainer.scrollWidth,computedWidth:computedStyleAfter.width,computedMaxWidth:computedStyleAfter.maxWidth,legendItemsWidth:legendItems?.offsetWidth,legendItemsComputedWidth:legendItemsStyle?.width,legendItemsComputedMaxWidth:legendItemsStyle?.maxWidth,pageContentWidth:pageContent?.offsetWidth,pageContentMaxWidth:pageContentStyle?.maxWidth,mainContentWidth:mainContent?.offsetWidth,mainContentMaxWidth:mainContentStyle?.maxWidth,windowWidth:window.innerWidth},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
     }, 500);
     // #endregion
 }

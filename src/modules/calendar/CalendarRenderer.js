@@ -130,7 +130,7 @@ export function renderCalendar(currentDate = new Date(), filters = { type: 'all'
         const intensity = dayData ? Math.min(1, (dayData.totalIncome + dayData.totalExpense) / 1000) : 0;
         
         grid.innerHTML += `
-            <div class="calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''} calendar-day-animated" 
+            <div class="calendar-day ${isToday ? 'today today-highlight' : ''} ${isSelected ? 'selected' : ''} calendar-day-animated" 
                  data-date="${dateStr}" 
                  style="${dayData ? `--intensity: ${intensity}` : ''}">
                 <span class="calendar-day-number">${day}</span>
@@ -154,6 +154,11 @@ export function renderCalendar(currentDate = new Date(), filters = { type: 'all'
                 // Retirer la sélection précédente
                 grid.querySelectorAll('.calendar-day.selected').forEach(el => {
                     el.classList.remove('selected');
+                });
+                // Retirer la classe 'today-highlight' de toutes les cases (pour enlever le fond vert)
+                // mais garder la classe 'today' pour le petit rond vert
+                grid.querySelectorAll('.calendar-day.today-highlight').forEach(el => {
+                    el.classList.remove('today-highlight');
                 });
                 // Ajouter la sélection au jour cliqué
                 dayEl.classList.add('selected');

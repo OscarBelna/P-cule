@@ -3541,14 +3541,6 @@ body {
     background: var(--background);
 }
 
-.calendar-day.today {
-    background: linear-gradient(135deg, rgba(153, 189, 180, 0.15) 0%, rgba(153, 189, 180, 0.05) 100%);
-    border-color: var(--primary);
-    border-width: 2.5px;
-    font-weight: 700;
-    box-shadow: 0 4px 12px rgba(153, 189, 180, 0.2);
-}
-
 .calendar-day.today::after {
     content: '';
     position: absolute;
@@ -3558,6 +3550,15 @@ body {
     height: 8px;
     background: var(--primary);
     border-radius: 50%;
+    z-index: 2;
+}
+
+.calendar-day.today-highlight {
+    background: linear-gradient(135deg, rgba(153, 189, 180, 0.15) 0%, rgba(153, 189, 180, 0.05) 100%);
+    border-color: var(--primary);
+    border-width: 2.5px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(153, 189, 180, 0.2);
 }
 
 .calendar-day.selected {

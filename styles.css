@@ -2786,6 +2786,8 @@ body {
 #calendar .page-content {
     max-width: 1400px;
     margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 #calendar .page-content > h1 {
@@ -3713,16 +3715,16 @@ body {
 /* ===== LÉGENDE INTERACTIVE ===== */
 .calendar-legend {
     margin-top: 2rem;
-    padding: 1.5rem;
+    padding: 1.5rem clamp(1.5rem, 3vw, 3rem);
     background: white;
     border-radius: 16px;
     border: 1px solid var(--border-light);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: row;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .calendar-legend h3 {
@@ -3743,9 +3745,13 @@ body {
 .calendar-legend-items {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
+    gap: clamp(1rem, 3vw, 4rem);
     flex-wrap: wrap;
     align-items: center;
+    width: 100%;
+    max-width: 100%;
+    justify-content: space-between;
+    box-sizing: border-box;
 }
 
 .legend-items {
@@ -3811,7 +3817,8 @@ body {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-left: auto;
+    flex: 1 1 auto;
+    min-width: 200px;
 }
 
 .calendar-legend-category label {
@@ -4119,6 +4126,14 @@ body {
     .calendar-summary-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+    
+    .calendar-legend-items {
+        gap: 2rem;
+    }
+    
+    .calendar-legend {
+        padding: 1.5rem 2.5rem;
+    }
 }
 
 @media (min-width: 1024px) {
@@ -4126,6 +4141,14 @@ body {
         max-width: 900px;
         margin: 0 auto;
         gap: 0.75rem;
+    }
+    
+    .calendar-legend-items {
+        gap: 3rem;
+    }
+    
+    .calendar-legend {
+        padding: 1.5rem 3rem;
     }
 
     .calendar-header {
@@ -4591,6 +4614,67 @@ body {
     .month-selector {
         width: 100%;
         justify-content: center;
+    }
+    
+    .calendar-legend {
+        padding: 1rem;
+    }
+    
+    .calendar-legend-items {
+        gap: 0.75rem;
+    }
+    
+    .calendar-legend-item {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .calendar-legend-category {
+        min-width: 100%;
+        max-width: 100%;
+        margin-top: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-legend {
+        padding: 0.75rem;
+    }
+    
+    .calendar-legend-items {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+    
+    .calendar-legend-item {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .calendar-legend-category {
+        margin-top: 0;
+    }
+}
+
+/* Grands écrans - espacement encore plus généreux */
+@media (min-width: 1400px) {
+    .calendar-legend-items {
+        gap: 4.5rem;
+    }
+    
+    .calendar-legend {
+        padding: 2rem 5rem;
+    }
+}
+
+@media (min-width: 1920px) {
+    .calendar-legend-items {
+        gap: 6rem;
+    }
+    
+    .calendar-legend {
+        padding: 2.5rem 6rem;
     }
 }
 

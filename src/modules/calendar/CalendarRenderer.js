@@ -157,14 +157,14 @@ export function renderCalendar(currentDate = new Date(), filters = { type: 'all'
                 });
                 // Ajouter la sélection au jour cliqué
                 dayEl.classList.add('selected');
-                showDayDetails(date);
+                showDayDetails(date, filters);
             }
         });
     });
     
     // Afficher automatiquement les détails du jour en cours si c'est le mois actuel
     if (isCurrentMonth) {
-        showDayDetails(todayStr);
+        showDayDetails(todayStr, filters);
     }
 }
 
@@ -436,7 +436,7 @@ export function renderWeekView(startDate, filters = { type: 'all', categoryId: n
         dayEl.addEventListener('click', () => {
             const date = dayEl.getAttribute('data-date');
             if (date) {
-                showDayDetails(date);
+                showDayDetails(date, filters);
             }
         });
     });
@@ -665,16 +665,37 @@ export function renderYearView(year, filters = { type: 'all', categoryId: null, 
 /**
  * Affiche les détails d'un jour
  */
-export function showDayDetails(dateStr) {
+export function showDayDetails(dateStr, filters = { type: 'all', categoryId: null, showRecurring: true }) {
     const detailsCard = document.getElementById('day-details');
     const detailsTitle = document.getElementById('day-details-title');
     const transactionsList = document.getElementById('day-transactions-list');
     
     if (!detailsCard || !detailsTitle || !transactionsList) return;
     
-    const transactions = getAllTransactions();
-    const dayTransactions = transactions.filter(t => t.date === dateStr);
+    const allTransactions = getAllTransactions();
     const data = loadData();
+    
+    // Appliquer les filtres - afficher toutes les transactions visibles sur la case du calendrier
+    // Le filtre récurrent ne doit pas exclure les non-récurrentes dans les détails
+    let transactions = allTransactions.filter(transaction => {
+        // Filtre par date
+        if (transaction.date !== dateStr) return false;
+        
+        // Filtre par type
+        if (filters.type === 'income' && transaction.amount <= 0) return false;
+        if (filters.type === 'expense' && transaction.amount > 0) return false;
+        
+        // Filtre par catégorie
+        if (filters.categoryId && transaction.categoryId !== filters.categoryId) return false;
+        
+        // Le filtre récurrence n'est pas appliqué dans les détails du jour
+        // On affiche toujours toutes les transactions correspondant aux autres filtres
+        // (type et catégorie), qu'elles soient récurrentes ou non
+        
+        return true;
+    });
+    
+    const dayTransactions = transactions;
     
     if (dayTransactions.length === 0) {
         detailsCard.style.display = 'none';

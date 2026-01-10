@@ -233,48 +233,6 @@ function getMonthSummary(year, month) {
 }
 
 /**
- * Calcule le résumé hebdomadaire
- */
-function getWeekSummary(startDate) {
-    const transactions = getAllTransactions();
-    const weekStart = new Date(startDate);
-    weekStart.setHours(0, 0, 0, 0);
-    
-    // Trouver le lundi de la semaine
-    const dayOfWeek = weekStart.getDay();
-    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Lundi = 1
-    weekStart.setDate(weekStart.getDate() + diff);
-    
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 6);
-    weekEnd.setHours(23, 59, 59, 999);
-    
-    const weekTransactions = transactions.filter(t => {
-        const tDate = new Date(t.date);
-        return tDate >= weekStart && tDate <= weekEnd;
-    });
-    
-    let totalIncome = 0;
-    let totalExpense = 0;
-    
-    weekTransactions.forEach(t => {
-        if (t.amount > 0) {
-            totalIncome += t.amount;
-        } else {
-            totalExpense += Math.abs(t.amount);
-        }
-    });
-    
-    return {
-        income: totalIncome,
-        expense: totalExpense,
-        balance: totalIncome - totalExpense,
-        startDate: weekStart,
-        endDate: weekEnd
-    };
-}
-
-/**
  * Affiche le résumé mensuel
  */
 export function renderMonthSummary(year, month) {

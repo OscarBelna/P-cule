@@ -721,8 +721,9 @@ export function showDayDetails(dateStr, filters = { type: 'all', categoryId: nul
         }
     });
     
-    // Trier par montant (dépenses d'abord, puis revenus)
-    dayTransactions.sort((a, b) => a.amount - b.amount);
+    // Séparer les transactions en revenus et dépenses
+    const incomeTransactions = dayTransactions.filter(t => t.amount > 0).sort((a, b) => b.amount - a.amount);
+    const expenseTransactions = dayTransactions.filter(t => t.amount <= 0).sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
     
     transactionsList.innerHTML = `
         <div class="day-summary">
@@ -735,37 +736,80 @@ export function showDayDetails(dateStr, filters = { type: 'all', categoryId: nul
                 <span class="expense">${formatCurrency(dayExpense)}</span>
             </div>
             <div class="day-summary-item highlight">
-                <span>Solde:</span>
+                <span>Solde du jour:</span>
                 <span class="${dayIncome - dayExpense >= 0 ? 'income' : 'expense'}">${formatCurrency(dayIncome - dayExpense)}</span>
             </div>
         </div>
-        <div class="day-transactions-list">
-            ${dayTransactions.map(transaction => {
-                const category = data.categories.find(cat => cat.id === transaction.categoryId);
-                const categoryColor = category ? category.color : '#64748b';
-                const categoryName = category ? category.name : 'Catégorie supprimée';
-                const isIncome = transaction.amount > 0;
-                const isRecurring = transaction.recurrence || transaction.originalId;
-                
-                return `
-                    <div class="day-transaction-item">
-                        <div class="day-transaction-info">
-                            <div class="day-transaction-color" style="background-color: ${categoryColor}"></div>
-                            <div class="day-transaction-details">
-                                <div class="day-transaction-category">
-                                    ${escapeHtml(categoryName)}
-                                    ${isRecurring ? '<span class="recurring-badge" title="Transaction récurrente">🔄</span>' : ''}
+        
+        ${incomeTransactions.length > 0 ? `
+            <div class="day-transactions-section">
+                <div class="day-transactions-section-header income-header">
+                    <span class="day-transactions-section-title">Revenus</span>
+                    <span class="day-transactions-section-total income">${formatCurrency(dayIncome)}</span>
+                </div>
+                <div class="day-transactions-list income-list">
+                    ${incomeTransactions.map(transaction => {
+                        const category = data.categories.find(cat => cat.id === transaction.categoryId);
+                        const categoryColor = category ? category.color : '#64748b';
+                        const categoryName = category ? category.name : 'Catégorie supprimée';
+                        const isRecurring = transaction.recurrence || transaction.originalId;
+                        
+                        return `
+                            <div class="day-transaction-item income-item">
+                                <div class="day-transaction-info">
+                                    <div class="day-transaction-color" style="background-color: ${categoryColor}"></div>
+                                    <div class="day-transaction-details">
+                                        <div class="day-transaction-category">
+                                            ${escapeHtml(categoryName)}
+                                            ${isRecurring ? '<span class="recurring-badge" title="Transaction récurrente">🔄</span>' : ''}
+                                        </div>
+                                        ${transaction.description ? `<div class="day-transaction-description">${escapeHtml(transaction.description)}</div>` : ''}
+                                    </div>
                                 </div>
-                                ${transaction.description ? `<div class="day-transaction-description">${escapeHtml(transaction.description)}</div>` : ''}
+                                <div class="day-transaction-amount income">
+                                    +${formatCurrency(transaction.amount)}
+                                </div>
                             </div>
-                        </div>
-                        <div class="day-transaction-amount ${isIncome ? 'income' : 'expense'}">
-                            ${isIncome ? '+' : ''}${formatCurrency(transaction.amount)}
-                        </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        ` : ''}
+        
+        ${expenseTransactions.length > 0 ? `
+            <div class="day-transactions-section">
+                <div class="day-transactions-section-header expense-header">
+                    <span class="day-transactions-section-title">Dépenses</span>
+                    <span class="day-transactions-section-total expense">${formatCurrency(dayExpense)}</span>
+                </div>
+                <div class="day-transactions-list expense-list">
+                    ${expenseTransactions.map(transaction => {
+        const category = data.categories.find(cat => cat.id === transaction.categoryId);
+        const categoryColor = category ? category.color : '#64748b';
+        const categoryName = category ? category.name : 'Catégorie supprimée';
+                        const isRecurring = transaction.recurrence || transaction.originalId;
+        
+        return `
+                            <div class="day-transaction-item expense-item">
+                <div class="day-transaction-info">
+                    <div class="day-transaction-color" style="background-color: ${categoryColor}"></div>
+                    <div class="day-transaction-details">
+                                        <div class="day-transaction-category">
+                                            ${escapeHtml(categoryName)}
+                                            ${isRecurring ? '<span class="recurring-badge" title="Transaction récurrente">🔄</span>' : ''}
+                                        </div>
+                        ${transaction.description ? `<div class="day-transaction-description">${escapeHtml(transaction.description)}</div>` : ''}
                     </div>
-                `;
-            }).join('')}
-        </div>
+                </div>
+                                <div class="day-transaction-amount expense">
+                                    ${formatCurrency(transaction.amount)}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        ` : ''}
     `;
     
     detailsCard.style.display = 'block';
@@ -873,9 +917,9 @@ export function showWeekDetails(startDate) {
                                     </div>
                                 `;
                             }).join('') : '<div class="week-details-no-transactions">Aucune transaction</div>'}
-                        </div>
-                    </div>
-                `;
+                </div>
+            </div>
+        `;
             }).join('')}
         </div>
     `;

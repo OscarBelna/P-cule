@@ -3369,6 +3369,12 @@ body {
     border-color: var(--primary);
 }
 
+.week-card.selected {
+    border: 3px solid var(--primary);
+    box-shadow: 0 8px 24px rgba(153, 189, 180, 0.3);
+    transform: translateY(-2px);
+}
+
 .week-card-header {
     margin-bottom: 1.25rem;
     padding-bottom: 1rem;
@@ -3834,6 +3840,13 @@ body {
 .year-day:hover {
     border-color: var(--primary);
     transform: scale(1.2);
+    z-index: 10;
+}
+
+.year-day.selected {
+    border: 3px solid var(--primary);
+    box-shadow: 0 0 0 2px rgba(153, 189, 180, 0.3);
+    transform: scale(1.15);
     z-index: 10;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }

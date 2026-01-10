@@ -428,6 +428,12 @@ export function renderWeekView(startDate, filters = { type: 'all', categoryId: n
         
         // Ajouter l'event listener pour le clic
         weekCard.addEventListener('click', () => {
+            // Retirer la sélection précédente
+            grid.querySelectorAll('.week-card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            // Ajouter la sélection à la semaine cliquée
+            weekCard.classList.add('selected');
             showWeekDetails(weekData.startDateStr, filters);
         });
         
@@ -670,6 +676,12 @@ export function renderYearView(year, filters = { type: 'all', categoryId: null, 
         dayEl.addEventListener('click', () => {
             const date = dayEl.getAttribute('data-date');
             if (date) {
+                // Retirer la sélection précédente
+                grid.querySelectorAll('.year-day.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                // Ajouter la sélection au jour cliqué
+                dayEl.classList.add('selected');
                 // Afficher les catégories du jour
                 showDayDetails(date, filters);
             }

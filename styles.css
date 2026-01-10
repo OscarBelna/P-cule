@@ -3098,6 +3098,7 @@ body {
 
 /* ===== RÉSUMÉ MENSUEL ===== */
 .calendar-month-summary {
+    margin-top: 2rem;
     margin-bottom: 2rem;
     padding: 1.5rem;
     background: white;
@@ -3933,8 +3934,13 @@ body {
 }
 
 /* ===== DÉTAILS DU JOUR ===== */
+#calendar .card:has(#calendar-grid),
+#calendar .card:has(.calendar-grid) {
+    margin-bottom: 3rem !important;
+}
+
 #day-details {
-    margin-top: 2rem;
+    margin-top: 0;
     padding: 2rem;
     background: white;
     border-radius: 16px;
@@ -4268,7 +4274,7 @@ body {
     }
     
     .calendar-legend {
-        padding: 1.5rem 2.5rem;
+        padding: 1.5rem 2rem;
     }
 }
 
@@ -4810,7 +4816,7 @@ body {
     }
     
     .calendar-legend {
-        padding: 2.5rem 6rem;
+        padding: 2rem 6rem;
     }
 }
 

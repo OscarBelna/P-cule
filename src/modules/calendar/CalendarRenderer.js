@@ -463,21 +463,31 @@ export function renderYearView(year, filters = { type: 'all', categoryId: null, 
         return true;
     });
     
-    // Calculer les dépenses par jour (uniquement les montants négatifs)
-    const dailyExpenses = {};
+    // Calculer les données par jour selon le filtre
+    const dailyData = {};
+    const isIncomeView = filters.type === 'income';
+    
     transactions.forEach(transaction => {
-        // Ne prendre que les dépenses (montants négatifs)
-        if (transaction.amount < 0) {
-            const dateStr = transaction.date;
-            if (!dailyExpenses[dateStr]) {
-                dailyExpenses[dateStr] = 0;
+        const dateStr = transaction.date;
+        if (!dailyData[dateStr]) {
+            dailyData[dateStr] = 0;
+        }
+        
+        if (isIncomeView) {
+            // Pour les revenus : prendre uniquement les montants positifs
+            if (transaction.amount > 0) {
+                dailyData[dateStr] += transaction.amount;
             }
-            dailyExpenses[dateStr] += Math.abs(transaction.amount);
+        } else {
+            // Pour les dépenses : prendre uniquement les montants négatifs
+            if (transaction.amount < 0) {
+                dailyData[dateStr] += Math.abs(transaction.amount);
+            }
         }
     });
     
-    // Trouver le maximum de dépenses pour l'intensité
-    const maxExpense = Math.max(...Object.values(dailyExpenses), 1);
+    // Trouver le maximum pour l'intensité
+    const maxValue = Math.max(...Object.values(dailyData), 1);
     
     // Créer la heatmap pixel - structure par semaine/jour de semaine
     // Axe X : semaines de l'année (colonnes)
@@ -520,17 +530,29 @@ export function renderYearView(year, filters = { type: 'all', categoryId: null, 
             // Vérifier si la date est dans l'année
             if (currentDate.getFullYear() === year) {
                 const dateStr = formatDateLocal(currentDate);
-                const expense = dailyExpenses[dateStr] || 0;
-                const intensity = maxExpense > 0 ? expense / maxExpense : 0;
+                const value = dailyData[dateStr] || 0;
+                
+                // Vérifier s'il y a des transactions (revenus ou dépenses) pour ce jour
+                const dayTransactions = transactions.filter(t => t.date === dateStr);
+                const hasTransactions = dayTransactions.length > 0;
+                
+                const intensity = maxValue > 0 ? value / maxValue : 0;
                 const isToday = formatDateLocal(new Date()) === dateStr;
                 
-                // Calculer la couleur basée sur l'intensité (beige clair → rouge foncé)
-                // Gradient continu de #f5f5f5 (clair) à #8b1a1a (rouge foncé)
+                // Calculer la couleur basée sur l'intensité et le type de filtre
                 let color;
                 if (intensity === 0) {
                     color = '#f5f5f5'; // Beige très clair
+                } else if (isIncomeView) {
+                    // Pour les revenus : gradient vert (vert clair → vert foncé)
+                    // Gradient continu de #dcfce7 (vert très clair) à #166534 (vert foncé)
+                    const r = Math.round(220 - (intensity * (220 - 22)));
+                    const g = Math.round(252 - (intensity * (252 - 101)));
+                    const b = Math.round(231 - (intensity * (231 - 52)));
+                    color = `rgb(${r}, ${g}, ${b})`;
                 } else {
-                    // Interpolation linéaire entre clair et foncé
+                    // Pour les dépenses : gradient rouge (beige clair → rouge foncé)
+                    // Gradient continu de #f5f5f5 (clair) à #8b1a1a (rouge foncé)
                     const r = Math.round(245 - (intensity * (245 - 139)));
                     const g = Math.round(245 - (intensity * (245 - 26)));
                     const b = Math.round(245 - (intensity * (245 - 26)));
@@ -540,28 +562,72 @@ export function renderYearView(year, filters = { type: 'all', categoryId: null, 
                 // Stocker dans la grille
                 dayGrid[week][dayOfWeek] = {
                     dateStr,
-                    expense,
+                    value,
                     intensity,
                     isToday,
-                    color
+                    color,
+                    hasTransactions
                 };
             }
         }
     }
     
-    // Définir la grille avec 7 lignes (jours de la semaine) + 1 ligne d'en-tête
+    // Définir la grille avec 7 lignes (jours de la semaine) + 2 lignes d'en-tête (mois + semaines)
     grid.style.gridTemplateColumns = `auto repeat(${totalWeeks}, 1fr)`;
-    grid.style.gridTemplateRows = 'auto repeat(7, 1fr)';
+    grid.style.gridTemplateRows = 'auto auto repeat(7, 1fr)';
     
-    // Cellule vide en haut à gauche
+    // Cellule vide en haut à gauche (ligne 1)
     grid.innerHTML += '<div class="year-header"></div>';
     
-    // En-têtes des semaines en horizontal (numéro de semaine)
+    // Calculer les mois pour chaque semaine
+    const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+    const weekMonths = [];
+    const monthStarts = {}; // Pour savoir où commence chaque mois
+    
     for (let week = 0; week < totalWeeks; week++) {
         const weekDate = new Date(firstMonday);
         weekDate.setDate(firstMonday.getDate() + (week * 7));
+        const month = weekDate.getMonth();
+        weekMonths.push(month);
+        
+        // Marquer le début de chaque mois
+        if (week === 0 || weekMonths[week - 1] !== month) {
+            monthStarts[month] = week;
+        }
+    }
+    
+    // Ligne 1 : En-têtes des mois
+    grid.innerHTML += '<div class="year-header"></div>'; // Cellule vide pour la colonne des labels
+    for (let week = 0; week < totalWeeks; week++) {
+        const month = weekMonths[week];
+        const isMonthStart = week === 0 || weekMonths[week - 1] !== month;
+        
+        if (isMonthStart) {
+            // Trouver la fin du mois (début du mois suivant ou fin de l'année)
+            let endWeek = totalWeeks;
+            for (let w = week + 1; w < totalWeeks; w++) {
+                if (weekMonths[w] !== month) {
+                    endWeek = w;
+                    break;
+                }
+            }
+            const span = endWeek - week;
+            grid.innerHTML += `<div class="year-month-header" style="grid-column: ${week + 2} / span ${span}">${monthNames[month]}</div>`;
+        }
+    }
+    
+    // Ligne 2 : En-têtes des semaines (numéro de semaine)
+    grid.innerHTML += '<div class="year-header"></div>'; // Cellule vide pour la colonne des labels
+    for (let week = 0; week < totalWeeks; week++) {
+        const month = weekMonths[week];
         const weekNumber = week + 1;
-        grid.innerHTML += `<div class="year-week-header" title="Semaine ${weekNumber}">${weekNumber}</div>`;
+        const isMonthStart = week === 0 || weekMonths[week - 1] !== month;
+        
+        if (isMonthStart) {
+            grid.innerHTML += `<div class="year-week-header month-start" data-month="${month}" data-week="${week}" title="Semaine ${weekNumber} - ${monthNames[month]}">${weekNumber}</div>`;
+        } else {
+            grid.innerHTML += `<div class="year-week-header" data-month="${month}" data-week="${week}" title="Semaine ${weekNumber}">${weekNumber}</div>`;
+        }
     }
     
     // Générer les lignes pour chaque jour de la semaine
@@ -574,15 +640,22 @@ export function renderYearView(year, filters = { type: 'all', categoryId: null, 
             const dayData = dayGrid[week]?.[dayIndex];
             
             if (dayData) {
+                const noTransactions = !dayData.hasTransactions;
+                const hasValue = dayData.value > 0;
+                const valueLabel = isIncomeView 
+                    ? (hasValue ? formatCurrency(dayData.value) + ' de revenus' : 'Aucun revenu')
+                    : (hasValue ? formatCurrency(dayData.value) + ' de dépenses' : 'Aucune dépense');
+                
                 grid.innerHTML += `
-                    <div class="year-day ${dayData.isToday ? 'today' : ''} ${dayData.expense > 0 ? 'has-expense' : ''}" 
+                    <div class="year-day ${dayData.isToday ? 'today' : ''} ${hasValue ? (isIncomeView ? 'has-income' : 'has-expense') : ''} ${noTransactions ? 'no-transactions' : ''}" 
                          data-date="${dayData.dateStr}"
-                         style="--expense-intensity: ${dayData.intensity}; background-color: ${dayData.color};"
-                         title="${dayData.dateStr}: ${dayData.expense > 0 ? formatCurrency(dayData.expense) + ' de dépenses' : 'Aucune dépense'}">
+                         data-week="${week}"
+                         style="--intensity: ${dayData.intensity}; background-color: ${dayData.color};"
+                         title="${dayData.dateStr}: ${valueLabel}">
                     </div>
                 `;
             } else {
-                grid.innerHTML += '<div class="year-day empty"></div>';
+                grid.innerHTML += `<div class="year-day empty" data-week="${week}"></div>`;
             }
         }
     }
@@ -627,8 +700,8 @@ export function renderYearView(year, filters = { type: 'all', categoryId: null, 
                 </div>
             </div>
             <div class="year-heatmap-legend">
-                <div class="year-legend-label">Intensité des dépenses</div>
-                <div class="year-legend-scale"></div>
+                <div class="year-legend-label">${isIncomeView ? 'Intensité des revenus' : 'Intensité des dépenses'}</div>
+                <div class="year-legend-scale ${isIncomeView ? 'income-scale' : 'expense-scale'}"></div>
             </div>
         `;
     }

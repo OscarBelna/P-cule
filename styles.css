@@ -3762,7 +3762,7 @@ body {
 .calendar-year-grid,
 .year-heatmap-grid {
     display: grid;
-    grid-template-rows: auto repeat(7, 1fr);
+    grid-template-rows: auto auto repeat(7, 1fr);
     gap: 0.15rem;
     padding: 1.5rem;
     background: white;
@@ -3786,7 +3786,9 @@ body {
     writing-mode: vertical-rl;
     text-orientation: mixed;
     min-width: 20px;
+    position: relative;
 }
+
 
 .year-month-header {
     text-align: center;
@@ -3821,6 +3823,11 @@ body {
     min-height: 10px;
 }
 
+.year-day[data-month-start="true"] {
+    position: relative;
+}
+
+
 .year-day:hover {
     border-color: var(--primary);
     transform: scale(1.2);
@@ -3846,6 +3853,26 @@ body {
     background: transparent;
     border: none;
     cursor: default;
+}
+
+/* Case barrée pour les jours sans transactions */
+.year-day.no-transactions {
+    position: relative;
+    overflow: hidden;
+}
+
+.year-day.no-transactions::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -10%;
+    width: 120%;
+    height: 2px;
+    background-color: rgba(0, 0, 0, 0.3);
+    transform: rotate(-45deg);
+    transform-origin: center;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .year-legend {
@@ -3898,6 +3925,11 @@ body {
     height: 20px;
     border-radius: 4px;
     overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Légende pour les dépenses (rouge) */
+.year-legend-scale.expense-scale {
     background: linear-gradient(to right, 
         #f5f5f5 0%,
         #f0d0d0 20%,
@@ -3906,7 +3938,18 @@ body {
         #c04040 80%,
         #b01010 100%
     );
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Légende pour les revenus (vert) */
+.year-legend-scale.income-scale {
+    background: linear-gradient(to right, 
+        #f5f5f5 0%,
+        #dcfce7 20%,
+        #bbf7d0 40%,
+        #86efac 60%,
+        #4ade80 80%,
+        #166534 100%
+    );
 }
 
 .year-legend-scale::before {

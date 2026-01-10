@@ -216,20 +216,48 @@
             <div class="page-content">
                 <h1>Calendrier</h1>
                 
-                <!-- Navigation du calendrier -->
-                <div class="calendar-header">
-                    <button class="btn-icon" id="calendar-prev">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                    </button>
-                    <h2 id="calendar-month-year"></h2>
-                    <button class="btn-icon" id="calendar-next">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </button>
+                <!-- Contrôles de vue -->
+                <div class="calendar-view-controls">
+                    <button class="calendar-view-btn active" data-view="month">Mois</button>
+                    <button class="calendar-view-btn" data-view="week">Semaine</button>
+                    <button class="calendar-view-btn" data-view="year">Année</button>
                 </div>
+                
+                <!-- Navigation du calendrier -->
+                <div class="calendar-header-container">
+                    <div class="calendar-navigation">
+                        <button class="btn-icon" id="calendar-prev">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <h2 id="calendar-month-year"></h2>
+                        <button class="btn-icon" id="calendar-next">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="calendar-today-container">
+                        <button class="btn-icon calendar-today-btn" id="calendar-today" title="Aujourd'hui">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Légende interactive (filtres) -->
+                <div id="calendar-legend" class="calendar-legend"></div>
+                
+                <!-- Résumé mensuel -->
+                <div id="calendar-month-summary" class="calendar-month-summary"></div>
+                
+                <!-- Résumé hebdomadaire -->
+                <div id="calendar-week-summary" class="calendar-week-summary" style="display: none;"></div>
+                
+                <!-- Résumé annuel -->
+                <div id="calendar-year-summary" class="calendar-year-summary" style="display: none;"></div>
                 
                 <!-- Calendrier -->
                 <div class="card">

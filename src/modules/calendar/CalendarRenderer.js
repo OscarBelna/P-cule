@@ -315,7 +315,19 @@ export function renderMonthSummary(year, month) {
 }
 
 /**
- * Affiche la vue hebdomadaire
+ * Calcule le lundi d'une semaine à partir d'une date
+ */
+function getMondayOfWeek(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const dayOfWeek = d.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    d.setDate(d.getDate() + diff);
+    return d;
+}
+
+/**
+ * Affiche la vue hebdomadaire avec bilans multiples
  */
 export function renderWeekView(startDate, filters = { type: 'all', categoryId: null, showRecurring: true }) {
     const grid = document.getElementById('calendar-grid');
@@ -323,32 +335,49 @@ export function renderWeekView(startDate, filters = { type: 'all', categoryId: n
     
     if (!grid || !monthYear) return;
     
-    // Réinitialiser la grille pour la vue hebdomadaire
-    grid.className = 'calendar-grid week-view-grid';
-    grid.style.gridTemplateColumns = 'repeat(7, 1fr)';
+    // Calculer la période : 3 mois (1 mois avant, mois actuel, 1 mois après)
+    const periodStart = new Date(startDate);
+    periodStart.setMonth(periodStart.getMonth() - 1);
+    periodStart.setDate(1); // Premier jour du mois
+    periodStart.setHours(0, 0, 0, 0);
     
-    // Calculer le lundi de la semaine
-    const weekStart = new Date(startDate);
-    weekStart.setHours(0, 0, 0, 0);
-    const dayOfWeek = weekStart.getDay();
-    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    weekStart.setDate(weekStart.getDate() + diff);
+    const periodEnd = new Date(startDate);
+    periodEnd.setMonth(periodEnd.getMonth() + 2);
+    periodEnd.setDate(0); // Dernier jour du mois précédent (donc dernier jour du mois actuel + 1)
+    periodEnd.setHours(23, 59, 59, 999);
     
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 6);
+    // Obtenir le lundi de la première semaine de la période
+    const firstMonday = getMondayOfWeek(periodStart);
     
-    // Afficher la période
-    const startStr = weekStart.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
-    const endStr = weekEnd.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-    monthYear.textContent = `${startStr} - ${endStr}`;
+    // Générer toutes les semaines de la période
+    const weeks = [];
+    let currentWeekStart = new Date(firstMonday);
     
-    // Obtenir les transactions de la semaine
+    while (currentWeekStart <= periodEnd) {
+        const weekEnd = new Date(currentWeekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999);
+        
+        // Ne garder que les semaines qui chevauchent la période
+        if (weekEnd >= periodStart && currentWeekStart <= periodEnd) {
+            weeks.push({
+                start: new Date(currentWeekStart),
+                end: new Date(weekEnd)
+            });
+        }
+        
+        // Passer à la semaine suivante
+        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+    }
+    
+    // Obtenir toutes les transactions de la période
     const allTransactions = getAllTransactions();
     const data = loadData();
     
-    let transactions = allTransactions.filter(transaction => {
+    // Filtrer les transactions selon les filtres
+    let filteredTransactions = allTransactions.filter(transaction => {
         const tDate = new Date(transaction.date);
-        if (tDate < weekStart || tDate > weekEnd) return false;
+        if (tDate < periodStart || tDate > periodEnd) return false;
         
         if (filters.type === 'income' && transaction.amount <= 0) return false;
         if (filters.type === 'expense' && transaction.amount > 0) return false;
@@ -358,109 +387,94 @@ export function renderWeekView(startDate, filters = { type: 'all', categoryId: n
         return true;
     });
     
-    // Grouper par jour
-    const transactionsByDay = {};
-    for (let i = 0; i < 7; i++) {
-        const day = new Date(weekStart);
-        day.setDate(day.getDate() + i);
-        const dateStr = formatDateLocal(day);
-        transactionsByDay[dateStr] = {
-            date: day,
-            transactions: [],
-            income: 0,
-            expense: 0
-        };
-    }
-    
-    transactions.forEach(transaction => {
-        const dateStr = transaction.date;
-        if (transactionsByDay[dateStr]) {
-            transactionsByDay[dateStr].transactions.push(transaction);
-            if (transaction.amount > 0) {
-                transactionsByDay[dateStr].income += transaction.amount;
-            } else {
-                transactionsByDay[dateStr].expense += Math.abs(transaction.amount);
-            }
-        }
-    });
-    
-    // Afficher la semaine
-    grid.innerHTML = '';
-    const dayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-    
-    Object.values(transactionsByDay).forEach((dayData, index) => {
-        const date = dayData.date;
-        const dateStr = formatDateLocal(date);
-        const isToday = formatDateLocal(new Date()) === dateStr;
-        const maxAmount = Math.max(dayData.income, dayData.expense);
-        const incomeHeight = maxAmount > 0 ? (dayData.income / maxAmount) * 100 : 0;
-        const expenseHeight = maxAmount > 0 ? (dayData.expense / maxAmount) * 100 : 0;
+    // Calculer les totaux pour chaque semaine
+    const weeksData = weeks.map(week => {
+        const weekTransactions = filteredTransactions.filter(t => {
+            const tDate = new Date(t.date);
+            return tDate >= week.start && tDate <= week.end;
+        });
         
-        grid.innerHTML += `
-            <div class="calendar-week-day ${isToday ? 'today' : ''}" data-date="${dateStr}">
-                <div class="week-day-header">
-                    <div class="week-day-name">${dayNames[index]}</div>
-                    <div class="week-day-number">${date.getDate()}</div>
-                </div>
-                <div class="week-day-chart">
-                    <div class="week-day-bar income" style="height: ${incomeHeight}%"></div>
-                    <div class="week-day-bar expense" style="height: ${expenseHeight}%"></div>
-                </div>
-                <div class="week-day-amounts">
-                    <div class="week-day-income">+${formatCurrency(dayData.income)}</div>
-                    <div class="week-day-expense">-${formatCurrency(dayData.expense)}</div>
-                </div>
-                <div class="week-day-transactions">
-                    ${dayData.transactions.slice(0, 3).map(t => {
-                        const category = data.categories.find(cat => cat.id === t.categoryId);
-                        const categoryName = category ? category.name : 'Catégorie supprimée';
-                        const isRecurring = t.recurrence || t.originalId;
-                        return `
-                            <div class="week-transaction-item">
-                                <span class="week-transaction-category">${escapeHtml(categoryName)}</span>
-                                <span class="week-transaction-amount ${t.amount > 0 ? 'income' : 'expense'}">
-                                    ${t.amount > 0 ? '+' : ''}${formatCurrency(t.amount)}
-                                </span>
-                                ${isRecurring ? '<span class="week-transaction-recurring">🔄</span>' : ''}
-                            </div>
-                        `;
-                    }).join('')}
-                    ${dayData.transactions.length > 3 ? `<div class="week-transaction-more">+${dayData.transactions.length - 3} autres</div>` : ''}
-                </div>
-            </div>
-        `;
-    });
-    
-    // Ajouter les event listeners
-    grid.querySelectorAll('.calendar-week-day').forEach(dayEl => {
-        dayEl.addEventListener('click', () => {
-            const date = dayEl.getAttribute('data-date');
-            if (date) {
-                showDayDetails(date, filters);
+        let income = 0;
+        let expense = 0;
+        
+        weekTransactions.forEach(t => {
+            if (t.amount > 0) {
+                income += t.amount;
+            } else {
+                expense += Math.abs(t.amount);
             }
         });
+        
+        const balance = income - expense;
+        
+        // Formater la période de la semaine
+        const startStr = week.start.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+        const endStr = week.end.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+        const period = week.start.getMonth() === week.end.getMonth() 
+            ? `${week.start.getDate()}-${week.end.getDate()} ${startStr.split(' ')[1]}`
+            : `${startStr} - ${endStr}`;
+        
+        return {
+            start: week.start,
+            end: week.end,
+            startDateStr: formatDateLocal(week.start),
+            period,
+            income,
+            expense,
+            balance,
+            transactions: weekTransactions
+        };
     });
     
-    // Afficher le résumé hebdomadaire
-    const weekSummary = getWeekSummary(startDate);
-    const summaryContainer = document.getElementById('calendar-week-summary');
-    if (summaryContainer) {
-        summaryContainer.innerHTML = `
-            <div class="week-summary">
-                <div class="week-summary-item">
-                    <span>Revenus:</span>
-                    <span class="income">${formatCurrency(weekSummary.income)}</span>
+    // Afficher la période complète
+    const periodStartStr = periodStart.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    const periodEndStr = periodEnd.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    monthYear.textContent = periodStart.getFullYear() === periodEnd.getFullYear() && periodStart.getMonth() === periodEnd.getMonth()
+        ? periodStartStr.charAt(0).toUpperCase() + periodStartStr.slice(1)
+        : `${periodStartStr.charAt(0).toUpperCase() + periodStartStr.slice(1)} - ${periodEndStr.charAt(0).toUpperCase() + periodEndStr.slice(1)}`;
+    
+    // Afficher les semaines en grille
+    grid.innerHTML = '';
+    grid.className = 'calendar-grid weeks-grid';
+    grid.style.gridTemplateColumns = '';
+    
+    weeksData.forEach(weekData => {
+        const weekCard = document.createElement('div');
+        weekCard.className = 'week-card';
+        weekCard.setAttribute('data-week-start', weekData.startDateStr);
+        
+        weekCard.innerHTML = `
+            <div class="week-card-header">
+                <div class="week-card-period">${weekData.period}</div>
+            </div>
+            <div class="week-card-summary">
+                <div class="week-card-item income">
+                    <span class="week-card-label">Revenus</span>
+                    <span class="week-card-value income">${formatCurrency(weekData.income)}</span>
                 </div>
-                <div class="week-summary-item">
-                    <span>Dépenses:</span>
-                    <span class="expense">${formatCurrency(weekSummary.expense)}</span>
+                <div class="week-card-item expense">
+                    <span class="week-card-label">Dépenses</span>
+                    <span class="week-card-value expense">${formatCurrency(weekData.expense)}</span>
                 </div>
-                <div class="week-summary-item highlight">
-                    <span>Solde:</span>
-                    <span class="${weekSummary.balance >= 0 ? 'income' : 'expense'}">${formatCurrency(weekSummary.balance)}</span>
+                <div class="week-card-item balance">
+                    <span class="week-card-label">Solde</span>
+                    <span class="week-card-value ${weekData.balance >= 0 ? 'income' : 'expense'}">${formatCurrency(weekData.balance)}</span>
                 </div>
             </div>
         `;
+        
+        // Ajouter l'event listener pour le clic
+        weekCard.addEventListener('click', () => {
+            showWeekDetails(weekData.startDateStr, filters);
+        });
+        
+        grid.appendChild(weekCard);
+    });
+    
+    // Masquer le résumé hebdomadaire
+    const summaryContainer = document.getElementById('calendar-week-summary');
+    if (summaryContainer) {
+        summaryContainer.style.display = 'none';
     }
 }
 
@@ -818,7 +832,7 @@ export function showDayDetails(dateStr, filters = { type: 'all', categoryId: nul
 /**
  * Affiche les détails d'une semaine
  */
-export function showWeekDetails(startDate) {
+export function showWeekDetails(startDate, filters = { type: 'all', categoryId: null, showRecurring: true }) {
     const detailsCard = document.getElementById('day-details');
     const detailsTitle = document.getElementById('day-details-title');
     const transactionsList = document.getElementById('day-transactions-list');
@@ -835,92 +849,167 @@ export function showWeekDetails(startDate) {
     weekEnd.setDate(weekEnd.getDate() + 6);
     weekEnd.setHours(23, 59, 59, 999);
     
-    const transactions = getAllTransactions();
-    const weekTransactions = transactions.filter(t => {
+    const allTransactions = getAllTransactions();
+    
+    // Appliquer les filtres
+    const weekTransactions = allTransactions.filter(t => {
         const tDate = new Date(t.date);
-        return tDate >= weekStart && tDate <= weekEnd;
+        if (tDate < weekStart || tDate > weekEnd) return false;
+        
+        // Filtre par type
+        if (filters.type === 'income' && t.amount <= 0) return false;
+        if (filters.type === 'expense' && t.amount > 0) return false;
+        
+        // Filtre par catégorie
+        if (filters.categoryId && t.categoryId !== filters.categoryId) return false;
+        
+        // Filtre récurrence (non appliqué dans les détails, on affiche tout)
+        
+        return true;
     });
     
     const data = loadData();
     
-    // Grouper par jour
-    const transactionsByDay = {};
-    for (let i = 0; i < 7; i++) {
-        const day = new Date(weekStart);
-        day.setDate(day.getDate() + i);
-        const dateStr = formatDateLocal(day);
-        transactionsByDay[dateStr] = [];
-    }
+    // Grouper par catégorie
+    const transactionsByCategory = {};
     
     weekTransactions.forEach(t => {
-        if (transactionsByDay[t.date]) {
-            transactionsByDay[t.date].push(t);
+        const categoryId = t.categoryId || 'uncategorized';
+        if (!transactionsByCategory[categoryId]) {
+            transactionsByCategory[categoryId] = {
+                categoryId,
+                transactions: [],
+                totalIncome: 0,
+                totalExpense: 0
+            };
+        }
+        transactionsByCategory[categoryId].transactions.push(t);
+        if (t.amount > 0) {
+            transactionsByCategory[categoryId].totalIncome += t.amount;
+        } else {
+            transactionsByCategory[categoryId].totalExpense += Math.abs(t.amount);
         }
     });
     
-    const weekSummary = getWeekSummary(startDate);
+    // Calculer les totaux de la semaine
+    let weekIncome = 0;
+    let weekExpense = 0;
+    weekTransactions.forEach(t => {
+        if (t.amount > 0) {
+            weekIncome += t.amount;
+        } else {
+            weekExpense += Math.abs(t.amount);
+        }
+    });
+    const weekBalance = weekIncome - weekExpense;
+    
+    // Séparer les catégories en revenus et dépenses
+    const incomeCategories = [];
+    const expenseCategories = [];
+    
+    Object.values(transactionsByCategory).forEach(catData => {
+        const category = data.categories.find(c => c.id === catData.categoryId);
+        const categoryName = category ? category.name : 'Catégorie supprimée';
+        const categoryColor = category ? category.color : '#64748b';
+        const balance = catData.totalIncome - catData.totalExpense;
+        
+        if (catData.totalIncome > 0) {
+            incomeCategories.push({
+                ...catData,
+                categoryName,
+                categoryColor,
+                balance: catData.totalIncome
+            });
+        }
+        if (catData.totalExpense > 0) {
+            expenseCategories.push({
+                ...catData,
+                categoryName,
+                categoryColor,
+                balance: -catData.totalExpense
+            });
+        }
+    });
+    
+    // Trier par montant décroissant
+    incomeCategories.sort((a, b) => b.balance - a.balance);
+    expenseCategories.sort((a, b) => a.balance - b.balance);
     
     detailsTitle.textContent = `Semaine du ${weekStart.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })} au ${weekEnd.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}`;
-    
-    const dayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
     
     transactionsList.innerHTML = `
         <div class="week-details-summary">
             <div class="week-details-item">
                 <span>Revenus:</span>
-                <span class="income">${formatCurrency(weekSummary.income)}</span>
+                <span class="income">${formatCurrency(weekIncome)}</span>
             </div>
             <div class="week-details-item">
                 <span>Dépenses:</span>
-                <span class="expense">${formatCurrency(weekSummary.expense)}</span>
+                <span class="expense">${formatCurrency(weekExpense)}</span>
             </div>
             <div class="week-details-item highlight">
                 <span>Solde:</span>
-                <span class="${weekSummary.balance >= 0 ? 'income' : 'expense'}">${formatCurrency(weekSummary.balance)}</span>
+                <span class="${weekBalance >= 0 ? 'income' : 'expense'}">${formatCurrency(weekBalance)}</span>
             </div>
         </div>
-        <div class="week-details-days">
-            ${Object.entries(transactionsByDay).map(([dateStr, dayTransactions]) => {
-                const date = new Date(dateStr);
-                const dayName = dayNames[date.getDay() === 0 ? 6 : date.getDay() - 1];
-                let dayIncome = 0;
-                let dayExpense = 0;
-                
-                dayTransactions.forEach(t => {
-                    if (t.amount > 0) {
-                        dayIncome += t.amount;
-                    } else {
-                        dayExpense += Math.abs(t.amount);
-                    }
-                });
-                
-                return `
-                    <div class="week-details-day">
-                        <div class="week-details-day-header">
-                            <span class="week-details-day-name">${dayName} ${date.getDate()}</span>
-                            <span class="week-details-day-balance ${dayIncome - dayExpense >= 0 ? 'income' : 'expense'}">
-                                ${formatCurrency(dayIncome - dayExpense)}
-                            </span>
-                        </div>
-                        <div class="week-details-day-transactions">
-                            ${dayTransactions.length > 0 ? dayTransactions.map(t => {
-                                const category = data.categories.find(cat => cat.id === t.categoryId);
-                                const categoryName = category ? category.name : 'Catégorie supprimée';
-                                const isRecurring = t.recurrence || t.originalId;
-                                return `
-                                    <div class="week-details-transaction">
-                                        <span class="week-details-transaction-category">${escapeHtml(categoryName)}</span>
-                                        ${isRecurring ? '<span class="recurring-badge">🔄</span>' : ''}
-                                        <span class="week-details-transaction-amount ${t.amount > 0 ? 'income' : 'expense'}">
-                                            ${t.amount > 0 ? '+' : ''}${formatCurrency(t.amount)}
-                                        </span>
+        <div class="week-details-categories">
+            ${incomeCategories.length > 0 ? `
+                <div class="week-details-category-section income-section">
+                    <div class="week-details-category-section-header income-header">
+                        <span>Revenus par catégorie</span>
+                        <span class="week-details-category-section-total income">${formatCurrency(weekIncome)}</span>
+                    </div>
+                    <div class="week-details-category-list income-categories">
+                        ${incomeCategories.map(catData => {
+                            const isRecurring = catData.transactions.some(t => t.recurrence || t.originalId);
+                            return `
+                                <div class="week-details-category-item income-category">
+                                    <div class="week-details-category-info">
+                                        <div class="week-details-category-color" style="background-color: ${catData.categoryColor}"></div>
+                                        <div class="week-details-category-details">
+                                            <span class="week-details-category-name">${escapeHtml(catData.categoryName)}</span>
+                                            ${isRecurring ? '<span class="recurring-badge" title="Contient des transactions récurrentes">🔄</span>' : ''}
+                                            <span class="week-details-category-count">${catData.transactions.length} transaction${catData.transactions.length > 1 ? 's' : ''}</span>
+                                        </div>
                                     </div>
-                                `;
-                            }).join('') : '<div class="week-details-no-transactions">Aucune transaction</div>'}
+                                    <span class="week-details-category-amount income">
+                                        +${formatCurrency(catData.balance)}
+                                    </span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
                 </div>
-            </div>
-        `;
-            }).join('')}
+            ` : ''}
+            ${expenseCategories.length > 0 ? `
+                <div class="week-details-category-section expense-section">
+                    <div class="week-details-category-section-header expense-header">
+                        <span>Dépenses par catégorie</span>
+                        <span class="week-details-category-section-total expense">${formatCurrency(weekExpense)}</span>
+                    </div>
+                    <div class="week-details-category-list expense-categories">
+                        ${expenseCategories.map(catData => {
+                            const isRecurring = catData.transactions.some(t => t.recurrence || t.originalId);
+                            return `
+                                <div class="week-details-category-item expense-category">
+                                    <div class="week-details-category-info">
+                                        <div class="week-details-category-color" style="background-color: ${catData.categoryColor}"></div>
+                                        <div class="week-details-category-details">
+                                            <span class="week-details-category-name">${escapeHtml(catData.categoryName)}</span>
+                                            ${isRecurring ? '<span class="recurring-badge" title="Contient des transactions récurrentes">🔄</span>' : ''}
+                                            <span class="week-details-category-count">${catData.transactions.length} transaction${catData.transactions.length > 1 ? 's' : ''}</span>
+                                        </div>
+                                    </div>
+                                    <span class="week-details-category-amount expense">
+                                        ${formatCurrency(catData.balance)}
+                                    </span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            ` : ''}
+            ${weekTransactions.length === 0 ? '<div class="week-details-no-transactions">Aucune transaction</div>' : ''}
         </div>
     `;
     

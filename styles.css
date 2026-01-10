@@ -2864,45 +2864,47 @@ body {
     opacity: 0;
 }
 
-#calendar-today {
-    padding: 0.625rem 1.25rem;
-    border: 2px solid var(--primary);
-    border-radius: 10px;
-    background: white;
-    color: var(--primary);
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#calendar-today:hover {
-    background: var(--primary);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(153, 189, 180, 0.4);
-}
 
 /* Filtre de recherche de date supprimé */
 
 /* ===== HEADER DU CALENDRIER ===== */
-.calendar-header {
+.calendar-header-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1.5rem;
     margin-bottom: 2rem;
-    padding: 1.5rem;
+}
+
+.calendar-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
     background: white;
     border-radius: 16px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    flex: 1;
 }
 
-.calendar-header h2 {
+.calendar-navigation h2 {
     font-size: 1.5rem;
     font-weight: 700;
     margin: 0;
     color: var(--text-primary);
     letter-spacing: -0.02em;
+}
+
+.calendar-today-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    min-height: 44px;
 }
 
 .btn-icon {
@@ -4445,14 +4447,23 @@ body {
         justify-content: center;
     }
 
-    .calendar-header {
-        flex-wrap: wrap;
+    .calendar-header-container {
+        flex-direction: column;
         gap: 1rem;
     }
 
-    .calendar-header h2 {
+    .calendar-navigation {
+        width: 100%;
+    }
+
+    .calendar-navigation h2 {
         width: 100%;
         text-align: center;
+    }
+
+    .calendar-today-container {
+        width: 100%;
+        justify-content: center;
     }
 
     .calendar-filters {
@@ -4633,7 +4644,7 @@ body {
         padding: 1.5rem 3rem;
     }
 
-    .calendar-header {
+    .calendar-header-container {
         max-width: 900px;
         margin: 0 auto 2rem;
     }

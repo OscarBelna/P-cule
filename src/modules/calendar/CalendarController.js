@@ -93,7 +93,7 @@ function navigatePrevious() {
  */
 function navigateNext() {
     if (currentViewType === 'month') {
-        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
     } else if (currentViewType === 'week') {
         currentCalendarDate.setDate(currentCalendarDate.getDate() + 7);
     } else if (currentViewType === 'year') {

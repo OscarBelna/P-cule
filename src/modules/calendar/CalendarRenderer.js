@@ -437,7 +437,7 @@ export function renderWeekView(startDate, filters = { type: 'all', categoryId: n
 }
 
 /**
- * Affiche la vue Heatmap annuelle
+ * Affiche la vue Heatmap annuelle en pixel
  */
 export function renderYearView(year, filters = { type: 'all', categoryId: null, showRecurring: true }) {
     const grid = document.getElementById('calendar-grid');
@@ -479,11 +479,13 @@ export function renderYearView(year, filters = { type: 'all', categoryId: null, 
     // Trouver le maximum de dépenses pour l'intensité
     const maxExpense = Math.max(...Object.values(dailyExpenses), 1);
     
-    // Créer la heatmap style GitHub - structure par semaines de l'année
+    // Créer la heatmap pixel - structure par semaine/jour de semaine
+    // Axe X : semaines de l'année (colonnes)
+    // Axe Y : jours de la semaine (lignes)
     grid.className = 'calendar-grid year-heatmap-grid';
-    grid.style.gridTemplateColumns = 'auto repeat(53, 1fr)';
     grid.innerHTML = '';
-    const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+    
+    const dayNames = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
     
     // Calculer le premier lundi de l'année
     const yearStart = new Date(year, 0, 1);
@@ -503,36 +505,14 @@ export function renderYearView(year, filters = { type: 'all', categoryId: null, 
     const weeksDiff = Math.ceil((lastSunday - firstMonday) / (7 * 24 * 60 * 60 * 1000)) + 1;
     const totalWeeks = Math.min(weeksDiff, 53);
     
-    // En-tête avec mois (53 colonnes pour les semaines)
-    grid.innerHTML += '<div class="year-header"></div>';
+    // Organiser les jours par semaine et par jour de la semaine
+    // Structure: dayGrid[week][dayOfWeek] = dayData
+    const dayGrid = {};
     
-    // Créer un mapping des semaines aux mois pour l'en-tête
-    const weekToMonth = {};
+    // Pour chaque semaine, placer tous les jours dans la grille
     for (let week = 0; week < totalWeeks; week++) {
-        const weekDate = new Date(firstMonday);
-        weekDate.setDate(firstMonday.getDate() + (week * 7));
-        weekToMonth[week] = weekDate.getMonth();
-    }
-    
-    // Afficher les en-têtes de mois (regrouper les semaines par mois)
-    let currentMonth = -1;
-    for (let week = 0; week < totalWeeks; week++) {
-        const month = weekToMonth[week];
-        if (month !== currentMonth) {
-            const monthSpan = 1; // On affichera le mois sur la première semaine de chaque mois
-            grid.innerHTML += `<div class="year-month-header" style="grid-column: ${week + 2} / span ${monthSpan}">${monthNames[month]}</div>`;
-            currentMonth = month;
-        } else {
-            grid.innerHTML += '<div class="year-month-header" style="display: none;"></div>';
-        }
-    }
-    
-    // Générer les jours de l'année par semaine
-    for (let week = 0; week < totalWeeks; week++) {
-        // Numéro de semaine (optionnel, peut être masqué)
-        grid.innerHTML += `<div class="year-week-number">${week + 1}</div>`;
+        dayGrid[week] = {};
         
-        // Jours de la semaine (7 jours)
         for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
             const currentDate = new Date(firstMonday);
             currentDate.setDate(firstMonday.getDate() + (week * 7) + dayOfWeek);
@@ -544,33 +524,61 @@ export function renderYearView(year, filters = { type: 'all', categoryId: null, 
                 const intensity = maxExpense > 0 ? expense / maxExpense : 0;
                 const isToday = formatDateLocal(new Date()) === dateStr;
                 
-                // Calculer la couleur rouge basée sur l'intensité des dépenses
-                // Échelle de rouge : transparent -> rouge très clair -> rouge clair -> rouge moyen -> rouge foncé
-                let redColor;
+                // Calculer la couleur basée sur l'intensité (beige clair → rouge foncé)
+                // Gradient continu de #f5f5f5 (clair) à #8b1a1a (rouge foncé)
+                let color;
                 if (intensity === 0) {
-                    redColor = 'var(--background)';
-                } else if (intensity < 0.2) {
-                    // Rouge très clair (peu de dépenses)
-                    redColor = `rgba(254, 226, 226, ${0.4 + intensity * 2})`;
-                } else if (intensity < 0.4) {
-                    // Rouge clair
-                    redColor = `rgba(252, 165, 165, ${0.5 + intensity * 1.25})`;
-                } else if (intensity < 0.6) {
-                    // Rouge moyen
-                    redColor = `rgba(248, 113, 113, ${0.6 + intensity * 0.67})`;
-                } else if (intensity < 0.8) {
-                    // Rouge foncé
-                    redColor = `rgba(239, 68, 68, ${0.7 + intensity * 0.375})`;
+                    color = '#f5f5f5'; // Beige très clair
                 } else {
-                    // Rouge très foncé (beaucoup de dépenses)
-                    redColor = `rgba(220, 38, 38, ${0.8 + intensity * 0.25})`;
+                    // Interpolation linéaire entre clair et foncé
+                    const r = Math.round(245 - (intensity * (245 - 139)));
+                    const g = Math.round(245 - (intensity * (245 - 26)));
+                    const b = Math.round(245 - (intensity * (245 - 26)));
+                    color = `rgb(${r}, ${g}, ${b})`;
                 }
                 
+                // Stocker dans la grille
+                dayGrid[week][dayOfWeek] = {
+                    dateStr,
+                    expense,
+                    intensity,
+                    isToday,
+                    color
+                };
+            }
+        }
+    }
+    
+    // Définir la grille avec 7 lignes (jours de la semaine) + 1 ligne d'en-tête
+    grid.style.gridTemplateColumns = `auto repeat(${totalWeeks}, 1fr)`;
+    grid.style.gridTemplateRows = 'auto repeat(7, 1fr)';
+    
+    // Cellule vide en haut à gauche
+    grid.innerHTML += '<div class="year-header"></div>';
+    
+    // En-têtes des semaines en horizontal (numéro de semaine)
+    for (let week = 0; week < totalWeeks; week++) {
+        const weekDate = new Date(firstMonday);
+        weekDate.setDate(firstMonday.getDate() + (week * 7));
+        const weekNumber = week + 1;
+        grid.innerHTML += `<div class="year-week-header" title="Semaine ${weekNumber}">${weekNumber}</div>`;
+    }
+    
+    // Générer les lignes pour chaque jour de la semaine
+    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+        // Label du jour de la semaine
+        grid.innerHTML += `<div class="year-day-of-week-label">${dayNames[dayIndex]}</div>`;
+        
+        // Jours pour chaque semaine
+        for (let week = 0; week < totalWeeks; week++) {
+            const dayData = dayGrid[week]?.[dayIndex];
+            
+            if (dayData) {
                 grid.innerHTML += `
-                    <div class="year-day ${isToday ? 'today' : ''} ${expense > 0 ? 'has-expense' : ''}" 
-                         data-date="${dateStr}"
-                         style="--expense-intensity: ${intensity}; background-color: ${redColor};"
-                         title="${dateStr}: ${expense > 0 ? formatCurrency(expense) + ' de dépenses' : 'Aucune dépense'}">
+                    <div class="year-day ${dayData.isToday ? 'today' : ''} ${dayData.expense > 0 ? 'has-expense' : ''}" 
+                         data-date="${dayData.dateStr}"
+                         style="--expense-intensity: ${dayData.intensity}; background-color: ${dayData.color};"
+                         title="${dayData.dateStr}: ${dayData.expense > 0 ? formatCurrency(dayData.expense) + ' de dépenses' : 'Aucune dépense'}">
                     </div>
                 `;
             } else {
@@ -579,14 +587,13 @@ export function renderYearView(year, filters = { type: 'all', categoryId: null, 
         }
     }
     
-    // Ajouter les event listeners
+    // Ajouter les event listeners pour le clic sur les cases
     grid.querySelectorAll('.year-day:not(.empty)').forEach(dayEl => {
         dayEl.addEventListener('click', () => {
             const date = dayEl.getAttribute('data-date');
             if (date) {
-                // Basculer en vue mensuelle pour cette date
-                const dateObj = new Date(date);
-                // Cette fonction sera appelée depuis CalendarController
+                // Afficher les catégories du jour
+                showDayDetails(date, filters);
             }
         });
     });
@@ -620,15 +627,8 @@ export function renderYearView(year, filters = { type: 'all', categoryId: null, 
                 </div>
             </div>
             <div class="year-heatmap-legend">
-                <div class="year-legend-label">Intensité des dépenses:</div>
-                <div class="year-legend-scale">
-                    <div class="year-legend-item" style="background-color: var(--background);" title="Aucune dépense">Moins</div>
-                    <div class="year-legend-item" style="background-color: rgba(254, 226, 226, 0.6);" title="Peu de dépenses"></div>
-                    <div class="year-legend-item" style="background-color: rgba(252, 165, 165, 0.75);" title="Dépenses modérées"></div>
-                    <div class="year-legend-item" style="background-color: rgba(248, 113, 113, 0.9);" title="Dépenses importantes"></div>
-                    <div class="year-legend-item" style="background-color: rgba(239, 68, 68, 1);" title="Dépenses très importantes"></div>
-                    <div class="year-legend-item" style="background-color: rgba(220, 38, 38, 1);" title="Dépenses maximales">Plus</div>
-                </div>
+                <div class="year-legend-label">Intensité des dépenses</div>
+                <div class="year-legend-scale"></div>
             </div>
         `;
     }
@@ -775,9 +775,9 @@ export function showDayDetails(dateStr, filters = { type: 'all', categoryId: nul
                 </div>
                                 <div class="day-transaction-amount expense">
                                     ${formatCurrency(transaction.amount)}
-                                </div>
-                            </div>
-                        `;
+                </div>
+            </div>
+        `;
                     }).join('')}
                 </div>
             </div>
